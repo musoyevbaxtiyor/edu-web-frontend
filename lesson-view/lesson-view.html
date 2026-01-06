@@ -3,264 +3,129 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title id="page-title">Kurs Materiallari</title>
+    <title id="page-title">Kurs Materiallari — Edu Web</title>
     <link rel="stylesheet" href="../assets/css/style.css">
-
-    <!-- Google Font -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-
-    <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            background: #f2f4f7;
-            margin: 0;
-            padding: 0;
-        }
-
-        header {
-            background: #ffffff;
-            border-bottom: 1px solid #e5e7eb;
-            padding: 15px 30px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            position: sticky;
-            top: 0;
-            z-index: 10;
-        }
-
-        header h1 {
-            font-size: 22px;
-            margin: 0;
-            font-weight: 600;
-        }
-
-        nav a {
-            margin-left: 15px;
-            padding: 8px 16px;
-            background: #ffffff;
-            border: 1px solid #007bff;
-            color: #007bff;
-            border-radius: 6px;
-            text-decoration: none;
-            transition: 0.2s;
-            font-size: 15px;
-        }
-
-        nav a:hover {
-            background: #007bff;
-            color: #ffffff;
-        }
-
-        .container {
-            max-width: 1300px;
-            margin: 30px auto;
-            padding: 0 20px;
-        }
-
-        .lesson-container {
-            display: flex;
-            gap: 25px;
-        }
-
-        .sidebar {
-            width: 300px;
-            background: #ffffff;
-            border-radius: 12px;
-            padding: 20px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-            height: fit-content;
-        }
-
-        .sidebar h3 {
-            margin-bottom: 15px;
-            font-size: 18px;
-            font-weight: 600;
-        }
-
-        .lesson-list {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
-
-        .lesson-list li {
-            padding: 12px 14px;
-            margin-bottom: 8px;
-            background: #f9fafb;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: 0.2s ease;
-            border-left: 4px solid transparent;
-            font-size: 14px;
-        }
-
-        .lesson-list li:hover {
-            background: #eef2ff;
-        }
-
-        .lesson-list li.active {
-            background: #e0e7ff;
-            border-left-color: #4f46e5;
-            font-weight: 600;
-        }
-
-        .lesson-list li.locked {
-            opacity: 0.6;
-            cursor: not-allowed;
-        }
-
-        .lesson-list li.completed {
-            border-left-color: #22c55e;
-        }
-
-        .main-content {
-            flex-grow: 1;
-            background: #ffffff;
-            border-radius: 12px;
-            padding: 25px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-        }
-
-        #lesson-title {
-            font-size: 24px;
-            font-weight: 600;
-            margin-bottom: 20px;
-        }
-
-        iframe {
-            width: 100%;
-            height: 430px;
-            border-radius: 10px;
-            border: none;
-            margin-bottom: 25px;
-            background: #000;
-        }
-
-        .lesson-documentation a {
-            display: inline-block;
-            margin-top: 10px;
-            padding: 10px 14px;
-            background: #eef2ff;
-            border-radius: 6px;
-            color: #4f46e5;
-            font-weight: 500;
-        }
-
-        .lesson-task-description {
-            background: #f9fafb;
-            padding: 20px;
-            border-radius: 10px;
-            margin-top: 20px;
-            border-left: 4px solid #6366f1;
-        }
-
-        .task-submission-box {
-            background: #f8fafc;
-            padding: 20px;
-            border-radius: 10px;
-            border: 1px solid #e5e7eb;
-            margin-top: 25px;
-        }
-
-        button {
-            padding: 10px 18px;
-            background: #4f46e5;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 15px;
-            transition: 0.2s;
-        }
-
-        button:hover {
-            background: #3b37c4;
-        }
-
-        input[type="file"], textarea {
-            width: 100%;
-            padding: 12px;
-            border-radius: 6px;
-            border: 1px solid #cbd5e1;
-            margin-top: 8px;
-        }
-
-        #submission-message {
-            margin-top: 10px;
-            font-weight: 500;
-        }
-
-        @media (max-width:500px) {
-            .lesson-container {
-                flex-wrap: wrap;
-            }
-            
-            header nav a {
-                font-size: 11px;
-                padding: 2px 5px;
-                border-radius: 2px;
-                margin-left: 4px;
-            }
-            header h1#course-title {
-                font-size: 20px;
-            }
-            main.container {
-                padding: 10px;
-            }
-            .main-content {
-                padding: 10px;
-            }
-            .sidebar {
-                width: 100%;
-            }
-        }
-    </style>
-
+    <link rel="stylesheet" href="lesson-view.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
-
-<header>
-    <h1 id="course-title">Kurs Nomi</h1>
-    <nav>
-        <a href="../courses/courses.html">Barcha Kurslar</a>
-        <a href="../dashboard/dashboard.html">Dashboard</a>
+    <!-- Top Navigation Bar -->
+    <nav class="top-nav">
+        <div class="nav-left">
+            <div class="logo-section">
+                <i class="fas fa-graduation-cap"></i>
+                <span>Edu Web</span>
+            </div>
+        </div>
+        <div class="nav-right">
+            <a href="../dashboard/dashboard.html" class="nav-link">
+                <i class="fas fa-home"></i>
+                <span>Dashboard</span>
+            </a>
+            <a href="../courses/courses.html" class="nav-link">
+                <i class="fas fa-book"></i>
+                <span>Barcha Kurslar</span>
+            </a>
+            <a href="../my-courses/my-courses.html" class="nav-link">
+                <i class="fas fa-folder-open"></i>
+                <span>Mening Kurslarim</span>
+            </a>
+            <div class="user-menu">
+                <div class="user-avatar" id="user-avatar">
+                    <i class="fas fa-user"></i>
+                </div>
+            </div>
+        </div>
     </nav>
-</header>
 
-<main class="container">
+    <div class="lesson-view-container">
+        <!-- Sidebar - Lessons List -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h2>
+                    <i class="fas fa-list"></i>
+                    Darslar Ro'yxati
+                </h2>
+                <div class="course-title-badge" id="course-title-badge">
+                    <i class="fas fa-book"></i>
+                    <span id="course-title">Kurs Nomi</span>
+                </div>
+            </div>
+            <nav class="sidebar-nav">
+                <ul id="lesson-list" class="lesson-list">
+                    <div id="lessons-loading" class="loading-state">
+                        <div class="spinner-small"></div>
+                        <p>Darslar yuklanmoqda...</p>
+                    </div>
+                </ul>
+            </nav>
+        </aside>
 
-    <div class="lesson-container">
-
-        <div class="sidebar">
-            <h3>Darslar Ro'yxati</h3>
-            <ul id="lesson-list" class="lesson-list">
-                <div id="lessons-loading">Darslar yuklanmoqda...</div>
-            </ul>
-        </div>
-
-        <div class="main-content">
-            <h2 id="lesson-title">Dars Nomi</h2>
-            <div id="lesson-content">
-                <p>Kontent yuklanmoqda...</p>
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Lesson Header -->
+            <div class="lesson-header">
+                <div class="lesson-title-section">
+                    <h1 id="lesson-title">
+                        <i class="fas fa-play-circle"></i>
+                        Dars Nomi
+                    </h1>
+                    <div class="lesson-meta">
+                        <span class="lesson-order" id="lesson-order">Dars #1</span>
+                        <span class="lesson-status" id="lesson-status">
+                            <i class="fas fa-circle"></i>
+                            Boshlanmagan
+                        </span>
+                    </div>
+                </div>
             </div>
 
-            <div id="task-submission-box" class="task-submission-box" style="display: none;">
-                <h4>Vazifani Topshirish</h4>
-                <label for="task-solution">Yechim Faylini Tanlang:</label>
-                <input type="file" id="task-solution" required>
-                <textarea id="submission-comment" rows="3" placeholder="Izoh yoki GitHub linki..."></textarea>
-                <br>
-                <button id="submit-task-btn">Topshirish</button>
-                <div id="submission-message"></div>
-            </div>
-        </div>
+            <!-- Lesson Content -->
+            <div class="lesson-content-wrapper">
+                <div id="lesson-content" class="lesson-content">
+                    <div class="loading-state">
+                        <div class="spinner"></div>
+                        <p>Kontent yuklanmoqda...</p>
+                    </div>
+                </div>
 
+                <!-- Task Submission Box -->
+                <div id="task-submission-box" class="task-submission-box" style="display: none;">
+                    <div class="task-header">
+                        <h3>
+                            <i class="fas fa-tasks"></i>
+                            Vazifani Topshirish
+                        </h3>
+                    </div>
+                    <div class="task-form">
+                        <div class="form-group">
+                            <label for="task-solution">
+                                <i class="fas fa-file-upload"></i>
+                                Yechim Faylini Tanlang
+                            </label>
+                            <input type="file" id="task-solution" required>
+                            <small>Ruxsat etilgan formatlar: PDF, DOC, DOCX, ZIP, RAR</small>
+                        </div>
+                        <div class="form-group">
+                            <label for="submission-comment">
+                                <i class="fas fa-comment"></i>
+                                Izoh yoki GitHub Linki
+                            </label>
+                            <textarea id="submission-comment" rows="4" placeholder="Izoh yoki GitHub linkini kiriting..."></textarea>
+                        </div>
+                        <div class="form-actions">
+                            <button id="submit-task-btn" class="btn-primary">
+                                <i class="fas fa-paper-plane"></i>
+                                Topshirish
+                            </button>
+                            <div id="submission-message" class="submission-message"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
     </div>
 
-</main>
-
-<script type="module" src="lesson-view.js"></script>
-
+    <script type="module" src="lesson-view.js"></script>
 </body>
 </html>

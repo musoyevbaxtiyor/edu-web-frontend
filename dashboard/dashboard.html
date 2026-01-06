@@ -1,69 +1,194 @@
 <!DOCTYPE html>
 <html lang="uz">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Dashboard - Shaxsiy Kabinet</title>
-        <link rel="stylesheet" href="../assets/css/style.css">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Shaxsiy Kabinet</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
     <link rel="stylesheet" href="dashboard.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
-
-    <header class="dash-header">
-        <aside class="sidebar">
-            <h3>Menyu</h3>
-            <ul>
-                <li><a href="../courses/courses.html">📚 Kurslar</a></li>
-                <li><a href="#">⚙️ Sozlamalar</a></li>
-                <li><a href="#">📨 Xabarlar</a></li>
-                <li><a href="#">📊 Statistika</a></li>
-            </ul>
-        </aside>
-        <!-- <h2>Shaxsiy Kabinet</h2>
-        <div class="user-mini-box">
-            <span id="mini-username"></span>
-        </div> -->
-    </header>
-
-    <main class="dashboard-main">
-        <div class="profile-card">
-            <div class="profile-top">
-                <img src="../assets/images/img-logo.png" class="profile-img" alt="User">
-                <h3 id="profile-title">Foydalanuvchi ma'lumotlari</h3>
+    <!-- Top Navigation Bar -->
+    <nav class="top-nav">
+        <div class="nav-left">
+            <div class="logo-section">
+                <i class="fas fa-graduation-cap"></i>
+                <span>Edu Web</span>
             </div>
-
-            <div id="loading-message">Ma'lumotlar yuklanmoqda...</div>
-
-            <div id="profile-info" style="display: none;">
-                <div class="info-box">
-                    <p>Ism</p>
-                    <span id="user-name"></span>
-                </div>
-
-                <div class="info-box">
-                    <p>Email</p>
-                    <span id="user-email"></span>
-                </div>
-
-                <div class="info-box">
-                    <p>Lavozim</p>
-                    <span id="user-role"></span>
-                </div>
-
-                <div class="info-box">
-                    <p>ID</p>
-                    <span id="user-id"></span>
-                </div>
-            </div>
-
-            <button id="logout-btn">🚪 Chiqish</button>
         </div>
+        <div class="nav-right">
+            <a href="../courses/courses.html" class="nav-link">
+                <i class="fas fa-book"></i>
+                <span>Kurslar</span>
+            </a>
+            <div class="user-menu">
+                <div class="user-avatar" id="user-avatar">
+                    <i class="fas fa-user"></i>
+                </div>
+                <span class="username-text" id="top-username">Foydalanuvchi</span>
+            </div>
+        </div>
+    </nav>
 
-    </main>
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h2><i class="fas fa-th-large"></i> Menyu</h2>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="../courses/courses.html" class="nav-item active">
+                    <i class="fas fa-book-open"></i>
+                    <span>Kurslar</span>
+                </a>
+                <a href="../my-courses/my-courses.html" class="nav-item">
+                    <i class="fas fa-folder-open"></i>
+                    <span>Mening Kurslarim</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <i class="fas fa-chart-line"></i>
+                    <span>Statistika</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <i class="fas fa-bell"></i>
+                    <span>Xabarlar</span>
+                    <span class="badge">3</span>
+                </a>
+                <a href="../profile/profile.html" class="nav-item">
+                    <i class="fas fa-user-circle"></i>
+                    <span>Profil</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <i class="fas fa-cog"></i>
+                    <span>Sozlamalar</span>
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Welcome Section -->
+            <div class="welcome-section">
+                <h1>Xush kelibsiz, <span id="welcome-name">Foydalanuvchi</span>!</h1>
+                <p>Bugun nima o'rganamiz?</p>
+            </div>
+
+            <!-- Stats Cards -->
+            <div class="stats-grid">
+                <div class="stat-card stat-primary">
+                    <div class="stat-icon">
+                        <i class="fas fa-book"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3 id="courses-count">0</h3>
+                        <p>Faol Kurslar</p>
+                    </div>
+                </div>
+                <div class="stat-card stat-success">
+                    <div class="stat-icon">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3 id="completed-count">0</h3>
+                        <p>Tugallangan</p>
+                    </div>
+                </div>
+                <div class="stat-card stat-warning">
+                    <div class="stat-icon">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3 id="progress-count">0%</h3>
+                        <p>Umumiy Progress</p>
+                    </div>
+                </div>
+                <div class="stat-card stat-info">
+                    <div class="stat-icon">
+                        <i class="fas fa-certificate"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3 id="certificates-count">0</h3>
+                        <p>Sertifikatlar</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Profile Card -->
+            <div class="profile-section">
+                <div class="profile-card">
+                    <div class="profile-header">
+                        <div class="profile-avatar-wrapper">
+                            <div class="profile-avatar" id="profile-avatar">
+                                <i class="fas fa-user"></i>
+                            </div>
+                            <div class="status-indicator"></div>
+                        </div>
+                        <div class="profile-title">
+                            <h2 id="profile-title">Shaxsiy Ma'lumotlar</h2>
+                            <p>Profil ma'lumotlaringiz</p>
+                        </div>
+                    </div>
+
+                    <div id="loading-message" class="loading-state">
+                        <div class="spinner"></div>
+                        <p>Ma'lumotlar yuklanmoqda...</p>
+                    </div>
+
+                    <div id="profile-info" class="profile-info" style="display: none;">
+                        <div class="info-grid">
+                            <div class="info-item">
+                                <div class="info-label">
+                                    <i class="fas fa-user"></i>
+                                    <span>Ism</span>
+                                </div>
+                                <div class="info-value" id="user-name">-</div>
+                            </div>
+
+                            <div class="info-item">
+                                <div class="info-label">
+                                    <i class="fas fa-envelope"></i>
+                                    <span>Email</span>
+                                </div>
+                                <div class="info-value" id="user-email">-</div>
+                            </div>
+
+                            <div class="info-item">
+                                <div class="info-label">
+                                    <i class="fas fa-user-tag"></i>
+                                    <span>Lavozim</span>
+                                </div>
+                                <div class="info-value">
+                                    <span class="role-badge" id="user-role">-</span>
+                                </div>
+                            </div>
+
+                            <div class="info-item">
+                                <div class="info-label">
+                                    <i class="fas fa-id-card"></i>
+                                    <span>ID</span>
+                                </div>
+                                <div class="info-value info-id" id="user-id">-</div>
+                            </div>
+                        </div>
+
+                        <div class="profile-actions">
+                            <button class="btn-secondary" onclick="window.location.href='../profile/profile.html'">
+                                <i class="fas fa-edit"></i>
+                                Profilni Tahrirlash
+                            </button>
+                            <button id="logout-btn" class="btn-danger">
+                                <i class="fas fa-sign-out-alt"></i>
+                                Chiqish
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
 
     <script type="module" src="../assets/js/main.js"></script>
     <script type="module" src="dashboard.js"></script>
 </body>
 </html>
-
-

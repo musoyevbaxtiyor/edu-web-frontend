@@ -3,29 +3,135 @@
 import { apiRequest } from '../assets/js/api.js';
 
 const courseTitleEl = document.getElementById('course-title');
+const courseTitleBadge = document.getElementById('course-title-badge');
 const lessonListEl = document.getElementById('lesson-list');
 const lessonTitleEl = document.getElementById('lesson-title');
+const lessonOrderEl = document.getElementById('lesson-order');
+const lessonStatusEl = document.getElementById('lesson-status');
 const lessonContentEl = document.getElementById('lesson-content');
 const taskSubmissionBoxEl = document.getElementById('task-submission-box');
-// const submissionInputEl = document.getElementById('task-solution'); // HTML dan to'g'ri ID
 const submitTaskBtn = document.getElementById('submit-task-btn');
 const submissionMessageEl = document.getElementById('submission-message');
-
-const submissionFileEl = document.getElementById('task-solution'); // 🔥 Endi File Input
-const submissionCommentEl = document.getElementById('submission-comment'); // 🔥 Yangi izoh maydoni
+const submissionFileEl = document.getElementById('task-solution');
+const submissionCommentEl = document.getElementById('submission-comment');
+const userAvatar = document.getElementById('user-avatar');
+const lessonsLoading = document.getElementById('lessons-loading');
 
 let currentCourseId = null;
 let allLessons = [];
 let currentLessonId = null;
+let currentLesson = null;
 const token = localStorage.getItem('userToken');
 
 document.addEventListener('DOMContentLoaded', initializeLessonView);
-submitTaskBtn.addEventListener('click', handleSubmitTask); // Vazifa topshirish uchun listener
+submitTaskBtn.addEventListener('click', handleSubmitTask);
+
+// Foydalanuvchi profilini yuklash
+async function loadUserProfile() {
+    try {
+        const profileResponse = await apiRequest('/users/profile', {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+        
+        const userName = profileResponse.user.name || 'Foydalanuvchi';
+        const initials = getInitials(userName);
+        if (userAvatar) {
+            userAvatar.innerHTML = `<span style="font-size: 1rem; font-weight: 600;">${initials}</span>`;
+        }
+    } catch (error) {
+        console.error("Profil yuklashda xato:", error);
+    }
+}
+
+// Ismning birinchi harflarini olish
+function getInitials(name) {
+    if (!name) return 'U';
+    const words = name.trim().split(' ');
+    if (words.length === 1) {
+        return words[0].charAt(0).toUpperCase();
+    }
+    return (words[0].charAt(0) + words[words.length - 1].charAt(0)).toUpperCase();
+}
 
 // URL dan courseId'ni oluvchi funksiya
 function getCourseIdFromUrl() {
     const urlParams = new URLSearchParams(window.location.search);
     return urlParams.get('courseId');
+}
+
+/**
+ * Video URL ni embed formatiga o'zgartirish funksiyasi
+ * Bu funksiya YouTube, Vimeo va boshqa platformalardan kelgan URL larni
+ * iframe uchun mos embed formatiga o'zgartiradi (CAPTCHA muammosini hal qilish uchun)
+ * @param {string} url - Video URL
+ * @returns {string} - Embed formatidagi URL
+ */
+function convertToEmbedUrl(url) {
+    if (!url) return '';
+    
+    // Agar allaqachon embed URL bo'lsa, qaytarish
+    if (url.includes('/embed/') || url.includes('embed')) {
+        return url;
+    }
+    
+    try {
+        // YouTube URL ni tekshirish va o'zgartirish
+        // Formatlar: 
+        // - https://www.youtube.com/watch?v=VIDEO_ID
+        // - https://youtu.be/VIDEO_ID
+        // - https://www.youtube.com/embed/VIDEO_ID (allaqachon embed)
+        if (url.includes('youtube.com/watch') || url.includes('youtu.be/')) {
+            let videoId = '';
+            
+            if (url.includes('youtube.com/watch')) {
+                const urlObj = new URL(url);
+                videoId = urlObj.searchParams.get('v');
+            } else if (url.includes('youtu.be/')) {
+                videoId = url.split('youtu.be/')[1].split('?')[0];
+            }
+            
+            if (videoId) {
+                return `https://www.youtube.com/embed/${videoId}?rel=0&modestbranding=1&playsinline=1`;
+            }
+        }
+        
+        // Vimeo URL ni tekshirish va o'zgartirish
+        // Formatlar:
+        // - https://vimeo.com/VIDEO_ID
+        // - https://player.vimeo.com/video/VIDEO_ID (allaqachon embed)
+        if (url.includes('vimeo.com/')) {
+            let videoId = '';
+            
+            if (url.includes('player.vimeo.com')) {
+                // Allaqachon embed formatida
+                return url;
+            } else if (url.includes('vimeo.com/')) {
+                const match = url.match(/vimeo\.com\/(\d+)/);
+                if (match && match[1]) {
+                    videoId = match[1];
+                    return `https://player.vimeo.com/video/${videoId}?title=0&byline=0&portrait=0`;
+                }
+            }
+        }
+        
+        // Agar boshqa platforma bo'lsa yoki to'g'ri format topilmasa,
+        // URL ni to'g'ridan-to'g'ri qaytarish (agar u iframe uchun mos bo'lsa)
+        // Lekin xavfsizlik uchun faqat https protokoli bilan
+        if (url.startsWith('https://')) {
+            return url;
+        }
+        
+        // Agar URL noto'g'ri bo'lsa, bo'sh qaytarish
+        console.warn('Video URL ni embed formatiga o\'zgartirib bo\'lmadi:', url);
+        return url;
+        
+    } catch (error) {
+        console.error('Video URL o\'zgartirishda xato:', error);
+        return url; // Xato bo'lsa ham, asl URL ni qaytarish
+    }
 }
 
 // ... (initializeLessonView va fetchCourseAndLessons funksiyalari avvalgidek qoladi) ...
@@ -36,6 +142,9 @@ async function initializeLessonView() {
         window.location.href = '../login/login.html';
         return;
     }
+
+    // Foydalanuvchi profilini yuklash
+    await loadUserProfile();
 
     currentCourseId = getCourseIdFromUrl();
     if (!currentCourseId) {
@@ -60,7 +169,12 @@ async function fetchCourseAndLessons(courseId) {
             method: 'GET',
             headers: { 'Authorization': `Bearer ${token}` }
         });
-        courseTitleEl.textContent = courseResponse.course.title;
+        
+        const courseTitle = courseResponse.course.title || 'Kurs Nomi';
+        if (courseTitleEl) {
+            courseTitleEl.textContent = courseTitle;
+        }
+        document.getElementById('page-title').textContent = `${courseTitle} — Edu Web`;
 
         // Darslar ro'yxatini olish
         const lessonsResponse = await apiRequest(`/lessons/${courseId}`, {
@@ -69,10 +183,19 @@ async function fetchCourseAndLessons(courseId) {
         });
 
         allLessons = lessonsResponse.lessons || [];
+        
+        // Loading holatini yashirish
+        if (lessonsLoading) {
+            lessonsLoading.style.display = 'none';
+        }
+        
         renderLessonList(allLessons);
 
     } catch (error) {
         console.error("Darslarni yuklashda xato:", error);
+        if (lessonsLoading) {
+            lessonsLoading.innerHTML = '<p class="error">Kurs ma\'lumotlarini yuklashda xato yuz berdi.</p>';
+        }
         lessonContentEl.innerHTML = '<p class="error">Kurs ma\'lumotlarini yuklashda xato yuz berdi.</p>';
     }
 }
@@ -93,38 +216,46 @@ function renderLessonList(lessons) {
         // -----------------------------------------------------------
 
         let icon = '';
+        let statusText = '';
         
         if (lesson.isLocked) {
-            // 🔒 Qulflangan Dars (Backenddan isLocked: true kelgan)
-            icon = '🔒';
-            li.classList.add('locked-lesson', 'locked'); 
+            icon = '<i class="fas fa-lock"></i>';
+            li.classList.add('locked');
             li.title = "Oldingi darsni tugating.";
         } else {
-            // ✅ Ochiq Dars (Backenddan isLocked: false kelgan)
             const progressStatus = lesson.progressStatus;
-            
-            li.classList.add('unlocked'); // Ochiq bo'lishi shart
+            li.classList.add('unlocked');
             
             switch (progressStatus) {
                 case 'completed':
-                case 'approved': // Agar Backendda 'approved' statusi bo'lsa
-                    icon = '✅'; 
+                case 'approved':
+                    icon = '<i class="fas fa-check-circle"></i>';
                     li.classList.add('completed');
+                    statusText = 'Tugallangan';
                     break;
                 case 'submitted':
-                    icon = '⏳'; // Vazifa topshirilgan (Tekshirilmoqda)
+                    icon = '<i class="fas fa-clock"></i>';
+                    statusText = 'Tekshirilmoqda';
                     break;
                 case 'started':
-                    icon = '▶️'; // Boshlangan
+                    icon = '<i class="fas fa-play-circle"></i>';
+                    statusText = 'Boshlangan';
                     break;
-                default: // 'locked' yoki undefined kelgan bo'lsa (1-dars uchun bu holat bo'ladi)
-                    icon = '💡'; 
+                default:
+                    icon = '<i class="fas fa-circle"></i>';
+                    statusText = 'Yangi';
                     break;
             }
         }
 
         // Kontent turi nomini to'g'ri ko'rsatish
-        li.innerHTML = `${icon} ${lesson.order}. ${lesson.title} `; 
+        li.innerHTML = `
+            <span class="lesson-icon">${icon}</span>
+            <span class="lesson-info">
+                <span class="lesson-number">${lesson.order}.</span>
+                <span class="lesson-name">${lesson.title}</span>
+            </span>
+        `; 
         li.dataset.lessonId = lesson._id;
         
         // Bosish mantiqi faqat qulflanmagan darslar uchun
@@ -156,10 +287,60 @@ async function displayLessonContent(lesson) {
     });
     
     // Joriy darsni highlight qilish
-    document.querySelector(`[data-lesson-id="${lesson._id}"]`).classList.add('active');
+    const activeLi = document.querySelector(`[data-lesson-id="${lesson._id}"]`);
+    if (activeLi) {
+        activeLi.classList.add('active');
+    }
     
-    lessonTitleEl.textContent = lesson.title;
-    currentLessonId = lesson._id; // Vazifa topshirish uchun ID ni saqlash
+    currentLesson = lesson;
+    currentLessonId = lesson._id;
+    
+    // Lesson title va meta ma'lumotlarini yangilash
+    if (lessonTitleEl) {
+        lessonTitleEl.innerHTML = `<i class="fas fa-play-circle"></i> ${lesson.title}`;
+    }
+    
+    if (lessonOrderEl) {
+        lessonOrderEl.textContent = `Dars #${lesson.order}`;
+    }
+    
+    // Statusni yangilash
+    if (lessonStatusEl) {
+        let statusClass = '';
+        let statusText = '';
+        let statusIcon = '';
+        
+        if (lesson.isLocked) {
+            statusClass = '';
+            statusText = 'Qulflangan';
+            statusIcon = '<i class="fas fa-lock"></i>';
+        } else {
+            switch (lesson.progressStatus) {
+                case 'completed':
+                case 'approved':
+                    statusClass = 'completed';
+                    statusText = 'Tugallangan';
+                    statusIcon = '<i class="fas fa-check-circle"></i>';
+                    break;
+                case 'submitted':
+                    statusClass = 'submitted';
+                    statusText = 'Tekshirilmoqda';
+                    statusIcon = '<i class="fas fa-clock"></i>';
+                    break;
+                case 'started':
+                    statusText = 'Boshlangan';
+                    statusIcon = '<i class="fas fa-play-circle"></i>';
+                    break;
+                default:
+                    statusText = 'Boshlanmagan';
+                    statusIcon = '<i class="fas fa-circle"></i>';
+                    break;
+            }
+        }
+        
+        lessonStatusEl.className = `lesson-status ${statusClass}`;
+        lessonStatusEl.innerHTML = `${statusIcon} ${statusText}`;
+    }
 
     // Dars qulflangan bo'lsa...
     if (lesson.isLocked) {
@@ -193,11 +374,9 @@ async function displayLessonContent(lesson) {
 
     // A. Video kontentni qo'shish (Agar video mavjud bo'lsa)
     if (lesson.videoUrl) {
-        // Iltimos, video URL ni to'g'ri iframe manziliga aylantiring (masalan, YouTube uchun)
-        // Hozircha oddiy iframe ishlatamiz.
         contentHTML += `
             <div class="lesson-video">
-                <iframe width="100%" height="400" src="${lesson.videoUrl}" frameborder="0" allowfullscreen></iframe>
+                <iframe width="100%" height="500" src="${lesson.videoUrl}" frameborder="0" allowfullscreen></iframe>
             </div>
         `;
     }
@@ -409,13 +588,24 @@ async function handleSubmitTask() {
         });
 
         submissionMessageEl.textContent = `✅ Vazifa muvaffaqiyatli topshirildi. Status: ${response.progress?.status || 'submitted'}.`;
-        submissionFileEl.value = ''; // Inputni tozalash
-        submissionCommentEl.value = ''; // Izoh tozalash
+        submissionMessageEl.className = 'submission-message success';
+        submissionFileEl.value = '';
+        submissionCommentEl.value = '';
         
-        await fetchCourseAndLessons(currentCourseId); 
+        // Dars ro'yxatini yangilash
+        await fetchCourseAndLessons(currentCourseId);
+        
+        // Joriy darsni qayta ko'rsatish
+        if (currentLesson) {
+            const updatedLesson = allLessons.find(l => l._id === currentLessonId);
+            if (updatedLesson) {
+                displayLessonContent(updatedLesson);
+            }
+        } 
 
     } catch (error) {
         console.error('Vazifani topshirishda xato:', error);
         submissionMessageEl.textContent = `❌ Vazifani topshirishda xato: ${error.message || 'Server xatosi'}. Fayl hajmi yoki turini tekshiring.`;
+        submissionMessageEl.className = 'submission-message error';
     }
 }

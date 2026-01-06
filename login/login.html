@@ -3,39 +3,76 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tizimga Kirish - EduWeb</title>
+    <title>Tizimga Kirish — Edu Web</title>
     <link rel="stylesheet" href="../assets/css/style.css">
     <link rel="stylesheet" href="login.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
+    <!-- Top Navigation Bar -->
+    <nav class="top-nav">
+        <div class="nav-left">
+            <div class="logo-section">
+                <i class="fas fa-graduation-cap"></i>
+                <span>Edu Web</span>
+            </div>
+        </div>
+        <div class="nav-right">
+            <a href="../index.html" class="nav-link">
+                <i class="fas fa-home"></i>
+                <span>Bosh Sahifa</span>
+            </a>
+            <a href="../register/register.html" class="nav-link">
+                <i class="fas fa-user-plus"></i>
+                <span>Ro'yxatdan O'tish</span>
+            </a>
+        </div>
+    </nav>
 
-    <div id="header-container"></div>
+    <div class="auth-container">
+        <div class="auth-card">
+            <div class="auth-header">
+                <div class="auth-icon">
+                    <i class="fas fa-sign-in-alt"></i>
+                </div>
+                <h1>Tizimga Kirish</h1>
+                <p>Edu Web platformasiga xush kelibsiz</p>
+            </div>
 
-    <main class="login-main">
-        <div class="login-card">
-            <h2>Tizimga Kirish</h2>
-            <form id="login-form">
-                
+            <form id="login-form" class="auth-form">
                 <div class="form-group">
-                    <label for="email">Email Manzili:</label>
-                    <input type="email" id="email" required>
+                    <label for="email">
+                        <i class="fas fa-envelope"></i>
+                        Email Manzili
+                    </label>
+                    <input type="email" id="email" placeholder="example@email.com" required>
                 </div>
 
                 <div class="form-group">
-                    <label for="password">Parol:</label>
-                    <input type="password" id="password" required>
+                    <label for="password">
+                        <i class="fas fa-lock"></i>
+                        Parol
+                    </label>
+                    <input type="password" id="password" placeholder="Parolingizni kiriting" required>
                 </div>
 
-                <button type="submit" id="login-btn">Kirish</button>
+                <button type="submit" id="login-btn" class="btn-primary">
+                    <i class="fas fa-sign-in-alt"></i>
+                    Kirish
+                </button>
             </form>
 
-            <p class="register-link">
-                Hisobingiz yo'qmi? <a href="../register/register.html">Ro'yxatdan o'tish</a>
-            </p>
+            <div class="auth-footer">
+                <p>
+                    Hisobingiz yo'qmi? 
+                    <a href="../register/register.html">
+                        <i class="fas fa-user-plus"></i>
+                        Ro'yxatdan O'tish
+                    </a>
+                </p>
+            </div>
         </div>
-    </main>
-
-    <div id="footer-container"></div>
+    </div>
 
     <script type="module" src="../assets/js/main.js"></script>
     <script type="module" src="login.js"></script>

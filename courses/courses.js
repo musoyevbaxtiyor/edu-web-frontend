@@ -6,19 +6,22 @@ const addCourseBtn = document.getElementById('add-course-btn');
 const createFormContainer = document.getElementById('create-form-container');
 const createCourseForm = document.getElementById('create-course-form');
 const cancelCreateBtn = document.getElementById('cancel-create-btn');
-
-// ... (mavjud constlar) ...
-
-const editFormContainer = document.getElementById('edit-form-container'); // YANGI
-const editCourseForm = document.getElementById('edit-course-form');       // YANGI
-const cancelEditBtn = document.getElementById('cancel-edit-btn');         // YANGI
+const cancelCreateBtn2 = document.getElementById('cancel-create-btn-2');
+const editFormContainer = document.getElementById('edit-form-container');
+const editCourseForm = document.getElementById('edit-course-form');
+const cancelEditBtn = document.getElementById('cancel-edit-btn');
+const cancelEditBtn2 = document.getElementById('cancel-edit-btn-2');
+const searchInput = document.getElementById('search-input');
+const coursesCount = document.getElementById('courses-count');
+const userAvatar = document.getElementById('user-avatar');
 
 document.addEventListener('DOMContentLoaded', fetchCoursesAndCheckRole);
 
 // Global o'zgaruvchilar
 let currentUserRole = 'student'; 
-let currentUserId = null; // YANGI: Tizimga kirgan foydalanuvchining ID'si
-let enrolledCourseIds = []; // <<<<<< MUHIM QO'SHIMCHA: Bo'sh massiv sifatida e'lon qiling
+let currentUserId = null;
+let enrolledCourseIds = [];
+let allCourses = []; // Barcha kurslar ro'yxati (filtrlash uchun)
 
 // Boshlanish funksiyasi (Loyihaning asosiy kirish nuqtasi)
 async function fetchCoursesAndCheckRole() {
@@ -59,11 +62,28 @@ async function checkUserRole(token) {
     });
     
     currentUserRole = profileResponse.user.role;
-    currentUserId = profileResponse.user._id; // ID ni global o'zgaruvchiga saqlaymiz!
+    currentUserId = profileResponse.user._id;
+    
+    // User avatar ni ko'rsatish
+    const userName = profileResponse.user.name || 'Foydalanuvchi';
+    const initials = getInitials(userName);
+    if (userAvatar) {
+        userAvatar.innerHTML = `<span style="font-size: 1rem; font-weight: 600;">${initials}</span>`;
+    }
     
     if (currentUserRole === 'admin' || currentUserRole === 'teacher') {
-        addCourseBtn.style.display = 'block';
+        addCourseBtn.classList.remove('hidden');
     }
+}
+
+// Ismning birinchi harflarini olish
+function getInitials(name) {
+    if (!name) return 'U';
+    const words = name.trim().split(' ');
+    if (words.length === 1) {
+        return words[0].charAt(0).toUpperCase();
+    }
+    return (words[0].charAt(0) + words[words.length - 1].charAt(0)).toUpperCase();
 }
 
 // Ro'yxatdan o'tilgan kurslarning ID larini Backenddan yuklash
@@ -111,13 +131,21 @@ async function fetchAllCourses(token) {
             }
         });
         
+        allCourses = response.courses || [];
         loadingMessage.style.display = 'none';
-        displayCourses(response.courses);
+        updateCoursesCount();
+        displayCourses(allCourses);
         
     } catch (error) {
-        loadingMessage.textContent = 'Kurslarni yuklashda xato yuz berdi.';
+        loadingMessage.innerHTML = '<p>Kurslarni yuklashda xato yuz berdi.</p>';
         console.error('Kurslar API xatosi:', error);
     }
+}
+
+// Kurslar sonini yangilash
+function updateCoursesCount() {
+    const count = allCourses.length;
+    coursesCount.textContent = `${count} ${count === 1 ? 'kurs' : 'kurs'}`;
 }
 
 // 3. Kurslarni HTMLga joylash
@@ -140,9 +168,14 @@ function displayCourses(courses) {
         // 1. Asosiy HTMLni o'rnatamiz
         card.innerHTML = `
             <h4>${course.title}</h4>
-            <p>${course.description}</p>
-            <div class="teacher">O'qituvchi: ${course.teacher.name} (${course.teacher.role})</div>
-            <div class="price">$${course.price.toFixed(2)}</div>
+            <p>${course.description || 'Tavsif mavjud emas'}</p>
+            <div class="course-meta">
+                <div class="teacher">
+                    <i class="fas fa-user-tie"></i>
+                    <span>${course.teacher.name || 'Noma\'lum'}</span>
+                </div>
+                <div class="price">${course.price.toFixed(2)}</div>
+            </div>
         `;
 
         // 2. ActionsDiv elementini yaratamiz
@@ -208,15 +241,18 @@ function displayCourses(courses) {
 
 // 4. Kurs yaratish formasi funksiyasi
 addCourseBtn.addEventListener('click', () => {
-    createFormContainer.style.display = 'block';
-    addCourseBtn.style.display = 'none';
+    createFormContainer.setAttribute('aria-hidden', 'false');
 });
 
-cancelCreateBtn.addEventListener('click', () => {
-    createFormContainer.style.display = 'none';
-    addCourseBtn.style.display = 'block';
+cancelCreateBtn.addEventListener('click', closeCreateModal);
+if (cancelCreateBtn2) {
+    cancelCreateBtn2.addEventListener('click', closeCreateModal);
+}
+
+function closeCreateModal() {
+    createFormContainer.setAttribute('aria-hidden', 'true');
     createCourseForm.reset();
-});
+}
 
 createCourseForm.addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -239,8 +275,7 @@ createCourseForm.addEventListener('submit', async (e) => {
         });
 
         alert(`Kurs muvaffaqiyatli yaratildi: ${response.course.title}`);
-        createFormContainer.style.display = 'none';
-        addCourseBtn.style.display = 'block';
+        createFormContainer.setAttribute('aria-hidden', 'true');
         createCourseForm.reset();
         
         // Kurslarni qayta yuklash va action listener'larni qayta qo'shish
@@ -344,7 +379,7 @@ async function handleEdit(courseId, token) {
         document.getElementById('edit-ispublished').value = course.isPublished.toString(); // Boolean ni String'ga aylantirish
 
         // 3. Modalni ko'rsatish
-        editFormContainer.style.display = 'block';
+        editFormContainer.setAttribute('aria-hidden', 'false');
 
     } catch (error) {
         console.error('Kurs ma\'lumotlarini olishda xato:', error);
@@ -395,10 +430,15 @@ async function handleCourseActions(e) {
 
 
 // Bekor qilish tugmasini bosish (Formani yashirish)
-cancelEditBtn.addEventListener('click', () => {
-    editFormContainer.style.display = 'none';
+cancelEditBtn.addEventListener('click', closeEditModal);
+if (cancelEditBtn2) {
+    cancelEditBtn2.addEventListener('click', closeEditModal);
+}
+
+function closeEditModal() {
+    editFormContainer.setAttribute('aria-hidden', 'true');
     editCourseForm.reset();
-});
+}
 
 
 // Formani SUBMIT qilish (PUT so'rovini yuborish)
@@ -428,7 +468,7 @@ editCourseForm.addEventListener('submit', async (e) => {
         });
 
         alert(`Kurs muvaffaqiyatli yangilandi: ${response.course.title}`);
-        editFormContainer.style.display = 'none'; // Formani yopish
+        editFormContainer.setAttribute('aria-hidden', 'true');
         editCourseForm.reset();
         
         // Kurslar ro'yxatini qayta yuklash
@@ -439,4 +479,69 @@ editCourseForm.addEventListener('submit', async (e) => {
         console.error('Kursni yangilashda xato:', error);
         alert(error.message || 'Kursni yangilashda xato yuz berdi. Ruxsatlaringizni tekshiring.');
     }
+});
+
+// ============================================
+// SEARCH VA FILTER FUNKSIYALARI
+// ============================================
+
+// Qidiruv funksiyasi
+if (searchInput) {
+    searchInput.addEventListener('input', (e) => {
+        const searchTerm = e.target.value.toLowerCase().trim();
+        filterCourses(searchTerm);
+    });
+}
+
+// Filter funksiyasi
+function filterCourses(searchTerm = '') {
+    let filteredCourses = [...allCourses];
+    
+    // Qidiruv bo'yicha filtrlash
+    if (searchTerm) {
+        filteredCourses = filteredCourses.filter(course => {
+            const title = course.title?.toLowerCase() || '';
+            const description = course.description?.toLowerCase() || '';
+            const teacherName = course.teacher?.name?.toLowerCase() || '';
+            return title.includes(searchTerm) || 
+                   description.includes(searchTerm) || 
+                   teacherName.includes(searchTerm);
+        });
+    }
+    
+    // Kurslar sonini yangilash
+    coursesCount.textContent = `${filteredCourses.length} ${filteredCourses.length === 1 ? 'kurs' : 'kurs'}`;
+    
+    // Filtrlangan kurslarni ko'rsatish
+    displayCourses(filteredCourses);
+}
+
+// Sidebar filter navigatsiyasi
+document.querySelectorAll('.sidebar-nav .nav-item[data-filter]').forEach(item => {
+    item.addEventListener('click', (e) => {
+        e.preventDefault();
+        
+        // Aktiv holatni yangilash
+        document.querySelectorAll('.sidebar-nav .nav-item').forEach(nav => nav.classList.remove('active'));
+        item.classList.add('active');
+        
+        const filter = item.dataset.filter;
+        let filteredCourses = [...allCourses];
+        
+        if (filter === 'enrolled') {
+            // Faqat ro'yxatdan o'tilgan kurslar
+            filteredCourses = filteredCourses.filter(course => 
+                enrolledCourseIds.includes(course._id)
+            );
+        } else if (filter === 'available') {
+            // Faqat mavjud kurslar (ro'yxatdan o'tilmagan)
+            filteredCourses = filteredCourses.filter(course => 
+                !enrolledCourseIds.includes(course._id)
+            );
+        }
+        // 'all' bo'lsa, barcha kurslar
+        
+        coursesCount.textContent = `${filteredCourses.length} ${filteredCourses.length === 1 ? 'kurs' : 'kurs'}`;
+        displayCourses(filteredCourses);
+    });
 });
