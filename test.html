@@ -1,0 +1,2524 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JavaScript O'quv Platformasi</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    .container {
+      display: flex;
+      height: 100vh;
+    }
+
+    /* Sidebar Styles */
+    .sidebar {
+      width: 340px;
+      background: rgba(255, 255, 255, 0.98);
+      backdrop-filter: blur(20px);
+      box-shadow: 4px 0 24px rgba(0, 0, 0, 0.12);
+      overflow-y: auto;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      z-index: 100;
+    }
+
+    .sidebar::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .sidebar::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    .sidebar::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 3px;
+    }
+
+    .sidebar.hidden {
+      transform: translateX(-100%);
+    }
+
+    .sidebar-header {
+      padding: 28px 24px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    .sidebar-title {
+      font-size: 26px;
+      font-weight: 700;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .logo-icon {
+      width: 36px;
+      height: 36px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+    }
+
+    .progress-card {
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(10px);
+      padding: 20px;
+      border-radius: 16px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .progress-label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      margin-bottom: 8px;
+      opacity: 0.95;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .progress-stats {
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .progress-number {
+      font-size: 36px;
+      font-weight: 800;
+    }
+
+    .progress-total {
+      font-size: 18px;
+      opacity: 0.8;
+    }
+
+    .progress-bar-container {
+      width: 100%;
+      height: 8px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 4px;
+      overflow: hidden;
+      margin-bottom: 8px;
+    }
+
+    .progress-bar {
+      height: 100%;
+      background: linear-gradient(90deg, #10b981, #34d399);
+      border-radius: 4px;
+      transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .progress-text {
+      font-size: 12px;
+      opacity: 0.9;
+    }
+
+    .topics-list {
+      padding: 20px;
+    }
+
+    .topics-section-title {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #64748b;
+      margin-bottom: 12px;
+      padding: 0 8px;
+    }
+
+    .topic-item {
+      background: white;
+      padding: 18px;
+      margin-bottom: 10px;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      border: 2px solid transparent;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .topic-item::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 4px;
+      background: linear-gradient(180deg, #667eea, #764ba2);
+      transform: scaleY(0);
+      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .topic-item:hover {
+      transform: translateX(4px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    }
+
+    .topic-item:hover::before {
+      transform: scaleY(1);
+    }
+
+    .topic-item.active {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border-color: transparent;
+      box-shadow: 0 8px 24px rgba(102, 126, 234, 0.35);
+      transform: translateX(4px);
+    }
+
+    .topic-item.active::before {
+      display: none;
+    }
+
+    .topic-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 8px;
+    }
+
+    .topic-number {
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      background: rgba(102, 126, 234, 0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      font-weight: 700;
+      color: #667eea;
+    }
+
+    .topic-item.active .topic-number {
+      background: rgba(255, 255, 255, 0.2);
+      color: white;
+    }
+
+    .topic-check {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: #10b981;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      opacity: 0;
+      transform: scale(0);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .topic-item.completed .topic-check {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    .topic-name {
+      font-weight: 600;
+      margin-bottom: 8px;
+      font-size: 15px;
+      line-height: 1.4;
+    }
+
+    .topic-progress {
+      font-size: 13px;
+      opacity: 0.75;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .topic-progress-bar {
+      flex: 1;
+      height: 4px;
+      background: rgba(0, 0, 0, 0.1);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+
+    .topic-item.active .topic-progress-bar {
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    .topic-progress-fill {
+      height: 100%;
+      background: #10b981;
+      border-radius: 2px;
+      transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .topic-item.active .topic-progress-fill {
+      background: rgba(255, 255, 255, 0.9);
+    }
+
+    /* Main Content */
+    .main-content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 32px;
+    }
+
+    .main-content::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    .main-content::-webkit-scrollbar-track {
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .main-content::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.3);
+      border-radius: 4px;
+    }
+
+    .content-wrapper {
+      max-width: 1000px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 24px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+      padding: 40px;
+      animation: fadeIn 0.5s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .toggle-sidebar {
+      display: none;
+      margin-bottom: 20px;
+      padding: 14px 24px;
+      background: white;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 600;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+      transition: all 0.3s;
+      color: #667eea;
+    }
+
+    .toggle-sidebar:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+    }
+
+    .challenge-header {
+      margin-bottom: 32px;
+      padding-bottom: 24px;
+      border-bottom: 2px solid #f1f5f9;
+    }
+
+    .topic-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      color: #667eea;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 12px;
+      padding: 6px 12px;
+      background: rgba(102, 126, 234, 0.1);
+      border-radius: 6px;
+    }
+
+    .challenge-title {
+      font-size: 36px;
+      font-weight: 800;
+      color: #1e293b;
+      margin-bottom: 16px;
+      line-height: 1.2;
+    }
+
+    .challenge-meta {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+
+    .meta-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: #64748b;
+      font-size: 14px;
+      font-weight: 500;
+    }
+
+    .solved-badge {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: white;
+      font-weight: 600;
+      background: linear-gradient(135deg, #10b981, #059669);
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 13px;
+      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+    }
+
+    .challenge-description {
+      font-size: 17px;
+      line-height: 1.7;
+      color: #475569;
+      margin-bottom: 32px;
+      padding: 24px;
+      background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+      border-radius: 16px;
+      border-left: 4px solid #667eea;
+      position: relative;
+    }
+
+    .challenge-description::before {
+      content: '📋';
+      position: absolute;
+      top: 24px;
+      right: 24px;
+      font-size: 24px;
+      opacity: 0.3;
+    }
+
+    /* Code Editor */
+    .code-editor-container {
+      margin-bottom: 24px;
+      position: relative;
+    }
+
+    .code-editor-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 20px;
+      background: #1e293b;
+      border-radius: 16px 16px 0 0;
+      border-bottom: 1px solid #334155;
+    }
+
+    .code-editor-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: #cbd5e1;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .editor-dots {
+      display: flex;
+      gap: 6px;
+    }
+
+    .editor-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+    }
+
+    .editor-dot.red { background: #ef4444; }
+    .editor-dot.yellow { background: #f59e0b; }
+    .editor-dot.green { background: #10b981; }
+
+    .line-numbers {
+      position: absolute;
+      left: 0;
+      top: 60px;
+      bottom: 0;
+      width: 50px;
+      background: #0f172a;
+      color: #475569;
+      font-family: 'Monaco', 'Menlo', 'Consolas', monospace;
+      font-size: 14px;
+      line-height: 1.6;
+      padding: 20px 12px;
+      text-align: right;
+      user-select: none;
+      border-radius: 0 0 0 16px;
+    }
+
+    .code-editor {
+      position: relative;
+      background: #1e293b;
+      border-radius: 0 0 16px 16px;
+      overflow: hidden;
+    }
+
+    .code-editor textarea {
+      width: 100%;
+      height: 320px;
+      padding: 20px 20px 20px 70px;
+      font-family: 'Monaco', 'Menlo', 'Consolas', monospace;
+      font-size: 14px;
+      line-height: 1.6;
+      border: none;
+      background: transparent;
+      color: transparent;
+      caret-color: white;
+      resize: vertical;
+      outline: none;
+      position: relative;
+      z-index: 2;
+    }
+
+    .code-display {
+      position: absolute;
+      top: 60px;
+      left: 70px;
+      right: 0;
+      bottom: 0;
+      padding: 20px 20px;
+      pointer-events: none;
+      overflow: auto;
+      font-family: 'Monaco', 'Menlo', 'Consolas', monospace;
+      font-size: 14px;
+      line-height: 1.6;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+    }
+
+    /* Buttons */
+    .button-group {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      padding: 14px 28px;
+      border: none;
+      border-radius: 12px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-family: inherit;
+    }
+
+    .btn:active {
+      transform: scale(0.98);
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      box-shadow: 0 4px 16px rgba(102, 126, 234, 0.4);
+    }
+
+    .btn-primary:hover {
+      box-shadow: 0 8px 24px rgba(102, 126, 234, 0.5);
+      transform: translateY(-2px);
+    }
+
+    .btn-warning {
+      background: linear-gradient(135deg, #fbbf24, #f59e0b);
+      color: white;
+      box-shadow: 0 4px 16px rgba(251, 191, 36, 0.3);
+    }
+
+    .btn-warning:hover {
+      box-shadow: 0 8px 24px rgba(251, 191, 36, 0.4);
+      transform: translateY(-2px);
+    }
+
+    .btn-success {
+      background: linear-gradient(135deg, #10b981, #059669);
+      color: white;
+      box-shadow: 0 4px 16px rgba(16, 185, 129, 0.3);
+    }
+
+    .btn-success:hover {
+      box-shadow: 0 8px 24px rgba(16, 185, 129, 0.4);
+      transform: translateY(-2px);
+    }
+
+    .btn-secondary {
+      background: #f1f5f9;
+      color: #475569;
+      border: 2px solid #e2e8f0;
+    }
+
+    .btn-secondary:hover {
+      background: #e2e8f0;
+      border-color: #cbd5e1;
+    }
+
+    .btn-secondary:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    .btn-secondary:disabled:hover {
+      transform: none;
+      background: #f1f5f9;
+    }
+
+    /* Info Boxes */
+    .hint-box {
+      padding: 20px;
+      background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+      border-left: 4px solid #f59e0b;
+      border-radius: 12px;
+      margin-bottom: 24px;
+      animation: slideIn 0.3s ease-out;
+    }
+
+    .hint-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 700;
+      color: #92400e;
+      margin-bottom: 12px;
+      font-size: 14px;
+    }
+
+    .hint-content {
+      font-family: 'Monaco', 'Menlo', 'Consolas', monospace;
+      font-size: 13px;
+      color: #78350f;
+      line-height: 1.6;
+    }
+
+    .solution-box {
+      padding: 24px;
+      background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+      border-left: 4px solid #3b82f6;
+      border-radius: 12px;
+      margin-bottom: 24px;
+      animation: slideIn 0.3s ease-out;
+    }
+
+    .solution-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 700;
+      color: #1e40af;
+      margin-bottom: 16px;
+      font-size: 15px;
+    }
+
+    .solution-code-container {
+      background: #1e293b;
+      padding: 20px;
+      border-radius: 12px;
+      overflow-x: auto;
+    }
+
+    .solution-code {
+      font-family: 'Monaco', 'Menlo', 'Consolas', monospace;
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .result-box {
+      padding: 20px;
+      border-radius: 12px;
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 600;
+      font-size: 15px;
+      animation: slideIn 0.3s ease-out;
+    }
+
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateY(-10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .result-box.success {
+      background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+      border-left: 4px solid #10b981;
+      color: #065f46;
+    }
+
+    .result-box.error {
+      background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+      border-left: 4px solid #ef4444;
+      color: #991b1b;
+    }
+
+    .result-icon {
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      font-size: 18px;
+    }
+
+    .result-box.success .result-icon {
+      background: #10b981;
+      color: white;
+    }
+
+    .result-box.error .result-icon {
+      background: #ef4444;
+      color: white;
+    }
+
+    /* Navigation */
+    .navigation {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      padding-top: 24px;
+      border-top: 2px solid #f1f5f9;
+    }
+
+    /* Responsive */
+    @media (max-width: 968px) {
+      .sidebar {
+        position: fixed;
+        left: 0;
+        top: 0;
+        height: 100vh;
+        box-shadow: 4px 0 24px rgba(0, 0, 0, 0.2);
+      }
+
+      .toggle-sidebar {
+        display: flex;
+      }
+
+      .content-wrapper {
+        padding: 28px;
+      }
+
+      .challenge-title {
+        font-size: 28px;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .main-content {
+        padding: 20px;
+      }
+
+      .content-wrapper {
+        padding: 24px;
+        border-radius: 20px;
+      }
+
+      .challenge-title {
+        font-size: 24px;
+      }
+
+      .button-group {
+        flex-direction: column;
+      }
+
+      .btn {
+        width: 100%;
+        justify-content: center;
+      }
+
+      .navigation {
+        flex-direction: column-reverse;
+      }
+
+      .navigation .btn {
+        width: 100%;
+      }
+    }
+    /* -------------------------------------------- */
+    .line-numbers {
+        white-space: pre;
+    top: 0;
+
+    }
+
+    .code-editor textarea,
+    .code-display {
+    padding-top: 20px;
+    top: 0;
+    font-family: 'Courier New', Courier, monospace;
+    padding-left: 90px;
+    line-height: 1.6;
+}
+    pre.code-display {
+        margin-top: 0;
+    }
+
+    /* -------------------------------------------- */
+
+
+
+
+    /* Custom Prism theme tweaks */
+    .token.keyword { color: #c678dd; font-weight: 600; }
+    .token.function { color: #61afef; }
+    .token.string { color: #98c379; }
+    .token.number { color: #d19a66; }
+    .token.operator { color: #56b6c2; }
+    .token.comment { color: #5c6370; font-style: italic; }
+    .token.punctuation { color: #abb2bf; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <h2 class="sidebar-title">
+          <span class="logo-icon">💻</span>
+          <span>JavaScript</span>
+        </h2>
+        <div class="progress-card">
+          <div class="progress-label">
+            <span>🏆</span>
+            <span>Progressingiz</span>
+          </div>
+          <div class="progress-stats">
+            <span class="progress-number" id="progressNumber">0</span>
+            <span class="progress-total">/ <span id="progressTotal">23</span></span>
+          </div>
+          <div class="progress-bar-container">
+            <div class="progress-bar" id="progressBar" style="width: 0%"></div>
+          </div>
+          <div class="progress-text">topshiriq hal qilindi</div>
+        </div>
+      </div>
+      <div class="topics-list" id="topicsList"></div>
+    </div>
+
+    <div class="main-content">
+      <button class="toggle-sidebar" id="toggleSidebar">
+        ☰ Mavzular ro'yxati
+      </button>
+      
+      <div class="content-wrapper">
+        <div class="challenge-header">
+          <div class="topic-badge" id="topicBadge">
+            <span>📚</span>
+            <span id="topicBadgeText"></span>
+          </div>
+          <h1 class="challenge-title" id="challengeTitle"></h1>
+          <div class="challenge-meta">
+            <div class="meta-item">
+              <span>📝</span>
+              <span id="challengeMeta"></span>
+            </div>
+            <div class="solved-badge" id="solvedBadge" style="display: none;">
+              <span>✓</span>
+              <span>Hal qilindi</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="challenge-description" id="challengeDescription"></div>
+
+        <div class="code-editor-container">
+          <div class="code-editor-header">
+            <div class="editor-dots">
+              <div class="editor-dot red"></div>
+              <div class="editor-dot yellow"></div>
+              <div class="editor-dot green"></div>
+            </div>
+            <div class="code-editor-title">
+              <span>⚡</span>
+              <span>JavaScript Editor</span>
+            </div>
+          </div>
+          <div class="code-editor">
+            <div class="line-numbers" id="lineNumbers"></div>
+            <textarea id="codeInput" spellcheck="false"></textarea>
+            <pre class="code-display"><code class="language-javascript" id="codeDisplay"></code></pre>
+          </div>
+        </div>
+
+        <div class="button-group">
+          <button class="btn btn-primary" id="runBtn">
+            <span>▶</span>
+            <span>Ishga tushirish</span>
+          </button>
+          <button class="btn btn-warning" id="hintBtn">
+            <span>💡</span>
+            <span>Maslahat</span>
+          </button>
+          <button class="btn btn-success" id="showSolutionBtn">
+            <span>👁</span>
+            <span>Javobni ko'rish</span>
+          </button>
+        </div>
+
+        <div id="hintBox" style="display: none;"></div>
+        <div id="solutionBox" style="display: none;"></div>
+        <div id="resultBox" style="display: none;"></div>
+
+        <div class="navigation">
+          <button class="btn btn-secondary" id="prevBtn">
+            <span>←</span>
+            <span>Oldingi</span>
+          </button>
+          <button class="btn btn-secondary" id="nextBtn">
+            <span>Keyingi</span>
+            <span>→</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
+  <script>
+    const topics = [
+  {
+    id: 1,
+    name: "O'zgaruvchilar va Ma'lumot turlari",
+    challenges: [
+      {
+        id: 1,
+        title: "O'zgaruvchi e'lon qilish",
+        description: "Funktsiya yozing, u 'ism' nomli o'zgaruvchiga 'Ali' qiymatini bersin va uni qaytarsin.",
+        template: "function ismBerish() {\n  // let yoki const dan foydalaning\n  \n}",
+        solution: "function ismBerish() {\n  let ism = 'Ali';\n  return ism;\n}",
+        test: (fn) => fn() === "Ali",
+        hint: "let ism = 'Ali'; return ism;"
+      },
+      {
+        id: 2,
+        title: "Ma'lumot turini aniqlash",
+        description: "Funktsiya yozing, berilgan qiymatning turini qaytarsin (typeof operatori).",
+        template: "function turAniqlash(qiymat) {\n  // typeof dan foydalaning\n  \n}",
+        solution: "function turAniqlash(qiymat) {\n  return typeof qiymat;\n}",
+        test: (fn) => fn(5) === "number" && fn("salom") === "string" && fn(true) === "boolean",
+        hint: "return typeof qiymat;"
+      },
+      {
+        id: 3,
+        title: "Sonlarga aylantirish",
+        description: "Funktsiya yozing, qator ko'rinishidagi sonni raqamga aylantirsin.",
+        template: "function songa(qator) {\n  // Number() yoki parseInt() dan foydalaning\n  \n}",
+        solution: "function songa(qator) {\n  return Number(qator);\n}",
+        test: (fn) => fn("123") === 123 && fn("45") === 45,
+        hint: "return Number(qator);"
+      },
+      {
+        id: 4,
+        title: "String yaratish",
+        description: "Funktsiya yozing, 'JavaScript' qatorini qaytarsin.",
+        template: "function tilNomi() {\n  // string qaytaring\n  \n}",
+        solution: "function tilNomi() {\n  return 'JavaScript';\n}",
+        test: (fn) => fn() === "JavaScript",
+        hint: "return 'JavaScript';"
+      },
+      {
+        id: 5,
+        title: "Boolean qiymat",
+        description: "Funktsiya yozing, true qiymatini qaytarsin.",
+        template: "function rostQiymat() {\n  // true qaytaring\n  \n}",
+        solution: "function rostQiymat() {\n  return true;\n}",
+        test: (fn) => fn() === true,
+        hint: "return true;"
+      },
+      {
+        id: 6,
+        title: "Raqam e'lon qilish",
+        description: "Funktsiya yozing, 100 sonini qaytarsin.",
+        template: "function yuzSon() {\n  // 100 ni qaytaring\n  \n}",
+        solution: "function yuzSon() {\n  return 100;\n}",
+        test: (fn) => fn() === 100,
+        hint: "return 100;"
+      },
+      {
+        id: 7,
+        title: "Ikki o'zgaruvchi",
+        description: "Funktsiya yozing, ikkita o'zgaruvchi yaratsin (x=5, y=10) va ularning yig'indisini qaytarsin.",
+        template: "function ikkilik() {\n  // x va y yarating\n  \n}",
+        solution: "function ikkilik() {\n  let x = 5;\n  let y = 10;\n  return x + y;\n}",
+        test: (fn) => fn() === 15,
+        hint: "let x = 5; let y = 10; return x + y;"
+      },
+      {
+        id: 8,
+        title: "Const o'zgaruvchi",
+        description: "Funktsiya yozing, const bilan 'Toshkent' qiymatini saqlang va qaytaring.",
+        template: "function shahar() {\n  // const dan foydalaning\n  \n}",
+        solution: "function shahar() {\n  const shaharNomi = 'Toshkent';\n  return shaharNomi;\n}",
+        test: (fn) => fn() === "Toshkent",
+        hint: "const shaharNomi = 'Toshkent'; return shaharNomi;"
+      },
+      {
+        id: 9,
+        title: "Undefined tekshirish",
+        description: "Funktsiya yozing, undefined qiymatning turini qaytarsin.",
+        template: "function undefinedTuri() {\n  // typeof undefined\n  \n}",
+        solution: "function undefinedTuri() {\n  return typeof undefined;\n}",
+        test: (fn) => fn() === "undefined",
+        hint: "return typeof undefined;"
+      },
+      {
+        id: 10,
+        title: "Null qiymat",
+        description: "Funktsiya yozing, null qaytarsin.",
+        template: "function nullQiymat() {\n  // null qaytaring\n  \n}",
+        solution: "function nullQiymat() {\n  return null;\n}",
+        test: (fn) => fn() === null,
+        hint: "return null;"
+      },
+      {
+        id: 11,
+        title: "O'nli son",
+        description: "Funktsiya yozing, 3.14 sonini qaytarsin.",
+        template: "function piSoni() {\n  // 3.14 ni qaytaring\n  \n}",
+        solution: "function piSoni() {\n  return 3.14;\n}",
+        test: (fn) => fn() === 3.14,
+        hint: "return 3.14;"
+      },
+      {
+        id: 12,
+        title: "Manfiy son",
+        description: "Funktsiya yozing, -50 sonini qaytarsin.",
+        template: "function manfiySon() {\n  // -50 ni qaytaring\n  \n}",
+        solution: "function manfiySon() {\n  return -50;\n}",
+        test: (fn) => fn() === -50,
+        hint: "return -50;"
+      },
+      {
+        id: 13,
+        title: "String uzunligi",
+        description: "Funktsiya yozing, 'Hello' qatorining uzunligini qaytarsin.",
+        template: "function uzunlik() {\n  // .length dan foydalaning\n  \n}",
+        solution: "function uzunlik() {\n  return 'Hello'.length;\n}",
+        test: (fn) => fn() === 5,
+        hint: "return 'Hello'.length;"
+      },
+      {
+        id: 14,
+        title: "Birinchi belgi",
+        description: "Funktsiya yozing, 'Code' qatorining birinchi belgisini qaytarsin.",
+        template: "function birinchi() {\n  // [0] dan foydalaning\n  \n}",
+        solution: "function birinchi() {\n  return 'Code'[0];\n}",
+        test: (fn) => fn() === "C",
+        hint: "return 'Code'[0];"
+      },
+      {
+        id: 15,
+        title: "Stringga aylantirish",
+        description: "Funktsiya yozing, 999 sonini stringga aylantirsin.",
+        template: "function stringga(son) {\n  // String() dan foydalaning\n  \n}",
+        solution: "function stringga(son) {\n  return String(son);\n}",
+        test: (fn) => fn(999) === "999" && typeof fn(999) === "string",
+        hint: "return String(son);"
+      },
+      {
+        id: 16,
+        title: "Boolean aylantirish",
+        description: "Funktsiya yozing, 1 sonini boolean ga aylantirsin.",
+        template: "function booleanGa() {\n  // Boolean() dan foydalaning\n  \n}",
+        solution: "function booleanGa() {\n  return Boolean(1);\n}",
+        test: (fn) => fn() === true,
+        hint: "return Boolean(1);"
+      },
+      {
+        id: 17,
+        title: "NaN tekshirish",
+        description: "Funktsiya yozing, 'abc' ni Number() bilan aylantirganida NaN ekanligini tekshirsin.",
+        template: "function nanmi() {\n  // isNaN() dan foydalaning\n  \n}",
+        solution: "function nanmi() {\n  return isNaN(Number('abc'));\n}",
+        test: (fn) => fn() === true,
+        hint: "return isNaN(Number('abc'));"
+      },
+      {
+        id: 18,
+        title: "Template literal",
+        description: "Funktsiya yozing, 'Mening ismim Ali' qatorini template literal bilan yarating (ism='Ali').",
+        template: "function template() {\n  let ism = 'Ali';\n  // backtick dan foydalaning\n  \n}",
+        solution: "function template() {\n  let ism = 'Ali';\n  return `Mening ismim ${ism}`;\n}",
+        test: (fn) => fn() === "Mening ismim Ali",
+        hint: "return `Mening ismim ${ism}`;"
+      },
+      {
+        id: 19,
+        title: "Qatorlarni birlashtirish",
+        description: "Funktsiya yozing, 'Java' va 'Script' qatorlarini birlashtirsin.",
+        template: "function birlashma() {\n  // + operatoridan foydalaning\n  \n}",
+        solution: "function birlashma() {\n  return 'Java' + 'Script';\n}",
+        test: (fn) => fn() === "JavaScript",
+        hint: "return 'Java' + 'Script';"
+      },
+      {
+        id: 20,
+        title: "Bo'sh string",
+        description: "Funktsiya yozing, bo'sh string qaytarsin.",
+        template: "function bosh() {\n  // '' qaytaring\n  \n}",
+        solution: "function bosh() {\n  return '';\n}",
+        test: (fn) => fn() === "" && fn().length === 0,
+        hint: "return '';"
+      },
+      {
+        id: 21,
+        title: "String ichida qo'shtirnoq",
+        description: "Funktsiya yozing, \"Men 'JavaScript' o'rganyapman\" qatorini qaytarsin.",
+        template: "function qoshtirnoq() {\n  // ichida ' bo'lgan string\n  \n}",
+        solution: "function qoshtirnoq() {\n  return \"Men 'JavaScript' o'rganyapman\";\n}",
+        test: (fn) => fn().includes("'JavaScript'"),
+        hint: "return \"Men 'JavaScript' o'rganyapman\";"
+      },
+      {
+        id: 22,
+        title: "Katta son",
+        description: "Funktsiya yozing, 1000000 (bir million) sonini qaytarsin.",
+        template: "function million() {\n  // 1000000 ni qaytaring\n  \n}",
+        solution: "function million() {\n  return 1000000;\n}",
+        test: (fn) => fn() === 1000000,
+        hint: "return 1000000;"
+      },
+      {
+        id: 23,
+        title: "Parametr qabul qilish",
+        description: "Funktsiya yozing, bir parametr qabul qilib, uni qaytarsin.",
+        template: "function qaytarish(qiymat) {\n  // qiymatni qaytaring\n  \n}",
+        solution: "function qaytarish(qiymat) {\n  return qiymat;\n}",
+        test: (fn) => fn(42) === 42 && fn('test') === 'test',
+        hint: "return qiymat;"
+      },
+      {
+        id: 24,
+        title: "Ikkita string parametr",
+        description: "Funktsiya yozing, ikkita string qabul qilib, ularni birlashtirsin.",
+        template: "function birlashma(a, b) {\n  // a va b ni birlashtiring\n  \n}",
+        solution: "function birlashma(a, b) {\n  return a + b;\n}",
+        test: (fn) => fn('Salom', 'Dunyo') === 'SalomDunyo',
+        hint: "return a + b;"
+      },
+      {
+        id: 25,
+        title: "Probel bilan birlashtirish",
+        description: "Funktsiya yozing, ikkita so'zni probel bilan birlashtirsin.",
+        template: "function probel(soz1, soz2) {\n  // probel qo'shing\n  \n}",
+        solution: "function probel(soz1, soz2) {\n  return soz1 + ' ' + soz2;\n}",
+        test: (fn) => fn('Salom', 'Dunyo') === 'Salom Dunyo',
+        hint: "return soz1 + ' ' + soz2;"
+      },
+      {
+        id: 26,
+        title: "Sonni ikkilantirish",
+        description: "Funktsiya yozing, berilgan sonni 2 ga ko'paytirsin.",
+        template: "function ikkilantir(son) {\n  // son * 2\n  \n}",
+        solution: "function ikkilantir(son) {\n  return son * 2;\n}",
+        test: (fn) => fn(5) === 10 && fn(7) === 14,
+        hint: "return son * 2;"
+      },
+      {
+        id: 27,
+        title: "Kvadrat hisoblash",
+        description: "Funktsiya yozing, berilgan sonning kvadratini hisoblang.",
+        template: "function kvadrat(son) {\n  // son * son\n  \n}",
+        solution: "function kvadrat(son) {\n  return son * son;\n}",
+        test: (fn) => fn(4) === 16 && fn(5) === 25,
+        hint: "return son * son;"
+      },
+      {
+        id: 28,
+        title: "Yoshi hisoblash",
+        description: "Funktsiya yozing, tug'ilgan yil berilsa, yoshni hisoblang (2025 yil).",
+        template: "function yosh(yil) {\n  // 2025 - yil\n  \n}",
+        solution: "function yosh(yil) {\n  return 2025 - yil;\n}",
+        test: (fn) => fn(2000) === 25 && fn(1995) === 30,
+        hint: "return 2025 - yil;"
+      },
+      {
+        id: 29,
+        title: "Salomlashish",
+        description: "Funktsiya yozing, ism berilsa 'Salom, [ism]!' qatorini qaytarsin.",
+        template: "function salomlash(ism) {\n  // 'Salom, ' + ism + '!'\n  \n}",
+        solution: "function salomlash(ism) {\n  return 'Salom, ' + ism + '!';\n}",
+        test: (fn) => fn('Ali') === 'Salom, Ali!' && fn('Vali') === 'Salom, Vali!',
+        hint: "return 'Salom, ' + ism + '!';"
+      },
+      {
+        id: 30,
+        title: "To'liq ism",
+        description: "Funktsiya yozing, ism va familiya berilsa, to'liq ismni qaytarsin.",
+        template: "function toliqIsm(ism, familiya) {\n  // ism + ' ' + familiya\n  \n}",
+        solution: "function toliqIsm(ism, familiya) {\n  return ism + ' ' + familiya;\n}",
+        test: (fn) => fn('Ali', 'Valiyev') === 'Ali Valiyev',
+        hint: "return ism + ' ' + familiya;"
+      }
+    ]
+  },
+  {
+    id: 2,
+    name: "Operatorlar",
+    challenges: [
+      {
+        id: 31,
+        title: "Qo'shish",
+        description: "Funktsiya yozing, ikkita sonni qo'shsin.",
+        template: "function qoshish(a, b) {\n  // a + b\n  \n}",
+        solution: "function qoshish(a, b) {\n  return a + b;\n}",
+        test: (fn) => fn(5, 3) === 8 && fn(10, 20) === 30,
+        hint: "return a + b;"
+      },
+      {
+        id: 32,
+        title: "Ayirish",
+        description: "Funktsiya yozing, birinchi sondan ikkinchisini ayirsin.",
+        template: "function ayirish(a, b) {\n  // a - b\n  \n}",
+        solution: "function ayirish(a, b) {\n  return a - b;\n}",
+        test: (fn) => fn(10, 3) === 7 && fn(20, 5) === 15,
+        hint: "return a - b;"
+      },
+      {
+        id: 33,
+        title: "Ko'paytirish",
+        description: "Funktsiya yozing, ikkita sonni ko'paytirsin.",
+        template: "function kopaytirish(a, b) {\n  // a * b\n  \n}",
+        solution: "function kopaytirish(a, b) {\n  return a * b;\n}",
+        test: (fn) => fn(5, 3) === 15 && fn(7, 4) === 28,
+        hint: "return a * b;"
+      },
+      {
+        id: 34,
+        title: "Bo'lish",
+        description: "Funktsiya yozing, birinchi sonni ikkinchisiga bo'lsin.",
+        template: "function bolish(a, b) {\n  // a / b\n  \n}",
+        solution: "function bolish(a, b) {\n  return a / b;\n}",
+        test: (fn) => fn(10, 2) === 5 && fn(20, 4) === 5,
+        hint: "return a / b;"
+      },
+      {
+        id: 35,
+        title: "Qoldiq",
+        description: "Funktsiya yozing, bo'lish qoldiqni topsin.",
+        template: "function qoldiq(a, b) {\n  // a % b\n  \n}",
+        solution: "function qoldiq(a, b) {\n  return a % b;\n}",
+        test: (fn) => fn(10, 3) === 1 && fn(15, 4) === 3,
+        hint: "return a % b;"
+      },
+      {
+        id: 36,
+        title: "Darajaga ko'tarish",
+        description: "Funktsiya yozing, birinchi sonni ikkinchi darajaga ko'tarsin.",
+        template: "function daraja(a, b) {\n  // a ** b\n  \n}",
+        solution: "function daraja(a, b) {\n  return a ** b;\n}",
+        test: (fn) => fn(2, 3) === 8 && fn(5, 2) === 25,
+        hint: "return a ** b;"
+      },
+      {
+        id: 37,
+        title: "Teng",
+        description: "Funktsiya yozing, ikkita qiymat teng ekanligini tekshirsin.",
+        template: "function teng(a, b) {\n  // a === b\n  \n}",
+        solution: "function teng(a, b) {\n  return a === b;\n}",
+        test: (fn) => fn(5, 5) === true && fn(5, 3) === false,
+        hint: "return a === b;"
+      },
+      {
+        id: 38,
+        title: "Teng emas",
+        description: "Funktsiya yozing, ikkita qiymat teng emasligini tekshirsin.",
+        template: "function tengEmas(a, b) {\n  // a !== b\n  \n}",
+        solution: "function tengEmas(a, b) {\n  return a !== b;\n}",
+        test: (fn) => fn(5, 3) === true && fn(5, 5) === false,
+        hint: "return a !== b;"
+      },
+      {
+        id: 39,
+        title: "Katta",
+        description: "Funktsiya yozing, birinchi son ikkinchisidan katta ekanligini tekshirsin.",
+        template: "function katta(a, b) {\n  // a > b\n  \n}",
+        solution: "function katta(a, b) {\n  return a > b;\n}",
+        test: (fn) => fn(10, 5) === true && fn(3, 7) === false,
+        hint: "return a > b;"
+      },
+      {
+        id: 40,
+        title: "Kichik",
+        description: "Funktsiya yozing, birinchi son ikkinchisidan kichik ekanligini tekshirsin.",
+        template: "function kichik(a, b) {\n  // a < b\n  \n}",
+        solution: "function kichik(a, b) {\n  return a < b;\n}",
+        test: (fn) => fn(3, 7) === true && fn(10, 5) === false,
+        hint: "return a < b;"
+      },
+      {
+        id: 41,
+        title: "Katta yoki teng",
+        description: "Funktsiya yozing, birinchi son ikkinchisidan katta yoki teng ekanligini tekshirsin.",
+        template: "function kattaTeng(a, b) {\n  // a >= b\n  \n}",
+        solution: "function kattaTeng(a, b) {\n  return a >= b;\n}",
+        test: (fn) => fn(10, 5) === true && fn(5, 5) === true && fn(3, 7) === false,
+        hint: "return a >= b;"
+      },
+      {
+        id: 42,
+        title: "Kichik yoki teng",
+        description: "Funktsiya yozing, birinchi son ikkinchisidan kichik yoki teng ekanligini tekshirsin.",
+        template: "function kichikTeng(a, b) {\n  // a <= b\n  \n}",
+        solution: "function kichikTeng(a, b) {\n  return a <= b;\n}",
+        test: (fn) => fn(3, 7) === true && fn(5, 5) === true && fn(10, 5) === false,
+        hint: "return a <= b;"
+      },
+      {
+        id: 43,
+        title: "AND operatori",
+        description: "Funktsiya yozing, ikkala qiymat ham true bo'lsa true qaytarsin.",
+        template: "function va(a, b) {\n  // a && b\n  \n}",
+        solution: "function va(a, b) {\n  return a && b;\n}",
+        test: (fn) => fn(true, true) === true && fn(true, false) === false,
+        hint: "return a && b;"
+      },
+      {
+        id: 44,
+        title: "OR operatori",
+        description: "Funktsiya yozing, kamida bittasi true bo'lsa true qaytarsin.",
+        template: "function yoki(a, b) {\n  // a || b\n  \n}",
+        solution: "function yoki(a, b) {\n  return a || b;\n}",
+        test: (fn) => fn(true, false) === true && fn(false, false) === false,
+        hint: "return a || b;"
+      },
+      {
+        id: 45,
+        title: "NOT operatori",
+        description: "Funktsiya yozing, qiymatni teskarisiga o'zgartirsin.",
+        template: "function emas(a) {\n  // !a\n  \n}",
+        solution: "function emas(a) {\n  return !a;\n}",
+        test: (fn) => fn(true) === false && fn(false) === true,
+        hint: "return !a;"
+      },
+      {
+        id: 46,
+        title: "Uchta son yig'indisi",
+        description: "Funktsiya yozing, uchta sonning yig'indisini qaytarsin.",
+        template: "function uchYig(a, b, c) {\n  // a + b + c\n  \n}",
+        solution: "function uchYig(a, b, c) {\n  return a + b + c;\n}",
+        test: (fn) => fn(1, 2, 3) === 6 && fn(10, 20, 30) === 60,
+        hint: "return a + b + c;"
+      },
+      {
+        id: 47,
+        title: "O'rtacha qiymat",
+        description: "Funktsiya yozing, ikkita sonning o'rtacha qiymatini hisoblang.",
+        template: "function ortacha(a, b) {\n  // (a + b) / 2\n  \n}",
+        solution: "function ortacha(a, b) {\n  return (a + b) / 2;\n}",
+        test: (fn) => fn(10, 20) === 15 && fn(5, 15) === 10,
+        hint: "return (a + b) / 2;"
+      },
+      {
+        id: 48,
+        title: "Farqni topish",
+        description: "Funktsiya yozing, ikkita sonning farqini absolyut qiymatda qaytarsin.",
+        template: "function farq(a, b) {\n  // Math.abs(a - b)\n  \n}",
+        solution: "function farq(a, b) {\n  return Math.abs(a - b);\n}",
+        test: (fn) => fn(10, 3) === 7 && fn(3, 10) === 7,
+        hint: "return Math.abs(a - b);"
+      },
+      {
+        id: 49,
+        title: "Ikki barobar katta",
+        description: "Funktsiya yozing, birinchi son ikkinchisidan ikki barobar katta ekanligini tekshirsin.",
+        template: "function ikkiBarobar(a, b) {\n  // a === b * 2\n  \n}",
+        solution: "function ikkiBarobar(a, b) {\n  return a === b * 2;\n}",
+        test: (fn) => fn(10, 5) === true && fn(10, 3) === false,
+        hint: "return a === b * 2;"
+      },
+      {
+        id: 50,
+        title: "Musbat sonlar yig'indisi",
+        description: "Funktsiya yozing, ikkita musbat sonning yig'indisini qaytarsin.",
+        template: "function musYig(a, b) {\n  // a + b (a>0 va b>0)\n  \n}",
+        solution: "function musYig(a, b) {\n  return a + b;\n}",
+        test: (fn) => fn(5, 10) === 15 && fn(7, 3) === 10,
+        hint: "return a + b;"
+      },
+      {
+        id: 51,
+        title: "Toq sonmi",
+        description: "Funktsiya yozing, son toq ekanligini tekshirsin.",
+        template: "function toq(son) {\n  // son % 2 !== 0\n  \n}",
+        solution: "function toq(son) {\n  return son % 2 !== 0;\n}",
+        test: (fn) => fn(5) === true && fn(4) === false,
+        hint: "return son % 2 !== 0;"
+      },
+      {
+        id: 52,
+        title: "Juft sonmi",
+        description: "Funktsiya yozing, son juft ekanligini tekshirsin.",
+        template: "function juft(son) {\n  // son % 2 === 0\n  \n}",
+        solution: "function juft(son) {\n  return son % 2 === 0;\n}",
+        test: (fn) => fn(4) === true && fn(5) === false,
+        hint: "return son % 2 === 0;"
+      },
+      {
+        id: 53,
+        title: "5 ga bo'linadi",
+        description: "Funktsiya yozing, son 5 ga qoldiqsiz bo'linadimi tekshirsin.",
+        template: "function beshgaBol(son) {\n  // son % 5 === 0\n  \n}",
+        solution: "function beshgaBol(son) {\n  return son % 5 === 0;\n}",
+        test: (fn) => fn(10) === true && fn(7) === false,
+        hint: "return son % 5 === 0;"
+      },
+      {
+        id: 54,
+        title: "Manfiy sonmi",
+        description: "Funktsiya yozing, son manfiy ekanligini tekshirsin.",
+        template: "function manfiy(son) {\n  // son < 0\n  \n}",
+        solution: "function manfiy(son) {\n  return son < 0;\n}",
+        test: (fn) => fn(-5) === true && fn(5) === false,
+        hint: "return son < 0;"
+      },
+      {
+        id: 55,
+        title: "Musbat sonmi",
+        description: "Funktsiya yozing, son musbat ekanligini tekshirsin.",
+        template: "function musbat(son) {\n  // son > 0\n  \n}",
+        solution: "function musbat(son) {\n  return son > 0;\n}",
+        test: (fn) => fn(5) === true && fn(-5) === false,
+        hint: "return son > 0;"
+      },
+      {
+        id: 56,
+        title: "Nolmi",
+        description: "Funktsiya yozing, son nol ekanligini tekshirsin.",
+        template: "function nol(son) {\n  // son === 0\n  \n}",
+        solution: "function nol(son) {\n  return son === 0;\n}",
+        test: (fn) => fn(0) === true && fn(5) === false,
+        hint: "return son === 0;"
+      },
+      {
+        id: 57,
+        title: "10 dan katta",
+        description: "Funktsiya yozing, son 10 dan katta ekanligini tekshirsin.",
+        template: "function onKatta(son) {\n  // son > 10\n  \n}",
+        solution: "function onKatta(son) {\n  return son > 10;\n}",
+        test: (fn) => fn(15) === true && fn(5) === false,
+        hint: "return son > 10;"
+      },
+      {
+        id: 58,
+        title: "Oraliqda",
+        description: "Funktsiya yozing, son 10 va 20 oralig'ida ekanligini tekshirsin (10 va 20 ham kiradi).",
+        template: "function oraliq(son) {\n  // son >= 10 && son <= 20\n  \n}",
+        solution: "function oraliq(son) {\n  return son >= 10 && son <= 20;\n}",
+        test: (fn) => fn(15) === true && fn(25) === false && fn(10) === true,
+        hint: "return son >= 10 && son <= 20;"
+      },
+      {
+        id: 59,
+        title: "Foiz hisoblash",
+        description: "Funktsiya yozing, sonning 10% ini hisoblang.",
+        template: "function foiz(son) {\n  // son * 0.1\n  \n}",
+        solution: "function foiz(son) {\n  return son * 0.1;\n}",
+        test: (fn) => fn(100) === 10 && fn(50) === 5,
+        hint: "return son * 0.1;"
+      },
+      {
+        id: 60,
+        title: "Chegirma",
+        description: "Funktsiya yozing, narxdan 20% chegirma ayirsin.",
+        template: "function chegirma(narx) {\n  // narx * 0.8\n  \n}",
+        solution: "function chegirma(narx) {\n  return narx * 0.8;\n}",
+        test: (fn) => fn(100) === 80 && fn(50) === 40,
+        hint: "return narx * 0.8;"
+      }
+    ]
+  },
+  {
+    id: 3,
+    name: "Shartli operatorlar (if/else)",
+    challenges: [
+      {
+        id: 61,
+        title: "Musbat yoki manfiy",
+        description: "Funktsiya yozing, son musbat bo'lsa 'musbat', manfiy bo'lsa 'manfiy' qaytarsin.",
+        template: "function tekshir(son) {\n  // if/else\n  \n}",
+        solution: "function tekshir(son) {\n  if (son > 0) {\n    return 'musbat';\n  } else {\n    return 'manfiy';\n  }\n}",
+        test: (fn) => fn(5) === "musbat" && fn(-3) === "manfiy",
+        hint: "if (son > 0) return 'musbat'; else return 'manfiy';"
+      },
+      {
+        id: 62,
+        title: "Nol tekshiruvi",
+        description: "Funktsiya yozing, son musbat, manfiy yoki nol ekanligini aniqlang.",
+        template: "function tekshir2(son) {\n  // if/else if/else\n  \n}",
+        solution: "function tekshir2(son) {\n  if (son > 0) return 'musbat';\n  else if (son < 0) return 'manfiy';\n  else return 'nol';\n}",
+        test: (fn) => fn(5) === "musbat" && fn(-3) === "manfiy" && fn(0) === "nol",
+        hint: "if (son > 0) return 'musbat'; else if (son < 0) return 'manfiy'; else return 'nol';"
+      },
+      {
+        id: 63,
+        title: "Juft toq",
+        description: "Funktsiya yozing, son juft bo'lsa 'juft', toq bo'lsa 'toq' qaytarsin.",
+        template: "function juftToq(son) {\n  // if/else\n  \n}",
+        solution: "function juftToq(son) {\n  if (son % 2 === 0) {\n    return 'juft';\n  } else {\n    return 'toq';\n  }\n}",
+        test: (fn) => fn(4) === "juft" && fn(7) === "toq",
+        hint: "if (son % 2 === 0) return 'juft'; else return 'toq';"
+      },
+      {
+        id: 64,
+        title: "Katta kichik",
+        description: "Funktsiya yozing, ikkita sondan kattasini qaytarsin.",
+        template: "function engKatta(a, b) {\n  // if/else\n  \n}",
+        solution: "function engKatta(a, b) {\n  if (a > b) {\n    return a;\n  } else {\n    return b;\n  }\n}",
+        test: (fn) => fn(10, 5) === 10 && fn(3, 7) === 7,
+        hint: "if (a > b) return a; else return b;"
+      },
+      {
+        id: 65,
+        title: "Kichigini topish",
+        description: "Funktsiya yozing, ikkita sondan kichigini qaytarsin.",
+        template: "function engKichik(a, b) {\n  // if/else\n  \n}",
+        solution: "function engKichik(a, b) {\n  if (a < b) {\n    return a;\n  } else {\n    return b;\n  }\n}",
+        test: (fn) => fn(10, 5) === 5 && fn(3, 7) === 3,
+        hint: "if (a < b) return a; else return b;"
+      },
+      {
+        id: 66,
+        title: "Uchta sondan eng kattasi",
+        description: "Funktsiya yozing, uchta sondan eng kattasini qaytarsin.",
+        template: "function uchKatta(a, b, c) {\n  // if/else\n  \n}",
+        solution: "function uchKatta(a, b, c) {\n  return Math.max(a, b, c);\n}",
+        test: (fn) => fn(5, 10, 3) === 10 && fn(20, 15, 25) === 25,
+        hint: "return Math.max(a, b, c);"
+      },
+      {
+        id: 67,
+        title: "Bahoni aniqlash",
+        description: "Funktsiya yozing, ball 90+ bo'lsa 'A', 80-89 bo'lsa 'B', 70-79 bo'lsa 'C', aks holda 'F' qaytarsin.",
+        template: "function baho(ball) {\n  // if/else if\n  \n}",
+        solution: "function baho(ball) {\n  if (ball >= 90) return 'A';\n  else if (ball >= 80) return 'B';\n  else if (ball >= 70) return 'C';\n  else return 'F';\n}",
+        test: (fn) => fn(95) === 'A' && fn(85) === 'B' && fn(75) === 'C' && fn(60) === 'F',
+        hint: "if (ball >= 90) return 'A'; else if (ball >= 80) return 'B'..."
+      },
+      {
+        id: 68,
+        title: "Yoshga qarab toifa",
+        description: "Funktsiya yozing, yosh 0-12 'bola', 13-17 'o'smir', 18+ 'kattalar' qaytarsin.",
+        template: "function toifa(yosh) {\n  // if/else if\n  \n}",
+        solution: "function toifa(yosh) {\n  if (yosh <= 12) return 'bola';\n  else if (yosh <= 17) return \"o'smir\";\n  else return 'kattalar';\n}",
+        test: (fn) => fn(10) === 'bola' && fn(15) === "o'smir" && fn(20) === 'kattalar',
+        hint: "if (yosh <= 12) return 'bola'; else if (yosh <= 17) return \"o'smir\"..."
+      },
+      {
+        id: 69,
+        title: "Parol kuchi",
+        description: "Funktsiya yozing, parol uzunligi 8+ 'kuchli', 5-7 'o'rta', qolgan 'zaif' qaytarsin.",
+        template: "function parolKuchi(parol) {\n  // .length\n  \n}",
+        solution: "function parolKuchi(parol) {\n  if (parol.length >= 8) return 'kuchli';\n  else if (parol.length >= 5) return \"o'rta\";\n  else return 'zaif';\n}",
+        test: (fn) => fn('12345678') === 'kuchli' && fn('12345') === "o'rta" && fn('123') === 'zaif',
+        hint: "if (parol.length >= 8) return 'kuchli'..."
+      },
+      {
+        id: 70,
+        title: "Narx chegirmasi",
+        description: "Funktsiya yozing, narx 100+ bo'lsa 20% chegirma, 50+ bo'lsa 10%, qolgan chegirmasiz.",
+        template: "function chegirma(narx) {\n  // if/else if\n  \n}",
+        solution: "function chegirma(narx) {\n  if (narx >= 100) return narx * 0.8;\n  else if (narx >= 50) return narx * 0.9;\n  else return narx;\n}",
+        test: (fn) => fn(100) === 80 && fn(50) === 45 && fn(30) === 30,
+        hint: "if (narx >= 100) return narx * 0.8; else if (narx >= 50) return narx * 0.9..."
+      },
+      {
+        id: 71,
+        title: "Harorat holati",
+        description: "Funktsiya yozing, harorat 30+ 'issiq', 20-29 'iliq', 10-19 'salqin', qolgan 'sovuq' qaytarsin.",
+        template: "function harorat(daraja) {\n  // if/else if\n  \n}",
+        solution: "function harorat(daraja) {\n  if (daraja >= 30) return 'issiq';\n  else if (daraja >= 20) return 'iliq';\n  else if (daraja >= 10) return 'salqin';\n  else return 'sovuq';\n}",
+        test: (fn) => fn(35) === 'issiq' && fn(25) === 'iliq' && fn(15) === 'salqin' && fn(5) === 'sovuq',
+        hint: "if (daraja >= 30) return 'issiq'; else if (daraja >= 20) return 'iliq'..."
+      },
+      {
+        id: 72,
+        title: "Teng yoki yo'q",
+        description: "Funktsiya yozing, ikkita son teng bo'lsa 'teng', aks holda 'teng emas' qaytarsin.",
+        template: "function tengmi(a, b) {\n  // if/else\n  \n}",
+        solution: "function tengmi(a, b) {\n  if (a === b) return 'teng';\n  else return 'teng emas';\n}",
+        test: (fn) => fn(5, 5) === 'teng' && fn(5, 3) === 'teng emas',
+        hint: "if (a === b) return 'teng'; else return 'teng emas';"
+      },
+      {
+        id: 73,
+        title: "Musbat sonlar",
+        description: "Funktsiya yozing, ikkala son ham musbat bo'lsa true, aks holda false qaytarsin.",
+        template: "function ikkalaMus(a, b) {\n  // if\n  \n}",
+        solution: "function ikkalaMus(a, b) {\n  if (a > 0 && b > 0) return true;\n  else return false;\n}",
+        test: (fn) => fn(5, 3) === true && fn(-5, 3) === false,
+        hint: "if (a > 0 && b > 0) return true; else return false;"
+      },
+      {
+        id: 74,
+        title: "Bo'sh string",
+        description: "Funktsiya yozing, string bo'sh bo'lsa 'bo\\'sh', aks holda 'to\\'ldirilgan' qaytarsin.",
+        template: "function stringTekshir(str) {\n  // if/else\n  \n}",
+        solution: "function stringTekshir(str) {\n  if (str === '') return \"bo'sh\";\n  else return \"to'ldirilgan\";\n}",
+        test: (fn) => fn('') === "bo'sh" && fn('salom') === "to'ldirilgan",
+        hint: "if (str === '') return \"bo'sh\"; else return \"to'ldirilgan\";"
+      },
+      {
+        id: 75,
+        title: "Uzun string",
+        description: "Funktsiya yozing, string uzunligi 10+ bo'lsa 'uzun', aks holda 'qisqa' qaytarsin.",
+        template: "function uzunQisqa(str) {\n  // .length\n  \n}",
+        solution: "function uzunQisqa(str) {\n  if (str.length >= 10) return 'uzun';\n  else return 'qisqa';\n}",
+        test: (fn) => fn('1234567890') === 'uzun' && fn('12345') === 'qisqa',
+        hint: "if (str.length >= 10) return 'uzun'; else return 'qisqa';"
+      },
+      {
+        id: 76,
+        title: "3 ga bo'linadi",
+        description: "Funktsiya yozing, son 3 ga bo'linsa 'ha', aks holda 'yo\\'q' qaytarsin.",
+        template: "function uchgaBol(son) {\n  // %\n  \n}",
+        solution: "function uchgaBol(son) {\n  if (son % 3 === 0) return 'ha';\n  else return \"yo'q\";\n}",
+        test: (fn) => fn(9) === 'ha' && fn(10) === "yo'q",
+        hint: "if (son % 3 === 0) return 'ha'; else return \"yo'q\";"
+      },
+      {
+        id: 77,
+        title: "Ikki xonali",
+        description: "Funktsiya yozing, son ikki xonali (10-99) bo'lsa true, aks holda false qaytarsin.",
+        template: "function ikkiXona(son) {\n  // if\n  \n}",
+        solution: "function ikkiXona(son) {\n  if (son >= 10 && son <= 99) return true;\n  else return false;\n}",
+        test: (fn) => fn(50) === true && fn(5) === false && fn(100) === false,
+        hint: "if (son >= 10 && son <= 99) return true; else return false;"
+      },
+      {
+        id: 78,
+        title: "Yil kabisami",
+        description: "Funktsiya yozing, yil 4 ga bo'linsa (100 ga bo'linmasa yoki 400 ga bo'linsa) 'kabisa', aks holda 'oddiy' qaytarsin.",
+        template: "function kabisa(yil) {\n  // if\n  \n}",
+        solution: "function kabisa(yil) {\n  if ((yil % 4 === 0 && yil % 100 !== 0) || yil % 400 === 0) return 'kabisa';\n  else return 'oddiy';\n}",
+        test: (fn) => fn(2020) === 'kabisa' && fn(2021) === 'oddiy',
+        hint: "if ((yil % 4 === 0 && yil % 100 !== 0) || yil % 400 === 0)..."
+      },
+      {
+        id: 79,
+        title: "Yoshi yetarli",
+        description: "Funktsiya yozing, yosh 18+ bo'lsa 'ruxsat', aks holda 'ruxsat yo\\'q' qaytarsin.",
+        template: "function ruxsat(yosh) {\n  // if/else\n  \n}",
+        solution: "function ruxsat(yosh) {\n  if (yosh >= 18) return 'ruxsat';\n  else return \"ruxsat yo'q\";\n}",
+        test: (fn) => fn(20) === 'ruxsat' && fn(15) === "ruxsat yo'q",
+        hint: "if (yosh >= 18) return 'ruxsat'; else return \"ruxsat yo'q\";"
+      },
+      {
+        id: 80,
+        title: "Maxsus belgi",
+        description: "Funktsiya yozing, string '@' belgisini o'z ichiga olsa 'ha', aks holda 'yo\\'q' qaytarsin.",
+        template: "function maxsusBelgi(str) {\n  // .includes()\n  \n}",
+        solution: "function maxsusBelgi(str) {\n  if (str.includes('@')) return 'ha';\n  else return \"yo'q\";\n}",
+        test: (fn) => fn('test@mail.com') === 'ha' && fn('testmail.com') === "yo'q",
+        hint: "if (str.includes('@')) return 'ha'; else return \"yo'q\";"
+      },
+      {
+        id: 81,
+        title: "Hafta kuni",
+        description: "Funktsiya yozing, raqam 1-5 bo'lsa 'ish kuni', 6-7 bo'lsa 'dam olish', qolgan 'noto\\'g\\'ri' qaytarsin.",
+        template: "function haftaKuni(kun) {\n  // if/else if\n  \n}",
+        solution: "function haftaKuni(kun) {\n  if (kun >= 1 && kun <= 5) return 'ish kuni';\n  else if (kun >= 6 && kun <= 7) return 'dam olish';\n  else return \"noto'g'ri\";\n}",
+        test: (fn) => fn(3) === 'ish kuni' && fn(6) === 'dam olish' && fn(8) === "noto'g'ri",
+        hint: "if (kun >= 1 && kun <= 5) return 'ish kuni'; else if (kun >= 6 && kun <= 7)..."
+      },
+      {
+        id: 82,
+        title: "Oyning kuni",
+        description: "Funktsiya yozing, kun 1-31 oralig'ida bo'lsa 'to\\'g\\'ri', aks holda 'xato' qaytarsin.",
+        template: "function kunTekshir(kun) {\n  // if/else\n  \n}",
+        solution: "function kunTekshir(kun) {\n  if (kun >= 1 && kun <= 31) return \"to'g'ri\";\n  else return 'xato';\n}",
+        test: (fn) => fn(15) === "to'g'ri" && fn(35) === 'xato',
+        hint: "if (kun >= 1 && kun <= 31) return \"to'g'ri\"; else return 'xato';"
+      },
+      {
+        id: 83,
+        title: "Foizli chegirma",
+        description: "Funktsiya yozing, narx 200+ bo'lsa 30% chegirma, 100-199 bo'lsa 20%, 50-99 bo'lsa 10%, qolgan chegirmasiz qaytarsin.",
+        template: "function chegirmaFoiz(narx) {\n  // if/else if\n  \n}",
+        solution: "function chegirmaFoiz(narx) {\n  if (narx >= 200) return narx * 0.7;\n  else if (narx >= 100) return narx * 0.8;\n  else if (narx >= 50) return narx * 0.9;\n  else return narx;\n}",
+        test: (fn) => fn(200) === 140 && fn(100) === 80 && fn(50) === 45 && fn(30) === 30,
+        hint: "if (narx >= 200) return narx * 0.7; else if (narx >= 100) return narx * 0.8..."
+      },
+      {
+        id: 84,
+        title: "Katta harf",
+        description: "Funktsiya yozing, birinchi belgi katta harf bo'lsa 'katta', aks holda 'kichik' qaytarsin.",
+        template: "function harfTekshir(str) {\n  // [0] va toUpperCase()\n  \n}",
+        solution: "function harfTekshir(str) {\n  if (str[0] === str[0].toUpperCase()) return 'katta';\n  else return 'kichik';\n}",
+        test: (fn) => fn('Salom') === 'katta' && fn('salom') === 'kichik',
+        hint: "if (str[0] === str[0].toUpperCase()) return 'katta'; else return 'kichik';"
+      },
+      {
+        id: 85,
+        title: "Array bo'sh",
+        description: "Funktsiya yozing, array bo'sh bo'lsa 'bo\\'sh', aks holda 'to\\'ldirilgan' qaytarsin.",
+        template: "function arrayTekshir(arr) {\n  // .length\n  \n}",
+        solution: "function arrayTekshir(arr) {\n  if (arr.length === 0) return \"bo'sh\";\n  else return \"to'ldirilgan\";\n}",
+        test: (fn) => fn([]) === "bo'sh" && fn([1,2,3]) === "to'ldirilgan",
+        hint: "if (arr.length === 0) return \"bo'sh\"; else return \"to'ldirilgan\";"
+      },
+      {
+        id: 86,
+        title: "Ikkita belgidan uzun",
+        description: "Funktsiya yozing, string 2 ta belgidan uzun bo'lsa true, aks holda false qaytarsin.",
+        template: "function ikkilikUzun(str) {\n  // .length\n  \n}",
+        solution: "function ikkilikUzun(str) {\n  if (str.length > 2) return true;\n  else return false;\n}",
+        test: (fn) => fn('abc') === true && fn('ab') === false,
+        hint: "if (str.length > 2) return true; else return false;"
+      },
+      {
+        id: 87,
+        title: "Musbat kvadrat",
+        description: "Funktsiya yozing, son musbat bo'lsa kvadratini, aks holda 0 qaytarsin.",
+        template: "function musKvadrat(son) {\n  // if/else\n  \n}",
+        solution: "function musKvadrat(son) {\n  if (son > 0) return son * son;\n  else return 0;\n}",
+        test: (fn) => fn(5) === 25 && fn(-5) === 0,
+        hint: "if (son > 0) return son * son; else return 0;"
+      },
+      {
+        id: 88,
+        title: "Juft sonni ikkilantirish",
+        description: "Funktsiya yozing, son juft bo'lsa ikkilantirsin, aks holda o'zini qaytarsin.",
+        template: "function juftIkki(son) {\n  // if/else\n  \n}",
+        solution: "function juftIkki(son) {\n  if (son % 2 === 0) return son * 2;\n  else return son;\n}",
+        test: (fn) => fn(4) === 8 && fn(5) === 5,
+        hint: "if (son % 2 === 0) return son * 2; else return son;"
+      },
+      {
+        id: 89,
+        title: "Kattasini ikkilantirish",
+        description: "Funktsiya yozing, ikkita sondan kattasini ikkilantirib qaytarsin.",
+        template: "function kattaIkki(a, b) {\n  // if/else\n  \n}",
+        solution: "function kattaIkki(a, b) {\n  if (a > b) return a * 2;\n  else return b * 2;\n}",
+        test: (fn) => fn(10, 5) === 20 && fn(3, 7) === 14,
+        hint: "if (a > b) return a * 2; else return b * 2;"
+      },
+      {
+        id: 90,
+        title: "Raqam yoki yo'q",
+        description: "Funktsiya yozing, qiymat raqam turiga mansub bo'lsa 'raqam', aks holda 'raqam emas' qaytarsin.",
+        template: "function raqammi(qiymat) {\n  // typeof\n  \n}",
+        solution: "function raqammi(qiymat) {\n  if (typeof qiymat === 'number') return 'raqam';\n  else return 'raqam emas';\n}",
+        test: (fn) => fn(42) === 'raqam' && fn('42') === 'raqam emas',
+        hint: "if (typeof qiymat === 'number') return 'raqam'; else return 'raqam emas';"
+      }
+    ]
+  },
+  {
+    id: 4,
+    name: "Tsikllar (for, while)",
+    challenges: [
+      {
+        id: 91,
+        title: "1 dan 5 gacha",
+        description: "Funktsiya yozing, 1 dan 5 gacha sonlarning yig'indisini qaytarsin.",
+        template: "function beshYig() {\n  // for tsikli\n  \n}",
+        solution: "function beshYig() {\n  let sum = 0;\n  for (let i = 1; i <= 5; i++) {\n    sum += i;\n  }\n  return sum;\n}",
+        test: (fn) => fn() === 15,
+        hint: "let sum = 0; for (let i = 1; i <= 5; i++) { sum += i; } return sum;"
+      },
+      {
+        id: 92,
+        title: "1 dan 10 gacha",
+        description: "Funktsiya yozing, 1 dan 10 gacha sonlarning yig'indisini qaytarsin.",
+        template: "function onYig() {\n  // for tsikli\n  \n}",
+        solution: "function onYig() {\n  let sum = 0;\n  for (let i = 1; i <= 10; i++) {\n    sum += i;\n  }\n  return sum;\n}",
+        test: (fn) => fn() === 55,
+        hint: "let sum = 0; for (let i = 1; i <= 10; i++) { sum += i; } return sum;"
+      },
+      {
+        id: 93,
+        title: "N gacha yig'indi",
+        description: "Funktsiya yozing, 1 dan n gacha sonlarning yig'indisini qaytarsin.",
+        template: "function nYig(n) {\n  // for tsikli\n  \n}",
+        solution: "function nYig(n) {\n  let sum = 0;\n  for (let i = 1; i <= n; i++) {\n    sum += i;\n  }\n  return sum;\n}",
+        test: (fn) => fn(5) === 15 && fn(10) === 55,
+        hint: "let sum = 0; for (let i = 1; i <= n; i++) { sum += i; } return sum;"
+      },
+      {
+        id: 94,
+        title: "Juft sonlar yig'indisi",
+        description: "Funktsiya yozing, 1 dan 10 gacha juft sonlarning yig'indisini qaytarsin.",
+        template: "function juftYig() {\n  // for va if\n  \n}",
+        solution: "function juftYig() {\n  let sumn  // default parametr\n  return 'Salom, ' + ism;\n}",
+        solution: "function salom(ism = 'Mehmon') {\n  return 'Salom, ' + ism;\n}",
+        test: (fn) => fn('Ali') === 'Salom, Ali' && fn() === 'Salom, Mehmon',
+        hint: "Allaqachon to'g'ri yozilgan!"
+      },
+      {
+        id: 185,
+        title: "Arrow funktsiya",
+        description: "Arrow funktsiya yozing, ikkita sonni qo'shsin.",
+        template: "const qosh = (a, b) => {\n  // a + b\n  \n}",
+        solution: "const qosh = (a, b) => a + b;",
+        test: (fn) => fn(5, 3) === 8,
+        hint: "const qosh = (a, b) => a + b;"
+      },
+      {
+        id: 186,
+        title: "Qisqa arrow funktsiya",
+        description: "Arrow funktsiya yozing, sonni ikkilantirsin (bir qatorli).",
+        template: "const ikkilan = (son) => {\n  // son * 2\n  \n}",
+        solution: "const ikkilan = (son) => son * 2;",
+        test: (fn) => fn(5) === 10,
+        hint: "const ikkilan = (son) => son * 2;"
+      },
+      {
+        id: 187,
+        title: "Return statement",
+        description: "Funktsiya yozing, ikkita sonning ko'paytmasini qaytarsin.",
+        template: "function kopayтma(a, b) {\n  // return a * b\n  \n}",
+        solution: "function kopaytma(a, b) {\n  return a * b;\n}",
+        test: (fn) => fn(5, 3) === 15,
+        hint: "return a * b;"
+      },
+      {
+        id: 188,
+        title: "Ko'p satrli funktsiya",
+        description: "Funktsiya yozing, ikkita sonni qabul qilib, ularning yig'indisini va ko'paytmasini object da qaytarsin.",
+        template: "function hisoblash(a, b) {\n  // object qaytaring\n  \n}",
+        solution: "function hisoblash(a, b) {\n  return { yigindi: a + b, kopaytma: a * b };\n}",
+        test: (fn) => fn(3, 4).yigindi === 7 && fn(3, 4).kopaytma === 12,
+        hint: "return { yigindi: a + b, kopaytma: a * b };"
+      },
+      {
+        id: 189,
+        title: "Funktsiya chaqirish",
+        description: "Funktsiya yozing, boshqa funktsiyani chaqirsin va natijani qaytarsin.",
+        template: "function qosh(a, b) {\n  return a + b;\n}\nfunction chaqir() {\n  // qosh(5, 3) ni chaqiring\n  \n}",
+        solution: "function qosh(a, b) {\n  return a + b;\n}\nfunction chaqir() {\n  return qosh(5, 3);\n}",
+        test: (fn) => fn() === 8,
+        hint: "return qosh(5, 3);"
+      },
+      {
+        id: 190,
+        title: "Funktsiya parametr sifatida",
+        description: "Funktsiya yozing, boshqa funktsiyani parametr sifatida qabul qilib, uni chaqirsin.",
+        template: "function bajar(fn) {\n  // fn() ni chaqiring\n  \n}",
+        solution: "function bajar(fn) {\n  return fn();\n}",
+        test: (fn) => fn(() => 'test') === 'test',
+        hint: "return fn();"
+      },
+      {
+        id: 191,
+        title: "Callback funktsiya",
+        description: "Funktsiya yozing, son va callback qabul qilib, callback ga sonni uzatsin.",
+        template: "function callback(son, fn) {\n  // fn(son) ni chaqiring\n  \n}",
+        solution: "function callback(son, fn) {\n  return fn(son);\n}",
+        test: (fn) => fn(5, x => x * 2) === 10,
+        hint: "return fn(son);"
+      },
+      {
+        id: 192,
+        title: "Rekursiya - faktorial",
+        description: "Rekursiv funktsiya yozing, faktorial hisoblang.",
+        template: "function fakt(n) {\n  // rekursiya\n  \n}",
+        solution: "function fakt(n) {\n  if (n === 0 || n === 1) return 1;\n  return n * fakt(n - 1);\n}",
+        test: (fn) => fn(5) === 120 && fn(0) === 1,
+        hint: "if (n === 0 || n === 1) return 1; return n * fakt(n - 1);"
+      },
+      {
+        id: 193,
+        title: "Rekursiya - yig'indi",
+        description: "Rekursiv funktsiya yozing, 1 dan n gacha yig'indi hisoblang.",
+        template: "function yigindi(n) {\n  // rekursiya\n  \n}",
+        solution: "function yigindi(n) {\n  if (n === 1) return 1;\n  return n + yigindi(n - 1);\n}",
+        test: (fn) => fn(5) === 15 && fn(10) === 55,
+        hint: "if (n === 1) return 1; return n + yigindi(n - 1);"
+      },
+      {
+        id: 194,
+        title: "Closure",
+        description: "Funktsiya yozing, ichki funktsiya qaytarsin va tashqi o'zgaruvchiga kirish imkoni bo'lsin.",
+        template: "function tashqi() {\n  let count = 0;\n  // ichki funktsiya qaytaring\n  \n}",
+        solution: "function tashqi() {\n  let count = 0;\n  return function() {\n    count++;\n    return count;\n  };\n}",
+        test: (fn) => {
+          const f = fn();  return f() === 1 && f() === 2;},
+        hint: "return function() { count++; return count; };"
+      },
+      {
+        id: 195,
+        title: "IIFE",
+        description: "IIFE (Immediately Invoked Function Expression) yozing, 'Hello' qaytarsin.",
+        template: "const natija = (() => {\n  // 'Hello' qaytaring\n  \n})();",
+        solution: "const natija = (() => {\n  return 'Hello';\n})();",
+        test: (fn) => fn === 'Hello',
+        hint: "return 'Hello';"
+      },
+      {
+        id: 196,
+        title: "Rest parametr",
+        description: "Funktsiya yozing, istalgan miqdorda sonlarni qabul qilib, ularning yig'indisini qaytarsin.",
+        template: "function yigindi(...sonlar) {\n  // ...sonlar arrayini ishlating\n  \n}",
+        solution: "function yigindi(...sonlar) {\n  return sonlar.reduce((sum, num) => sum + num, 0);\n}",
+        test: (fn) => fn(1,2,3) === 6 && fn(10,20,30,40) === 100,
+        hint: "return sonlar.reduce((sum, num) => sum + num, 0);"
+      },
+      {
+        id: 197,
+        title: "Spread operator",
+        description: "Funktsiya yozing, ikkita arrayni spread operator bilan birlashtirsin.",
+        template: "function birlashma(arr1, arr2) {\n  // spread [...arr1, ...arr2]\n  \n}",
+        solution: "function birlashma(arr1, arr2) {\n  return [...arr1, ...arr2];\n}",
+        test: (fn) => fn([1,2], [3,4]).length === 4,
+        hint: "return [...arr1, ...arr2];"
+      },
+      {
+        id: 198,
+        title: "Destructuring",
+        description: "Funktsiya yozing, object dan ism va yosh ni destructuring bilan olib, string qaytarsin.",
+        template: "function malumot(obj) {\n  // {ism, yosh} = obj\n  \n}",
+        solution: "function malumot(obj) {\n  const {ism, yosh} = obj;\n  return `${ism} ${yosh} yoshda`;\n}",
+        test: (fn) => fn({ism: 'Ali', yosh: 25}) === 'Ali 25 yoshda',
+        hint: "const {ism, yosh} = obj; return `${ism} ${yosh} yoshda`;"
+      },
+      {
+        id: 199,
+        title: "Array destructuring",
+        description: "Funktsiya yozing, array ning birinchi va ikkinchi elementlarini destructuring bilan olib, ularning yig'indisini qaytarsin.",
+        template: "function yigindi(arr) {\n  // [a, b] = arr\n  \n}",
+        solution: "function yigindi(arr) {\n  const [a, b] = arr;\n  return a + b;\n}",
+        test: (fn) => fn([5, 3]) === 8 && fn([10, 20]) === 30,
+        hint: "const [a, b] = arr; return a + b;"
+      },
+      {
+        id: 200,
+        title: "Template literal funktsiya",
+        description: "Funktsiya yozing, ism va yosh qabul qilib, template literal bilan matn yaratsin.",
+        template: "function matn(ism, yosh) {\n  // template literal\n  \n}",
+        solution: "function matn(ism, yosh) {\n  return `Mening ismim ${ism} va men ${yosh} yoshdaman`;\n}",
+        test: (fn) => fn('Ali', 25).includes('Ali') && fn('Ali', 25).includes('25'),
+        hint: "return `Mening ismim ${ism} va men ${yosh} yoshdaman`;"
+      },
+      {
+        id: 201,
+        title: "Ternary operator",
+        description: "Funktsiya yozing, son juft bo'lsa 'juft', aks holda 'toq' qaytarsin (ternary bilan).",
+        template: "function juftToq(son) {\n  // ternary: ? :\n  \n}",
+        solution: "function juftToq(son) {\n  return son % 2 === 0 ? 'juft' : 'toq';\n}",
+        test: (fn) => fn(4) === 'juft' && fn(5) === 'toq',
+        hint: "return son % 2 === 0 ? 'juft' : 'toq';"
+      },
+      {
+        id: 202,
+        title: "Nullish coalescing",
+        description: "Funktsiya yozing, qiymat null yoki undefined bo'lsa 'default' qaytarsin.",
+        template: "function tekshir(qiymat) {\n  // ?? operator\n  \n}",
+        solution: "function tekshir(qiymat) {\n  return qiymat ?? 'default';\n}",
+        test: (fn) => fn(null) === 'default' && fn('test') === 'test',
+        hint: "return qiymat ?? 'default';"
+      },
+      {
+        id: 203,
+        title: "Optional chaining",
+        description: "Funktsiya yozing, object ning ichki xususiyatiga xavfsiz kirish uchun ?. dan foydalaning.",
+        template: "function xavfsiz(obj) {\n  // obj?.ism\n  \n}",
+        solution: "function xavfsiz(obj) {\n  return obj?.ism ?? 'Noma\\'lum';\n}",
+        test: (fn) => fn({ism: 'Ali'}) === 'Ali' && fn(null) === "Noma'lum",
+        hint: "return obj?.ism ?? 'Noma\\'lum';"
+      },
+      {
+        id: 204,
+        title: "Funktsiya qaytaruvchi funktsiya",
+        description: "Funktsiya yozing, son qabul qilib, o'sha sonni qo'shadigan funktsiya qaytarsin.",
+        template: "function qoshuvchi(n) {\n  // funktsiya qaytaring\n  \n}",
+        solution: "function qoshuvchi(n) {\n  return function(x) {\n    return x + n;\n  };\n}",
+        test: (fn) => fn(5)(3) === 8 && fn(10)(20) === 30,
+        hint: "return function(x) { return x + n; };"
+      },
+      {
+        id: 205,
+        title: "Currying",
+        description: "Currying funktsiya yozing, uchta parametrni ketma-ket qabul qilib, yig'indisini qaytarsin.",
+        template: "function curry(a) {\n  // currying\n  \n}",
+        solution: "function curry(a) {\n  return function(b) {\n    return function(c) {\n      return a + b + c;\n    };\n  };\n}",
+        test: (fn) => fn(1)(2)(3) === 6,
+        hint: "return function(b) { return function(c) { return a + b + c; }; };"
+      },
+      {
+        id: 206,
+        title: "Compose funktsiya",
+        description: "Funktsiya yozing, ikkita funktsiyani compose qilsin (f(g(x))).",
+        template: "function compose(f, g) {\n  // f(g(x))\n  \n}",
+        solution: "function compose(f, g) {\n  return function(x) {\n    return f(g(x));\n  };\n}",
+        test: (fn) => {
+          const ikkilan = x => x * 2;  const qosh5 = x => x + 5;  return fn(qosh5, ikkilan)(3) === 11;},
+        hint: "return function(x) { return f(g(x)); };"
+      },
+      {
+        id: 207,
+        title: "Pure funktsiya",
+        description: "Pure funktsiya yozing, bir xil kirish uchun doim bir xil natija qaytarsin.",
+        template: "function pure(a, b) {\n  // a + b\n  \n}",
+        solution: "function pure(a, b) {\n  return a + b;\n}",
+        test: (fn) => fn(5, 3) === 8 && fn(5, 3) === 8,
+        hint: "return a + b;"
+      },
+      {
+        id: 208,
+        title: "Higher-order funktsiya",
+        description: "Higher-order funktsiya yozing, array va funktsiya qabul qilib, map ni qo'llang.",
+        template: "function apply(arr, fn) {\n  // arr.map(fn)\n  \n}",
+        solution: "function apply(arr, fn) {\n  return arr.map(fn);\n}",
+        test: (fn) => fn([1,2,3], x => x * 2)[0] === 2,
+        hint: "return arr.map(fn);"
+      },
+      {
+        id: 209,
+        title: "Memoization",
+        description: "Funktsiya yozing, natijalarni keshlab saqlang (oddiy versiya).",
+        template: "function memo() {\n  const cache = {};\n  return function(n) {\n    // cache tekshiring\n  };\n}",
+        solution: "function memo() {\n  const cache = {};\n  return function(n) {\n    if (cache[n]) return cache[n];\n    const result = n * 2;\n    cache[n] = result;\n    return result;\n  };\n}",
+        test: (fn) => {
+          const f = fn();  return f(5) === 10 && f(5) === 10;},
+        hint: "if (cache[n]) return cache[n]; cache[n] = result;"
+      },
+      {
+        id: 210,
+        title: "Debounce",
+        description: "Oddiy debounce funktsiya yozing (simplified versiya).",
+        template: "function debounce(fn, delay) {\n  let timeout;\n  return function() {\n    // timeout logic\n  };\n}",
+        solution: "function debounce(fn, delay) {\n  let timeout;\n  return function(...args) {\n    clearTimeout(timeout);\n    timeout = setTimeout(() => fn(...args), delay);\n  };\n}",
+        test: (fn) => typeof fn(() => {}, 100) === 'function',
+        hint: "clearTimeout(timeout); timeout = setTimeout(() => fn(...args), delay);"
+      }
+    ]
+  },
+  {
+    id: 8,
+    name: "Murakkab masalalar",
+    challenges: [
+      {
+        id: 211,
+        title: "Palindrom tekshirish",
+        description: "Funktsiya yozing, qator palindrom bo'lsa true, aks holda false qaytarsin.",
+        template: "function palindrom(str) {\n  // teskari aylantiring\n  \n}",
+        solution: "function palindrom(str) {\n  const teskari = str.split('').reverse().join('');\n  return str === teskari;\n}",
+        test: (fn) => fn('asa') === true && fn('salom') === false && fn('non') === true,
+        hint: "const teskari = str.split('').reverse().join(''); return str === teskari;"
+      },
+      {
+        id: 212,
+        title: "FizzBuzz",
+        description: "1 dan n gacha: 3 ga bo'linsa 'Fizz', 5 ga bo'linsa 'Buzz', 15 ga bo'linsa 'FizzBuzz', qolgan son.",
+        template: "function fizzBuzz(n) {\n  // for va if\n  \n}",
+        solution: "function fizzBuzz(n) {\n  let arr = [];\n  for (let i = 1; i <= n; i++) {\n    if (i % 15 === 0) arr.push('FizzBuzz');\n    else if (i % 3 === 0) arr.push('Fizz');\n    else if (i % 5 === 0) arr.push('Buzz');\n    else arr.push(i);\n  }\n  return arr;\n}",
+        test: (fn) => {
+          const r = fn(15);  return r[2] === 'Fizz' && r[4] === 'Buzz' && r[14] === 'FizzBuzz';},
+        hint: "Avval 15 ga, keyin 3 ga, keyin 5 ga bo'linishni tekshiring."
+      },
+      {
+        id: 213,
+        title: "Takrorlanmaydigan belgi",
+        description: "Funktsiya yozing, qatordagi birinchi takrorlanmaydigan belgini qaytarsin.",
+        template: "function noyob(str) {\n  // indexOf va lastIndexOf\n  \n}",
+        solution: "function noyob(str) {\n  for (let i = 0; i < str.length; i++) {\n    if (str.indexOf(str[i]) === str.lastIndexOf(str[i])) {\n      return str[i];\n    }\n  }\n  return null;\n}",
+        test: (fn) => fn('salom') === 's' && fn('aabbcc') === null,
+        hint: "indexOf va lastIndexOf teng bo'lsa, belgi noyob."
+      },
+      {
+        id: 214,
+        title: "Anagram tekshirish",
+        description: "Funktsiya yozing, ikkita qator anagram bo'lsa true qaytarsin.",
+        template: "function anagram(str1, str2) {\n  // saralash va taqqoslash\n  \n}",
+        solution: "function anagram(str1, str2) {\n  const s1 = str1.split('').sort().join('');\n  const s2 = str2.split('').sort().join('');\n  return s1 === s2;\n}",
+        test: (fn) => fn('listen', 'silent') === true && fn('hello', 'world') === false,
+        hint: "Har ikkala stringni saralab taqqoslang."
+      },
+      {
+        id: 215,
+        title: "Fibonacci",
+        description: "Funktsiya yozing, n-Fibonacci sonini qaytarsin.",
+        template: "function fibonacci(n) {\n  // rekursiya yoki tsikl\n  \n}",
+        solution: "function fibonacci(n) {\n  if (n <= 1) return n;\n  let a = 0, b = 1;\n  for (let i = 2; i <= n; i++) {\n    [a, b] = [b, a + b];\n  }\n  return b;\n}",
+        test: (fn) => fn(6) === 8 && fn(10) === 55,
+        hint: "let a = 0, b = 1; for (...) [a, b] = [b, a + b];"
+      },
+      {
+        id: 216,
+        title: "Tub son tekshirish",
+        description: "Funktsiya yozing, son tub bo'lsa true qaytarsin.",
+        template: "function tubSon(n) {\n  // 2 dan n-1 gacha bo'linish tekshiring\n  \n}",
+        solution: "function tubSon(n) {\n  if (n <= 1) return false;\n  for (let i = 2; i <= Math.sqrt(n); i++) {\n    if (n % i === 0) return false;\n  }\n  return true;\n}",
+        test: (fn) => fn(7) === true && fn(8) === false && fn(2) === true,
+        hint: "for (let i = 2; i <= Math.sqrt(n); i++) if (n % i === 0) return false;"
+      },
+      {
+        id: 217,
+        title: "Massivda eng ko'p takrorlangan element",
+        description: "Funktsiya yozing, massivda eng ko'p uchraydigan elementni qaytarsin.",
+        template: "function koп(arr) {\n  // element sonini hisoblang\n  \n}",
+        solution: "function kop(arr) {\n  const count = {};\n  let max = 0, result;\n  for (let item of arr) {\n    count[item] = (count[item] || 0) + 1;\n    if (count[item] > max) {\n      max = count[item];\n      result = item;\n    }\n  }\n  return result;\n}",
+        test: (fn) => fn([1,2,2,3,3,3]) === 3,
+        hint: "const count = {}; har bir elementni hisoblang."
+      },
+      {
+        id: 218,
+        title: "Array tekislash (flatten)",
+        description: "Funktsiya yozing, ichma-ich arrayni tekis arrayga aylantirsin.",
+        template: "function flatten(arr) {\n  // rekursiya yoki flat()\n  \n}",
+        solution: "function flatten(arr) {\n  return arr.flat(Infinity);\n}",
+        test: (fn) => fn([1,[2,[3,4]]]).length === 4,
+        hint: "return arr.flat(Infinity);"
+      },
+      {
+        id: 219,
+        title: "Ikkita massivning kesishmasi",
+        description: "Funktsiya yozing, ikkita massivning umumiy elementlarini qaytarsin.",
+        template: "function kesishma(arr1, arr2) {\n  // filter va includes\n  \n}",
+        solution: "function kesishma(arr1, arr2) {\n  return arr1.filter(item => arr2.includes(item));\n}",
+        test: (fn) => fn([1,2,3], [2,3,4]).length === 2,
+        hint: "return arr1.filter(item => arr2.includes(item));"
+      },
+      {
+        id: 220,
+        title: "Massiv rotation",
+        description: "Funktsiya yozing, massivni n marta chapga aylantirsin.",
+        template: "function rotate(arr, n) {\n  // slice va concat\n  \n}",
+        solution: "function rotate(arr, n) {\n  n = n % arr.length;\n  return arr.slice(n).concat(arr.slice(0, n));\n}",
+        test: (fn) => fn([1,2,3,4,5], 2)[0] === 3,
+        hint: "return arr.slice(n).concat(arr.slice(0, n));"
+      },
+      {
+        id: 221,
+        title: "Eng uzun umumiy prefix",
+        description: "Funktsiya yozing, string array dagi eng uzun umumiy prefixni topsin.",
+        template: "function prefix(arr) {\n  // birinchi string bilan taqqoslang\n  \n}",
+        solution: "function prefix(arr) {\n  if (!arr.length) return '';\n  let pref = arr[0];\n  for (let i = 1; i < arr.length; i++) {\n    while (!arr[i].startsWith(pref)) {\n      pref = pref.slice(0, -1);\n    }\n  }\n  return pref;\n}",
+        test: (fn) => fn(['flower','flow','flight']) === 'fl',
+        hint: "while (!arr[i].startsWith(pref)) pref = pref.slice(0, -1);"
+      },
+      {
+        id: 222,
+        title: "Roman raqamlarini o'zgartirish",
+        description: "Funktsiya yozing, roman raqamini oddiy raqamga aylantirsin (I=1, V=5, X=10).",
+        template: "function romanToInt(s) {\n  // har bir belgini tekshiring\n  \n}",
+        solution: "function romanToInt(s) {\n  const map = {I:1, V:5, X:10, L:50, C:100, D:500, M:1000};\n  let result = 0;\n  for (let i = 0; i < s.length; i++) {\n    if (map[s[i]] < map[s[i+1]]) result -= map[s[i]];\n    else result += map[s[i]];\n  }\n  return result;\n}",
+        test: (fn) => fn('III') === 3 && fn('IV') === 4 && fn('IX') === 9,
+        hint: "Agar keyingi belgi kattaroq bo'lsa, ayiring, aks holda qo'shing."
+      },
+      {
+        id: 223,
+        title: "Massivdan dublikatlarni olib tashlash",
+        description: "Funktsiya yozing, massivdan takroriy elementlarni olib tashlang.",
+        template: "function noyoblar(arr) {\n  // Set yoki filter\n  \n}",
+        solution: "function noyoblar(arr) {\n  return [...new Set(arr)];\n}",
+        test: (fn) => fn([1,2,2,3,3,3]).length === 3,
+        hint: "return [...new Set(arr)];"
+      },
+      {
+        id: 224,
+        title: "Missing number",
+        description: "Funktsiya yozing, 1 dan n gacha ketma-ketlikda qaysi son yo'qligini topsin.",
+        template: "function missing(arr, n) {\n  // yig'indini taqqoslang\n  \n}",
+        solution: "function missing(arr, n) {\n  const expected = (n * (n + 1)) / 2;\n  const actual = arr.reduce((sum, num) => sum + num, 0);\n  return expected - actual;\n}",
+        test: (fn) => fn([1,2,4,5], 5) === 3,
+        hint: "Kutilgan yig'indi - haqiqiy yig'indi"
+      },
+      {
+        id: 225,
+        title: "Two sum",
+        description: "Funktsiya yozing, massivda ikkita son bor-yo'qligini topsin, ularning yig'indisi target ga teng.",
+        template: "function twoSum(arr, target) {\n  // har bir juftlikni tekshiring\n  \n}",
+        solution: "function twoSum(arr, target) {\n  for (let i = 0; i < arr.length; i++) {\n    for (let j = i + 1; j < arr.length; j++) {\n      if (arr[i] + arr[j] === target) return [i, j];\n    }\n  }\n  return null;\n}",
+        test: (fn) => fn([2,7,11,15], 9)[0] === 0 && fn([2,7,11,15], 9)[1] === 1,
+        hint: "Ichma-ich for tsikli bilan barcha juftliklarni tekshiring."
+      },
+      {
+        id: 226,
+        title: "Chunk array",
+        description: "Funktsiya yozing, massivni n o'lchamli bo'laklarga ajrating.",
+        template: "function chunk(arr, size) {\n  // for va slice\n  \n}",
+        solution: "function chunk(arr, size) {\n  const result = [];\n  for (let i = 0; i < arr.length; i += size){\n    result.push(arr.slice(i, i + size));\n  }\n  return result;\n}",
+        test: (fn) => fn([1,2,3,4,5], 2).length === 3,
+        hint: "for (let i = 0; i < arr.length; i += size) result.push(arr.slice(i, i + size));"
+      },
+      {
+        id: 227,
+        title: "Capitalizе first letter",
+        description: "Funktsiya yozing, har bir so'zning birinchi harfini katta qiling.",
+        template: "function capitalize(str) {\n  // split, map, join\n  \n}",
+        solution: "function capitalize(str) {\n  return str.split(' ').map(word => word[0].toUpperCase() + word.slice(1).toLowerCase()).join(' ');\n}",
+        test: (fn) => fn('hello world') === 'Hello World',
+        hint: "word[0].toUpperCase() + word.slice(1).toLowerCase()"
+      },
+      {
+        id: 228,
+        title: "Reverse words",
+        description: "Funktsiya yozing, so'zlar tartibini teskari aylantiring.",
+        template: "function reverseWords(str) {\n  // split, reverse, join\n  \n}",
+        solution: "function reverseWords(str) {\n  return str.split(' ').reverse().join(' ');\n}",
+        test: (fn) => fn('hello world') === 'world hello',
+        hint: "return str.split(' ').reverse().join(' ');"
+      },
+      {
+        id: 229,
+        title: "Count vowels",
+        description: "Funktsiya yozing, string dagi unli harflar sonini hisoblang.",
+        template: "function countVowels(str) {\n  // for va includes\n  \n}",
+        solution: "function countVowels(str) {\n  const vowels = 'aeiouAEIOU';\n  let count = 0;\n  for (let char of str) {\n    if (vowels.includes(char)) count++;\n  }\n  return count;\n}",
+        test: (fn) => fn('hello') === 2 && fn('aeiou') === 5,
+        hint: "const vowels = 'aeiouAEIOU'; if (vowels.includes(char)) count++;"
+      },
+      {
+        id: 230,
+        title: "Is balanced parentheses",
+        description: "Funktsiya yozing, qavs lar balanslangan bo'lsa true qaytarsin.",
+        template: "function balanced(str) {\n  // stack\n  \n}",
+        solution: "function balanced(str) {\n  const stack = [];\n  const pairs = {')': '(', '}': '{', ']': '['};\n  for (let char of str) {\n    if ('({['.includes(char)) stack.push(char);\n    else if (')}]'.includes(char)) {\n      if (stack.pop() !== pairs[char]) return false;\n    }\n  }\n  return stack.length === 0;\n}",
+        test: (fn) => fn('()[]{}') === true && fn('([)]') === false,
+        hint: "Stack dan foydalaning, ochiluvchi qavs push, yopiluvchi qavs pop."
+      },
+      {
+        id: 231,
+        title: "Array yig'indisi target ga teng",
+        description: "Funktsiya yozing, massivda ikkita son bor-yo'qligini tekshiring, yig'indisi target.",
+        template: "function hasTarget(arr, target) {\n  // Set dan foydalaning\n  \n}",
+        solution: "function hasTarget(arr, target) {\n  const seen = new Set();\n  for (let num of arr) {\n    if (seen.has(target - num)) return true;\n    seen.add(num);\n  }\n  return false;\n}",
+        test: (fn) => fn([2,7,11,15], 9) === true && fn([1,2,3], 10) === false,
+        hint: "Set da (target - num) bor-yo'qligini tekshiring."
+      },
+      {
+        id: 232,
+        title: "Group anagrams",
+        description: "Funktsiya yozing, anagram so'zlarni guruhlang.",
+        template: "function groupAnagrams(arr) {\n  // saralangan so'z key sifatida\n  \n}",
+        solution: "function groupAnagrams(arr) {\n  const map = {};\n  for (let word of arr) {\n    const key = word.split('').sort().join('');\n    if (!map[key]) map[key] = [];\n    map[key].push(word);\n  }\n  return Object.values(map);\n}",
+        test: (fn) => fn(['eat','tea','tan','ate','nat','bat']).length === 3,
+        hint: "Har bir so'zni saralab, key sifatida ishlating."
+      },
+      {
+        id: 233,
+        title: "Longest substring without repeating",
+        description: "Funktsiya yozing, takrorlanmaydigan belgilardan iborat eng uzun substring uzunligini toping.",
+        template: "function longest(str) {\n  // sliding window\n  \n}",
+        solution: "function longest(str) {\n  let max = 0, start = 0;\n  const seen = {};\n  for (let i = 0; i < str.length; i++) {\n    if (seen[str[i]] >= start) start = seen[str[i]] + 1;\n    seen[str[i]] = i;\n    max = Math.max(max, i - start + 1);\n  }\n  return max;\n}",
+        test: (fn) => fn('abcabcbb') === 3 && fn('bbbbb') === 1,
+        hint: "Sliding window va Set/Object dan foydalaning."
+      },
+      {
+        id: 234,
+        title: "Max subarray sum",
+        description: "Funktsiya yozing, ketma-ket elementlarning eng katta yig'indisini toping.",
+        template: "function maxSubarray(arr) {\n  // Kadane's algorithm\n  \n}",
+        solution: "function maxSubarray(arr) {\n  let maxSum = arr[0], currentSum = arr[0];\n  for (let i = 1; i < arr.length; i++) {\n    currentSum = Math.max(arr[i], currentSum + arr[i]);\n    maxSum = Math.max(maxSum, currentSum);\n  }\n  return maxSum;\n}",
+        test: (fn) => fn([-2,1,-3,4,-1,2,1,-5,4]) === 6,
+        hint: "Kadane's algorithm: currentSum = Math.max(arr[i], currentSum + arr[i])"
+      },
+      {
+        id: 235,
+        title: "Binary search",
+        description: "Funktsiya yozing, saralangan massivda elementni binary search bilan toping.",
+        template: "function binarySearch(arr, target) {\n  // left, right, mid\n  \n}",
+        solution: "function binarySearch(arr, target) {\n  let left = 0, right = arr.length - 1;\n  while (left <= right) {\n    const mid = Math.floor((left + right) / 2);\n    if (arr[mid] === target) return mid;\n    if (arr[mid] < target) left = mid + 1;\n    else right = mid - 1;\n  }\n  return -1;\n}",
+        test: (fn) => fn([1,2,3,4,5,6,7], 5) === 4 && fn([1,2,3,4,5], 6) === -1,
+        hint: "let left = 0, right = arr.length - 1; mid = (left + right) / 2"
+      },
+      {
+        id: 236,
+        title: "Merge sorted arrays",
+        description: "Funktsiya yozing, ikkita saralangan massivni birlashtirib, saralangan holda qaytaring.",
+        template: "function merge(arr1, arr2) {\n  // ikki pointer\n  \n}",
+        solution: "function merge(arr1, arr2) {\n  const result = [];\n  let i = 0, j = 0;\n  while (i < arr1.length && j < arr2.length) {\n    if (arr1[i] < arr2[j]) result.push(arr1[i++]);\n    else result.push(arr2[j++]);\n  }\n  return result.concat(arr1.slice(i)).concat(arr2.slice(j));\n}",
+        test: (fn) => fn([1,3,5], [2,4,6])[0] === 1 && fn([1,3,5], [2,4,6]).length === 6,
+        hint: "Ikki pointer bilan har ikkala massivni parallel ravishda o'ting."
+      },
+      {
+        id: 237,
+        title: "Valid palindrome",
+        description: "Funktsiya yozing, faqat harflar va raqamlarni hisobga olib, palindromni tekshiring.",
+        template: "function validPalindrome(str) {\n  // maxsus belgilarni olib tashlang\n  \n}",
+        solution: "function validPalindrome(str) {\n  const clean = str.toLowerCase().replace(/[^a-z0-9]/g, '');\n  return clean === clean.split('').reverse().join('');\n}",
+        test: (fn) => fn('A man, a plan, a canal: Panama') === true,
+        hint: "str.toLowerCase().replace(/[^a-z0-9]/g, '')"
+      },
+      {
+        id: 238,
+        title: "Product except self",
+        description: "Funktsiya yozing, har bir indeks uchun o'sha indeksdan tashqari barcha elementlarning ko'paytmasini qaytaring.",
+        template: "function productExcept(arr) {\n  // chap va o'ng ko'paytmalar\n  \n}",
+        solution: "function productExcept(arr) {\n  const n = arr.length;\n  const result = new Array(n).fill(1);\n  let left = 1, right = 1;\n  for (let i = 0; i < n; i++) {\n    result[i] *= left;\n    left *= arr[i];\n    result[n-1-i] *= right;\n    right *= arr[n-1-i];\n  }\n  return result;\n}",
+        test: (fn) => fn([1,2,3,4])[0] === 24 && fn([1,2,3,4])[1] === 12,
+        hint: "Chap va o'ng tomondan ko'paytmalarni hisoblang."
+      },
+      {
+        id: 239,
+        title: "Rotate matrix",
+        description: "Funktsiya yozing, 2D massivni 90 daraja o'ngga aylantiring.",
+        template: "function rotateMatrix(matrix) {\n  // transpose va reverse\n  \n}",
+        solution: "function rotateMatrix(matrix) {\n  const n = matrix.length;\n  for (let i = 0; i < n; i++) {\n    for (let j = i; j < n; j++) {\n      [matrix[i][j], matrix[j][i]] = [matrix[j][i], matrix[i][j]];\n    }\n  }\n  for (let i = 0; i < n; i++) {\n    matrix[i].reverse();\n  }\n  return matrix;\n}",
+        test: (fn) => fn([[1,2,3],[4,5,6],[7,8,9]])[0][0] === 7,
+        hint: "Transpose qiling, keyin har bir qatorni reverse qiling."
+      },
+      {
+        id: 240,
+        title: "Longest increasing subsequence",
+        description: "Funktsiya yozing, eng uzun o'suvchi subsequence uzunligini toping.",
+        template: "function lis(arr) {\n  // dynamic programming\n  \n}",
+        solution: "function lis(arr) {\n  if (!arr.length) return 0;\n  const dp = new Array(arr.length).fill(1);\n  for (let i = 1; i < arr.length; i++) {\n    for (let j = 0; j < i; j++) {\n      if (arr[i] > arr[j]) {\n        dp[i] = Math.max(dp[i], dp[j] + 1);\n      }\n    }\n  }\n  return Math.max(...dp);\n}",
+        test: (fn) => fn([10,9,2,5,3,7,101,18]) === 4,
+        hint: "Dynamic programming: dp[i] = max(dp[j] + 1) agar arr[i] > arr[j]"
+      }
+    ]
+  }
+];
+        // -------------------------------------------------------------------------
+    let currentTopicIndex = 0;
+    let currentChallengeIndex = 0;
+    let solvedChallenges = new Set();
+
+    function highlightCode(code) {
+      return Prism.highlight(code, Prism.languages.javascript, 'javascript');
+    }
+
+    function updateLineNumbers() {
+      const code = document.getElementById('codeInput').value;
+      const lines = code.split('\n').length;
+      const lineNumbers = document.getElementById('lineNumbers');
+      lineNumbers.innerHTML = Array.from({length: lines}, (_, i) => i + 1).join('\n');
+    }
+
+    function renderTopics() {
+      const topicsList = document.getElementById('topicsList');
+      topicsList.innerHTML = '<div class="topics-section-title">O\'quv dasturi</div>';
+      
+      topics.forEach((topic, index) => {
+        const topicSolved = topic.challenges.filter(c => solvedChallenges.has(c.id)).length;
+        const totalChallenges = topic.challenges.length;
+        const isCompleted = topicSolved === totalChallenges;
+        const progressPercent = (topicSolved / totalChallenges) * 100;
+        
+        const div = document.createElement('div');
+        div.className = `topic-item ${index === currentTopicIndex ? 'active' : ''} ${isCompleted ? 'completed' : ''}`;
+        div.innerHTML = `
+          <div class="topic-header">
+            <div class="topic-number">${index + 1}</div>
+            <div class="topic-check">✓</div>
+          </div>
+          <div class="topic-name">${topic.name}</div>
+          <div class="topic-progress">
+            <span>${topicSolved}/${totalChallenges}</span>
+            <div class="topic-progress-bar">
+              <div class="topic-progress-fill" style="width: ${progressPercent}%"></div>
+            </div>
+          </div>
+        `;
+        div.onclick = () => selectTopic(index);
+        topicsList.appendChild(div);
+      });
+
+      updateProgress();
+    }
+
+    function updateProgress() {
+      const total = topics.reduce((sum, t) => sum + t.challenges.length, 0);
+      const solved = solvedChallenges.size;
+      const percent = (solved / total) * 100;
+      
+      document.getElementById('progressNumber').textContent = solved;
+      document.getElementById('progressTotal').textContent = total;
+      document.getElementById('progressBar').style.width = percent + '%';
+    }
+
+    function selectTopic(index) {
+      currentTopicIndex = index;
+      currentChallengeIndex = 0;
+      renderTopics();
+      loadChallenge();
+    }
+
+    function loadChallenge() {
+      const topic = topics[currentTopicIndex];
+      const challenge = topic.challenges[currentChallengeIndex];
+      
+      document.getElementById('topicBadgeText').textContent = topic.name;
+      document.getElementById('challengeTitle').textContent = challenge.title;
+      document.getElementById('challengeMeta').textContent = 
+        `Topshiriq ${currentChallengeIndex + 1}/${topic.challenges.length}`;
+      document.getElementById('challengeDescription').textContent = challenge.description;
+      document.getElementById('codeInput').value = challenge.template;
+      
+      updateCodeDisplay();
+      updateLineNumbers();
+      
+      const solvedBadge = document.getElementById('solvedBadge');
+      if (solvedChallenges.has(challenge.id)) {
+        solvedBadge.style.display = 'flex';
+      } else {
+        solvedBadge.style.display = 'none';
+      }
+      
+      document.getElementById('hintBox').style.display = 'none';
+      document.getElementById('solutionBox').style.display = 'none';
+      document.getElementById('resultBox').style.display = 'none';
+      
+      updateNavigationButtons();
+    }
+
+    function updateCodeDisplay() {
+      const code = document.getElementById('codeInput').value;
+      document.getElementById('codeDisplay').innerHTML = highlightCode(code);
+    }
+
+    function updateNavigationButtons() {
+      const topic = topics[currentTopicIndex];
+      document.getElementById('prevBtn').disabled = currentChallengeIndex === 0;
+      document.getElementById('nextBtn').disabled = currentChallengeIndex === topic.challenges.length - 1;
+    }
+
+    function runCode() {
+      const topic = topics[currentTopicIndex];
+      const challenge = topic.challenges[currentChallengeIndex];
+      const code = document.getElementById('codeInput').value;
+      const resultBox = document.getElementById('resultBox');
+      
+      document.getElementById('hintBox').style.display = 'none';
+      document.getElementById('solutionBox').style.display = 'none';
+      
+      try {
+        const userFunction = eval(`(${code})`);
+        const passed = challenge.test(userFunction);
+        
+        if (passed) {
+          resultBox.className = 'result-box success';
+          resultBox.innerHTML = '<div class="result-icon">✓</div><div>Ajoyib! To\'g\'ri yechim! 🎉</div>';
+          solvedChallenges.add(challenge.id);
+          document.getElementById('solvedBadge').style.display = 'flex';
+          updateProgress();
+          renderTopics();
+        } else {
+          resultBox.className = 'result-box error';
+          resultBox.innerHTML = '<div class="result-icon">✗</div><div>Bu to\'g\'ri emas. Yana bir bor harakat qiling!</div>';
+        }
+        resultBox.style.display = 'flex';
+      } catch (error) {
+        resultBox.className = 'result-box error';
+        resultBox.innerHTML = `<div class="result-icon">✗</div><div>Xato: ${error.message}</div>`;
+        resultBox.style.display = 'flex';
+      }
+    }
+
+    function showHint() {
+      const topic = topics[currentTopicIndex];
+      const challenge = topic.challenges[currentChallengeIndex];
+      const hintBox = document.getElementById('hintBox');
+      
+      hintBox.className = 'hint-box';
+      hintBox.innerHTML = `
+        <div class="hint-title">
+          <span>💡</span>
+          <span>Maslahat</span>
+        </div>
+        <div class="hint-content">${challenge.hint}</div>
+      `;
+      hintBox.style.display = 'block';
+      
+      document.getElementById('solutionBox').style.display = 'none';
+    }
+
+    function showSolution() {
+      const topic = topics[currentTopicIndex];
+      const challenge = topic.challenges[currentChallengeIndex];
+      const solutionBox = document.getElementById('solutionBox');
+      
+      solutionBox.className = 'solution-box';
+      solutionBox.innerHTML = `
+        <div class="solution-title">
+          <span>👁</span>
+          <span>To'g'ri yechim:</span>
+        </div>
+        <div class="solution-code-container">
+          <pre class="solution-code"><code class="language-javascript">${highlightCode(challenge.solution)}</code></pre>
+        </div>
+      `;
+      solutionBox.style.display = 'block';
+      
+      document.getElementById('hintBox').style.display = 'none';
+    }
+
+    document.getElementById('codeInput').addEventListener('input', () => {
+      updateCodeDisplay();
+      updateLineNumbers();
+    });
+    
+    document.getElementById('runBtn').addEventListener('click', runCode);
+    document.getElementById('hintBtn').addEventListener('click', showHint);
+    document.getElementById('showSolutionBtn').addEventListener('click', showSolution);
+
+    document.getElementById('prevBtn').addEventListener('click', () => {
+      if (currentChallengeIndex > 0) {
+        currentChallengeIndex--;
+        loadChallenge();
+      }
+    });
+
+    document.getElementById('nextBtn').addEventListener('click', () => {
+      const topic = topics[currentTopicIndex];
+      if (currentChallengeIndex < topic.challenges.length - 1) {
+        currentChallengeIndex++;
+        loadChallenge();
+      }
+    });
+
+    document.getElementById('toggleSidebar').addEventListener('click', () => {
+      const sidebar = document.getElementById('sidebar');
+      sidebar.classList.toggle('hidden');
+    });
+
+    renderTopics();
+    loadChallenge();
+    // ---------------------
+    const textarea = document.getElementById('codeInput');
+    const codeDisplay = document.querySelector('.code-display');
+    const lineNumbers = document.getElementById('lineNumbers');
+
+    textarea.addEventListener('scroll', () => {
+    codeDisplay.scrollTop = textarea.scrollTop;
+    codeDisplay.scrollLeft = textarea.scrollLeft;
+    lineNumbers.scrollTop = textarea.scrollTop;
+    });
+
+  </script>
+</body>
+</html>
