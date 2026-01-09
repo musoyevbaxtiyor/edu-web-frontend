@@ -2,6 +2,8 @@
 
 // api.js faylidan so'rov funksiyasini import qilish shart
 import { apiRequest } from './api.js';
+// Alert komponentini yuklash (barcha sahifalar uchun)
+import './alert.js';
 
 // MUHIM: Bu o'zgaruvchilar boshqa modullar uchun eksport qilinadi
 export let currentUser = null;

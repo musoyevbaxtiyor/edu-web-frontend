@@ -1,4 +1,5 @@
 import { apiRequest } from '../assets/js/api.js';
+import { showAlert, showConfirm } from '../assets/js/alert.js';
 
 // Elementlar
 const loadingMessage = document.getElementById('loading-message');
@@ -22,8 +23,10 @@ async function initializeDashboard() {
     const token = localStorage.getItem('userToken');
 
     if (!token) {
-        alert("Iltimos, avtorizatsiyadan o'ting.");
-        window.location.href = '../login/login.html';
+        showAlert("Iltimos, avtorizatsiyadan o'ting.", 'warning');
+        setTimeout(() => {
+            window.location.href = '../login/login.html';
+        }, 1500);
         return;
     }
 
@@ -45,7 +48,7 @@ async function initializeDashboard() {
         
     } catch (error) {
         console.error("Profil yuklashda xato:", error);
-        alert("Sessiya tugagan yoki token yaroqsiz. Qayta kiring.");
+        showAlert("Sessiya tugagan yoki token yaroqsiz. Qayta kiring.", 'error');
         handleLogout(); 
     }
 }
@@ -121,11 +124,14 @@ async function loadStatistics(token) {
 }
 
 // Chiqish (Logout) funksiyasi
-function handleLogout() {
-    if (confirm('Tizimdan chiqishni tasdiqlaysizmi?')) {
+async function handleLogout() {
+    const confirmed = await showConfirm('Tizimdan chiqishni tasdiqlaysizmi?', 'Tizimdan chiqish');
+    if (confirmed) {
         localStorage.removeItem('userToken');
-        alert('Tizimdan chiqdingiz.');
-        window.location.href = '../login/login.html';
+        showAlert('Tizimdan chiqdingiz.', 'success');
+        setTimeout(() => {
+            window.location.href = '../login/login.html';
+        }, 1500);
     }
 }
 

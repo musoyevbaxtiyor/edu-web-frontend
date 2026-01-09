@@ -1,4 +1,5 @@
 import { apiRequest } from '../assets/js/api.js';
+import { showAlert } from '../assets/js/alert.js';
 
 const registerForm = document.getElementById('register-form');
 const registerButton = document.getElementById('register-btn');
@@ -34,15 +35,17 @@ registerForm.addEventListener('submit', async (e) => {
 
         // Muvaffaqiyatli javob
         console.log('Ro\'yxatdan o\'tish muvaffaqiyatli:', data);
-        alert(`Muvaffaqiyatli! Foydalanuvchi: ${data.name}. Endi tizimga kirishingiz mumkin.`);
+        showAlert(`Muvaffaqiyatli! Foydalanuvchi: ${data.name}. Endi tizimga kirishingiz mumkin.`, 'success');
         
         // Kirish sahifasiga yo'naltirish
-        window.location.href = '../login/login.html';
+        setTimeout(() => {
+            window.location.href = '../login/login.html';
+        }, 2000);
 
     } catch (error) {
         // Xatoni ko'rsatish
         console.error('Ro\'yxatdan o\'tishda xato:', error);
-        alert(error.message || 'Ro\'yxatdan o\'tishda kutilmagan xato yuz berdi.');
+        showAlert(error.message || 'Ro\'yxatdan o\'tishda kutilmagan xato yuz berdi.', 'error');
 
     } finally {
         // Tugmani qayta tiklash

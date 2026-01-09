@@ -1,0 +1,377 @@
+/**
+ * Chiroyli Alert va Confirm komponentlari uchun CSS
+ */
+
+/* Alert Container */
+#alert-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 10000;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    max-width: 400px;
+    pointer-events: none;
+}
+
+/* Alert Element */
+.custom-alert {
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+    padding: 0;
+    overflow: hidden;
+    opacity: 0;
+    transform: translateX(400px);
+    transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    pointer-events: auto;
+    position: relative;
+    min-width: 320px;
+    max-width: 400px;
+}
+
+.custom-alert.show {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+.custom-alert.hide {
+    opacity: 0;
+    transform: translateX(400px);
+}
+
+/* Alert Content */
+.alert-content {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 18px 20px;
+    position: relative;
+}
+
+/* Alert Icon */
+.alert-icon {
+    font-size: 24px;
+    flex-shrink: 0;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+}
+
+.custom-alert[data-type="success"] .alert-icon {
+    color: #10b981;
+    background: rgba(16, 185, 129, 0.1);
+}
+
+.custom-alert[data-type="error"] .alert-icon {
+    color: #ef4444;
+    background: rgba(239, 68, 68, 0.1);
+}
+
+.custom-alert[data-type="warning"] .alert-icon {
+    color: #f59e0b;
+    background: rgba(245, 158, 11, 0.1);
+}
+
+.custom-alert[data-type="info"] .alert-icon {
+    color: #3b82f6;
+    background: rgba(59, 130, 246, 0.1);
+}
+
+/* Alert Message */
+.alert-message {
+    flex: 1;
+    font-size: 14px;
+    line-height: 1.5;
+    color: #1f2937;
+    font-weight: 500;
+}
+
+/* Alert Close Button */
+.alert-close {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 4px;
+    color: #6b7280;
+    font-size: 18px;
+    transition: all 0.2s;
+    flex-shrink: 0;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+}
+
+.alert-close:hover {
+    background: rgba(0, 0, 0, 0.05);
+    color: #1f2937;
+}
+
+/* Progress Bar */
+.alert-progress-bar {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+    width: 100%;
+    transform-origin: left;
+}
+
+.custom-alert[data-type="success"] .alert-progress-bar {
+    background: linear-gradient(90deg, #10b981, #059669);
+}
+
+.custom-alert[data-type="error"] .alert-progress-bar {
+    background: linear-gradient(90deg, #ef4444, #dc2626);
+}
+
+.custom-alert[data-type="warning"] .alert-progress-bar {
+    background: linear-gradient(90deg, #f59e0b, #d97706);
+}
+
+@keyframes progressBar {
+    from {
+        transform: scaleX(1);
+    }
+    to {
+        transform: scaleX(0);
+    }
+}
+
+/* Dark Mode Support */
+body.dark #alert-container .custom-alert {
+    background: #1f2937;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+body.dark .alert-message {
+    color: #f9fafb;
+}
+
+body.dark .alert-close {
+    color: #9ca3af;
+}
+
+body.dark .alert-close:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #f9fafb;
+}
+
+/* Confirm Dialog Styles */
+.custom-confirm-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10001;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    padding: 20px;
+}
+
+.custom-confirm-overlay.show {
+    opacity: 1;
+}
+
+.custom-confirm-overlay.hide {
+    opacity: 0;
+}
+
+.custom-confirm-dialog {
+    background: #ffffff;
+    border-radius: 16px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    max-width: 450px;
+    width: 100%;
+    overflow: hidden;
+    transform: scale(0.9);
+    transition: transform 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+.custom-confirm-overlay.show .custom-confirm-dialog {
+    transform: scale(1);
+}
+
+.custom-confirm-overlay.hide .custom-confirm-dialog {
+    transform: scale(0.9);
+}
+
+/* Confirm Header */
+.confirm-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 24px;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.confirm-header h3 {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 600;
+    color: #1f2937;
+}
+
+.confirm-close {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 6px;
+    color: #6b7280;
+    font-size: 20px;
+    transition: all 0.2s;
+    border-radius: 6px;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.confirm-close:hover {
+    background: rgba(0, 0, 0, 0.05);
+    color: #1f2937;
+}
+
+/* Confirm Body */
+.confirm-body {
+    padding: 24px;
+    text-align: center;
+}
+
+.confirm-icon {
+    font-size: 48px;
+    color: #3b82f6;
+    margin-bottom: 16px;
+}
+
+.confirm-message {
+    font-size: 16px;
+    line-height: 1.6;
+    color: #4b5563;
+    margin: 0;
+}
+
+/* Confirm Footer */
+.confirm-footer {
+    display: flex;
+    gap: 12px;
+    padding: 20px 24px;
+    border-top: 1px solid #e5e7eb;
+    justify-content: flex-end;
+}
+
+.confirm-btn {
+    padding: 10px 24px;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    min-width: 100px;
+}
+
+.confirm-btn-cancel {
+    background: #f3f4f6;
+    color: #374151;
+}
+
+.confirm-btn-cancel:hover {
+    background: #e5e7eb;
+}
+
+.confirm-btn-ok {
+    background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+    color: #ffffff;
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+.confirm-btn-ok:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(59, 130, 246, 0.4);
+}
+
+.confirm-btn:active {
+    transform: translateY(0);
+}
+
+/* Dark Mode for Confirm */
+body.dark .custom-confirm-dialog {
+    background: #1f2937;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+}
+
+body.dark .confirm-header {
+    border-bottom-color: #374151;
+}
+
+body.dark .confirm-header h3 {
+    color: #f9fafb;
+}
+
+body.dark .confirm-close {
+    color: #9ca3af;
+}
+
+body.dark .confirm-close:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #f9fafb;
+}
+
+body.dark .confirm-message {
+    color: #d1d5db;
+}
+
+body.dark .confirm-footer {
+    border-top-color: #374151;
+}
+
+body.dark .confirm-btn-cancel {
+    background: #374151;
+    color: #f9fafb;
+}
+
+body.dark .confirm-btn-cancel:hover {
+    background: #4b5563;
+}
+
+/* Responsive Design */
+@media (max-width: 480px) {
+    #alert-container {
+        right: 10px;
+        left: 10px;
+        max-width: none;
+    }
+    
+    .custom-alert {
+        min-width: auto;
+        max-width: none;
+    }
+    
+    .custom-confirm-dialog {
+        margin: 20px;
+    }
+    
+    .confirm-footer {
+        flex-direction: column;
+    }
+    
+    .confirm-btn {
+        width: 100%;
+    }
+}

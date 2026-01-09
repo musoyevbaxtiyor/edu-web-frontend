@@ -1,6 +1,7 @@
 // edu-web-frontend/teacher-panel/teacher-panel.js
 
 import { apiRequest } from '../assets/js/api.js'; // apiRequest ni import qilish shart
+import { showAlert } from '../assets/js/alert.js';
 
 const token = localStorage.getItem('userToken');
 const submissionListContainer = document.getElementById('submissions-list-container');
@@ -24,8 +25,10 @@ closeBtn.addEventListener('click', () => modal.style.display = 'none');
 // 1. Panelni yuklash
 async function initializeTeacherPanel() {
     if (!token) {
-        alert("Avtorizatsiyadan o'ting.");
-        window.location.href = '../login/login.html';
+        showAlert("Avtorizatsiyadan o'ting.", 'warning');
+        setTimeout(() => {
+            window.location.href = '../login/login.html';
+        }, 1500);
         return;
     }
     await fetchPendingSubmissions();
@@ -155,7 +158,7 @@ async function handleSubmissionReview(status) {
     
     // Faqat tasdiqlashda bahoni tekshirish
     if (status === 'approved' && (!grade || grade < 0 || grade > 100)) {
-        alert("Iltimos, 0 dan 100 gacha bo'lgan to'g'ri baho kiriting.");
+        showAlert("Iltimos, 0 dan 100 gacha bo'lgan to'g'ri baho kiriting.", 'warning');
         return;
     }
     
@@ -175,13 +178,13 @@ async function handleSubmissionReview(status) {
             })
         });
 
-        alert(response.message); 
+        showAlert(response.message, 'success'); 
         
         modal.style.display = 'none';
         await fetchPendingSubmissions(); 
 
     } catch (error) {
         console.error("Vazifani baholashda xato:", error);
-        alert(`❌ Xato: Vazifani baholashda xato yuz berdi. Konsolni tekshiring.`);
+        showAlert(`Xato: Vazifani baholashda xato yuz berdi. Konsolni tekshiring.`, 'error');
     }
 }

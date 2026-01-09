@@ -1,6 +1,7 @@
 // edu-web-frontend/lesson-view/lesson-view.js
 
 import { apiRequest } from '../assets/js/api.js';
+import { showAlert } from '../assets/js/alert.js';
 
 const courseTitleEl = document.getElementById('course-title');
 const courseTitleBadge = document.getElementById('course-title-badge');
@@ -138,8 +139,10 @@ function convertToEmbedUrl(url) {
 
 async function initializeLessonView() {
     if (!token) {
-        alert("Avtorizatsiyadan o'ting.");
-        window.location.href = '../login/login.html';
+        showAlert("Avtorizatsiyadan o'ting.", 'warning');
+        setTimeout(() => {
+            window.location.href = '../login/login.html';
+        }, 1500);
         return;
     }
 

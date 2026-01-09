@@ -1,4 +1,5 @@
 import { apiRequest } from '../assets/js/api.js';
+import { showAlert } from '../assets/js/alert.js';
 
 const loginForm = document.getElementById('login-form');
 const loginButton = document.getElementById('login-btn');
@@ -28,15 +29,17 @@ loginForm.addEventListener('submit', async (e) => {
 
         // Muvaffaqiyatli javob
         console.log('Kirish muvaffaqiyatli:', data);
-        alert(`Xush kelibsiz, ${data.name}!`);
+        showAlert(`Xush kelibsiz, ${data.name}!`, 'success');
         
         // Tizimga kirish muvaffaqiyatli bo'lsa, dashboardga yo'naltirish
-        window.location.href = '../dashboard/dashboard.html';
+        setTimeout(() => {
+            window.location.href = '../dashboard/dashboard.html';
+        }, 1500);
 
     } catch (error) {
         // Xatoni ko'rsatish
         console.error('Kirishda xato:', error);
-        alert(error.message || 'Kirishda xato yuz berdi. Email yoki parolni tekshiring.');
+        showAlert(error.message || 'Kirishda xato yuz berdi. Email yoki parolni tekshiring.', 'error');
 
     } finally {
         loginButton.disabled = false;

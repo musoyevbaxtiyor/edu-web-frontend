@@ -1,4 +1,5 @@
 import { apiRequest } from '../assets/js/api.js';
+import { showAlert, showConfirm } from '../assets/js/alert.js';
 
 const coursesList = document.getElementById('courses-list');
 const loadingMessage = document.getElementById('loading-message');
@@ -27,8 +28,10 @@ let allCourses = []; // Barcha kurslar ro'yxati (filtrlash uchun)
 async function fetchCoursesAndCheckRole() {
     const token = localStorage.getItem('userToken');
     if (!token) {
-        alert("Iltimos, avtorizatsiyadan o'ting.");
-        window.location.href = '../login/login.html';
+        showAlert("Iltimos, avtorizatsiyadan o'ting.", 'warning');
+        setTimeout(() => {
+            window.location.href = '../login/login.html';
+        }, 1500);
         return;
     }
     
@@ -46,9 +49,11 @@ async function fetchCoursesAndCheckRole() {
     } catch (error) {
         // Agar token yaroqsiz bo'lsa, login sahifasiga o'tkazish
         console.error("Kurslarni yuklashda xato:", error);
-        alert("Sessiya tugagan yoki token yaroqsiz. Qayta kiring.");
+        showAlert("Sessiya tugagan yoki token yaroqsiz. Qayta kiring.", 'error');
         localStorage.removeItem('userToken');
-        window.location.href = '../login/login.html';
+        setTimeout(() => {
+            window.location.href = '../login/login.html';
+        }, 2000);
     }
 }
 
@@ -274,7 +279,7 @@ createCourseForm.addEventListener('submit', async (e) => {
             body: JSON.stringify(courseData)
         });
 
-        alert(`Kurs muvaffaqiyatli yaratildi: ${response.course.title}`);
+        showAlert(`Kurs muvaffaqiyatli yaratildi: ${response.course.title}`, 'success');
         createFormContainer.setAttribute('aria-hidden', 'true');
         createCourseForm.reset();
         
@@ -284,7 +289,7 @@ createCourseForm.addEventListener('submit', async (e) => {
 
     } catch (error) {
         console.error('Kurs yaratishda xato:', error);
-        alert(error.message || 'Kurs yaratishda xato yuz berdi.');
+        showAlert(error.message || 'Kurs yaratishda xato yuz berdi.', 'error');
     }
 });
 
@@ -306,7 +311,8 @@ function addActionListeners() {
 
 // O'chirish (DELETE) funksiyasi
 async function handleDelete(courseId, token) {
-    if (!confirm("Haqiqatan ham bu kursni o'chirmoqchimisiz?")) {
+    const confirmed = await showConfirm("Haqiqatan ham bu kursni o'chirmoqchimisiz?", 'Kursni o\'chirish');
+    if (!confirmed) {
         return;
     }
 
@@ -318,7 +324,7 @@ async function handleDelete(courseId, token) {
             }
         });
 
-        alert("Kurs muvaffaqiyatli o'chirildi.");
+        showAlert("Kurs muvaffaqiyatli o'chirildi.", 'success');
         
         // Kurslar ro'yxatini qayta yuklash
         await fetchAllCourses(token);
@@ -326,14 +332,15 @@ async function handleDelete(courseId, token) {
 
     } catch (error) {
         console.error('Kursni o\'chirishda xato:', error);
-        alert(error.message || 'Kursni o\'chirishda xato yuz berdi. Ruxsatlaringizni tekshiring.');
+        showAlert(error.message || 'Kursni o\'chirishda xato yuz berdi. Ruxsatlaringizni tekshiring.', 'error');
     }
 }
 
 // Kursga ro'yxatdan o'tish (Enroll) funksiyasi
 async function handleEnroll(courseId, token) {
     // Qo'shimcha tekshiruv: Talaba kursga yozilishni tasdiqlasin
-    if (!confirm("Siz ro'yxatdan o'tishni tasdiqlaysizmi?")) {
+    const confirmed = await showConfirm("Siz ro'yxatdan o'tishni tasdiqlaysizmi?", 'Kursga yozilish');
+    if (!confirmed) {
         return;
     }
 
@@ -347,7 +354,7 @@ async function handleEnroll(courseId, token) {
             body: JSON.stringify({ courseId }) // Backendga faqat kurs ID'sini yuboramiz
         });
 
-        alert(response.message || "Kursga muvaffaqiyatli ro'yxatdan o'tildi!");
+        showAlert(response.message || "Kursga muvaffaqiyatli ro'yxatdan o'tildi!", 'success');
         
         // Ro'yxatdan o'tgandan so'ng, kurslar ro'yxatini yangilash zarur bo'lmasa-da, 
         // keyinchalik "Ro'yxatdan o'tish" tugmasini "Ro'yxatdan o'tilgan" qilish uchun foydali
@@ -356,7 +363,7 @@ async function handleEnroll(courseId, token) {
 
     } catch (error) {
         console.error('Kursga yozilishda xato:', error);
-        alert(error.message || 'Kursga yozilishda xato yuz berdi. Balki siz allaqachon ro\'yxatdan o\'tgandirsiz.');
+        showAlert(error.message || 'Kursga yozilishda xato yuz berdi. Balki siz allaqachon ro\'yxatdan o\'tgandirsiz.', 'error');
     }
 }
 
@@ -383,7 +390,7 @@ async function handleEdit(courseId, token) {
 
     } catch (error) {
         console.error('Kurs ma\'lumotlarini olishda xato:', error);
-        alert('Kurs ma\'lumotlarini yuklab bo\'lmadi: ' + (error.message || 'Server xatosi'));
+        showAlert('Kurs ma\'lumotlarini yuklab bo\'lmadi: ' + (error.message || 'Server xatosi'), 'error');
     }
 }
 
@@ -467,7 +474,7 @@ editCourseForm.addEventListener('submit', async (e) => {
             body: JSON.stringify(updatedData)
         });
 
-        alert(`Kurs muvaffaqiyatli yangilandi: ${response.course.title}`);
+        showAlert(`Kurs muvaffaqiyatli yangilandi: ${response.course.title}`, 'success');
         editFormContainer.setAttribute('aria-hidden', 'true');
         editCourseForm.reset();
         
@@ -477,7 +484,7 @@ editCourseForm.addEventListener('submit', async (e) => {
 
     } catch (error) {
         console.error('Kursni yangilashda xato:', error);
-        alert(error.message || 'Kursni yangilashda xato yuz berdi. Ruxsatlaringizni tekshiring.');
+        showAlert(error.message || 'Kursni yangilashda xato yuz berdi. Ruxsatlaringizni tekshiring.', 'error');
     }
 });
 

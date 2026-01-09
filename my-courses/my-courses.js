@@ -1,6 +1,7 @@
 // edu-web-frontend/my-courses/my-courses.js
 
 import { apiRequest } from '../assets/js/api.js';
+import { showAlert } from '../assets/js/alert.js';
 
 const myCoursesList = document.getElementById('my-courses-list');
 const loadingMessage = document.getElementById('loading-message');
@@ -14,8 +15,10 @@ async function initializeMyCourses() {
     const token = localStorage.getItem('userToken');
 
     if (!token) {
-        alert("Iltimos, avtorizatsiyadan o'ting.");
-        window.location.href = '../login/login.html';
+        showAlert("Iltimos, avtorizatsiyadan o'ting.", 'warning');
+        setTimeout(() => {
+            window.location.href = '../login/login.html';
+        }, 1500);
         return;
     }
 
@@ -27,9 +30,11 @@ async function initializeMyCourses() {
         await fetchMyEnrolledCourses(token);
     } catch (error) {
         console.error("Xato:", error);
-        alert("Sessiya tugagan yoki token yaroqsiz. Qayta kiring.");
+        showAlert("Sessiya tugagan yoki token yaroqsiz. Qayta kiring.", 'error');
         localStorage.removeItem('userToken');
-        window.location.href = '../login/login.html';
+        setTimeout(() => {
+            window.location.href = '../login/login.html';
+        }, 2000);
     }
 }
 
@@ -89,9 +94,11 @@ async function fetchMyEnrolledCourses(token) {
         // Avtorizatsiya xatosi yoki boshqa xatolar uchun
         console.error("Mening kurslarimni yuklashda xato:", error);
         loadingMessage.innerHTML = '<p>Kurslarni yuklashda xato yuz berdi. Iltimos, qayta kiring.</p>';
-        alert("Sessiya tugagan yoki token yaroqsiz. Qayta kiring.");
+        showAlert("Sessiya tugagan yoki token yaroqsiz. Qayta kiring.", 'error');
         localStorage.removeItem('userToken');
-        window.location.href = '../login/login.html';
+        setTimeout(() => {
+            window.location.href = '../login/login.html';
+        }, 2000);
     }
 }
 
