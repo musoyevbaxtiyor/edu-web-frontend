@@ -1,6 +1,6 @@
 // edu-web-frontend/lesson-view/lesson-view.js
 
-import { apiRequest } from '../assets/js/api.js';
+import { apiRequest, BASE_SERVER_URL } from '../assets/js/api.js';
 import { showAlert } from '../assets/js/alert.js';
 
 const courseTitleEl = document.getElementById('course-title');
@@ -17,6 +17,12 @@ const submissionFileEl = document.getElementById('task-solution');
 const submissionCommentEl = document.getElementById('submission-comment');
 const userAvatar = document.getElementById('user-avatar');
 const lessonsLoading = document.getElementById('lessons-loading');
+const submissionDetailsEl = document.getElementById('submission-details');
+const submittedFileInfoEl = document.getElementById('submitted-file-info');
+const teacherFeedbackSectionEl = document.getElementById('teacher-feedback-section');
+const teacherGradeEl = document.getElementById('teacher-grade');
+const teacherFeedbackTextEl = document.getElementById('teacher-feedback-text');
+const submissionStatusBadgeEl = document.getElementById('submission-status-badge');
 
 let currentCourseId = null;
 let allLessons = [];
@@ -410,19 +416,27 @@ async function displayLessonContent(lesson) {
         // Agar darsda vazifa bo'lsa, topshirish maydonini ko'rsatamiz.
         taskSubmissionBoxEl.style.display = 'block'; 
         
-        // Submission maydonining holatini yangilash
-        if (lesson.progressStatus === 'submitted') {
+        // Submission maydonining holatini yangilash va submission ma'lumotlarini yuklash
+        await loadSubmissionDetails(currentLessonId);
+
+        if (lesson.progressStatus === 'submitted' || lesson.progressStatus === 'in_review') {
              submissionMessageEl.textContent = '⏳ Vazifa topshirilgan. O\'qituvchi tekshirishini kuting.';
+             submissionMessageEl.className = 'submission-message warning';
              submitTaskBtn.disabled = true;
              submissionFileEl.disabled = true;
+             submissionCommentEl.disabled = true;
         } else if (lesson.progressStatus === 'completed' || lesson.progressStatus === 'approved') {
              submissionMessageEl.textContent = '✅ Vazifa muvaffaqiyatli yakunlandi.';
+             submissionMessageEl.className = 'submission-message success';
              submitTaskBtn.disabled = true;
              submissionFileEl.disabled = true;
+             submissionCommentEl.disabled = true;
         } else {
              submissionMessageEl.textContent = '';
+             submissionMessageEl.className = '';
              submitTaskBtn.disabled = false;
              submissionFileEl.disabled = false;
+             submissionCommentEl.disabled = false;
         }
 
     } else {
@@ -432,6 +446,139 @@ async function displayLessonContent(lesson) {
 
     // Nihoyat, HTMLni asosiy kontent elementiga joylashtirish
     lessonContentEl.innerHTML = contentHTML;
+}
+
+// Submission ma'lumotlarini yuklash va ko'rsatish
+async function loadSubmissionDetails(lessonId) {
+    try {
+        const response = await apiRequest(`/submissions/my/${lessonId}`, {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+
+        if (response.submission) {
+            displaySubmissionDetails(response.submission);
+        } else {
+            // Submission yo'q bo'lsa, ma'lumotlarni yashirish
+            submissionDetailsEl.style.display = 'none';
+        }
+    } catch (error) {
+        console.error('Submission ma\'lumotlarini yuklashda xato:', error);
+        // Xato bo'lsa ham ma'lumotlarni yashirish
+        submissionDetailsEl.style.display = 'none';
+    }
+}
+
+// Submission ma'lumotlarini ko'rsatish
+function displaySubmissionDetails(submission) {
+    if (!submission) {
+        submissionDetailsEl.style.display = 'none';
+        return;
+    }
+
+    // Submission details section'ni ko'rsatish
+    submissionDetailsEl.style.display = 'block';
+
+    // O'quvchi yuborgan task ma'lumotlarini ko'rsatish
+    displaySubmittedFile(submission);
+
+    // O'qituvchi bahosi va izohini ko'rsatish (agar mavjud bo'lsa)
+    if (submission.status === 'approved' || submission.status === 'rejected' || submission.status === 'in_review') {
+        displayTeacherFeedback(submission);
+    } else {
+        teacherFeedbackSectionEl.style.display = 'none';
+    }
+}
+
+// Yuborilgan fayl ma'lumotlarini ko'rsatish
+function displaySubmittedFile(submission) {
+    if (!submission.submissionUrl) {
+        submittedFileInfoEl.innerHTML = '<p style="color: var(--text-secondary);">Fayl topilmadi.</p>';
+        return;
+    }
+
+    const fileUrl = `${BASE_SERVER_URL}${submission.submissionUrl}`;
+    const fileDate = new Date(submission.createdAt).toLocaleString('uz-UZ', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+    });
+
+    let fileInfoHTML = `
+        <div class="file-info-item">
+            <i class="fas fa-file-alt"></i>
+            <a href="${fileUrl}" target="_blank" download>
+                Yuborilgan faylni ko'rish/yuklab olish
+            </a>
+            <span class="file-date">${fileDate}</span>
+        </div>
+    `;
+
+    // Agar izoh bo'lsa
+    if (submission.submissionComment) {
+        fileInfoHTML += `
+            <div style="padding: 0.75rem; background: var(--light-bg); border-radius: 0.5rem; margin-top: 0.5rem;">
+                <strong style="color: var(--text-primary);">Izoh:</strong>
+                <p style="color: var(--text-secondary); margin-top: 0.25rem; margin-bottom: 0;">${submission.submissionComment}</p>
+            </div>
+        `;
+    }
+
+    submittedFileInfoEl.innerHTML = fileInfoHTML;
+}
+
+// O'qituvchi bahosi va izohini ko'rsatish
+function displayTeacherFeedback(submission) {
+    teacherFeedbackSectionEl.style.display = 'block';
+
+    // Baho
+    if (submission.grade !== undefined && submission.grade !== null) {
+        teacherGradeEl.textContent = submission.grade;
+    } else {
+        teacherGradeEl.textContent = '-';
+    }
+
+    // Izoh
+    if (submission.feedback) {
+        teacherFeedbackTextEl.textContent = submission.feedback;
+    } else {
+        teacherFeedbackTextEl.textContent = 'Izoh kiritilmagan.';
+        teacherFeedbackTextEl.style.color = 'var(--text-secondary)';
+        teacherFeedbackTextEl.style.fontStyle = 'italic';
+    }
+
+    // Status badge
+    let statusText = '';
+    let statusClass = '';
+    
+    switch (submission.status) {
+        case 'approved':
+            statusText = 'Tasdiqlangan';
+            statusClass = 'approved';
+            break;
+        case 'rejected':
+            statusText = 'Rad etilgan';
+            statusClass = 'rejected';
+            break;
+        case 'in_review':
+            statusText = 'Tekshirilmoqda';
+            statusClass = 'in_review';
+            break;
+        case 'submitted':
+            statusText = 'Topshirilgan';
+            statusClass = 'submitted';
+            break;
+        default:
+            statusText = submission.status || '-';
+            statusClass = 'submitted';
+    }
+
+    submissionStatusBadgeEl.textContent = statusText;
+    submissionStatusBadgeEl.className = `status-badge ${statusClass}`;
 }
 
 
@@ -602,7 +749,7 @@ async function handleSubmitTask() {
         if (currentLesson) {
             const updatedLesson = allLessons.find(l => l._id === currentLessonId);
             if (updatedLesson) {
-                displayLessonContent(updatedLesson);
+                await displayLessonContent(updatedLesson);
             }
         } 
 

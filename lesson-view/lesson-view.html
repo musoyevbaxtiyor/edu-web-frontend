@@ -121,6 +121,50 @@
                             <div id="submission-message" class="submission-message"></div>
                         </div>
                     </div>
+                    
+                    <!-- Submission Details Section -->
+                    <div id="submission-details" class="submission-details" style="display: none;">
+                        <div class="submission-details-header">
+                            <h4>
+                                <i class="fas fa-info-circle"></i>
+                                Topshirish Ma'lumotlari
+                            </h4>
+                        </div>
+                        <div class="submission-details-content">
+                            <!-- O'quvchi yuborgan task -->
+                            <div class="submitted-task-section">
+                                <h5>
+                                    <i class="fas fa-file-upload"></i>
+                                    Siz Yuborgan Task
+                                </h5>
+                                <div id="submitted-file-info" class="submitted-file-info">
+                                    <!-- Fayl ma'lumotlari bu yerda ko'rsatiladi -->
+                                </div>
+                            </div>
+                            
+                            <!-- O'qituvchi bahosi va izohi -->
+                            <div id="teacher-feedback-section" class="teacher-feedback-section" style="display: none;">
+                                <h5>
+                                    <i class="fas fa-chalkboard-teacher"></i>
+                                    O'qituvchi Bahosi va Izohi
+                                </h5>
+                                <div class="feedback-content">
+                                    <div class="grade-display">
+                                        <span class="grade-label">Baho:</span>
+                                        <span id="teacher-grade" class="grade-value">-</span>
+                                        <span class="grade-max">/100</span>
+                                    </div>
+                                    <div class="feedback-text">
+                                        <span class="feedback-label">Izoh:</span>
+                                        <p id="teacher-feedback-text">-</p>
+                                    </div>
+                                    <div class="submission-status">
+                                        <span id="submission-status-badge" class="status-badge">-</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </main>
