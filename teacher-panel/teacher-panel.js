@@ -31,7 +31,48 @@ async function initializeTeacherPanel() {
         }, 1500);
         return;
     }
+    
+    // Foydalanuvchi ma'lumotlarini yuklash
+    await loadTeacherInfo();
     await fetchPendingSubmissions();
+}
+
+// Foydalanuvchi ma'lumotlarini yuklash
+async function loadTeacherInfo() {
+    try {
+        const response = await apiRequest('/users/profile', {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+        
+        const user = response.user;
+        const displayName = user.name || 'O\'qituvchi';
+        const teacherInfoEl = document.getElementById('teacher-info');
+        
+        if (teacherInfoEl) {
+            const initials = getInitials(displayName);
+            teacherInfoEl.innerHTML = `
+                <div style="width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #6366f1, #818cf8); display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; font-size: 1rem;">
+                    ${initials}
+                </div>
+                <span>${displayName}</span>
+            `;
+        }
+    } catch (error) {
+        console.error("Foydalanuvchi ma'lumotlarini yuklashda xato:", error);
+    }
+}
+
+// Ismning birinchi harflarini olish
+function getInitials(name) {
+    if (!name) return 'U';
+    const words = name.trim().split(' ');
+    if (words.length === 1) {
+        return words[0].charAt(0).toUpperCase();
+    }
+    return (words[0].charAt(0) + words[words.length - 1].charAt(0)).toUpperCase();
 }
 
 
@@ -64,7 +105,12 @@ function renderSubmissionsList(submissions) {
     submissionListContainer.innerHTML = '';
     
     if (submissions.length === 0) {
-        submissionListContainer.innerHTML = '<p>Hozircha tekshirilmagan vazifalar mavjud emas. ✅</p>';
+        submissionListContainer.innerHTML = `
+            <div style="grid-column: 1 / -1; text-align: center; padding: 3rem; background: white; border-radius: 1rem; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);">
+                <i class="fas fa-check-circle" style="font-size: 4rem; color: #10b981; margin-bottom: 1rem;"></i>
+                <p style="font-size: 1.2rem; color: #64748b; font-weight: 500;">Hozircha tekshirilmagan vazifalar mavjud emas. ✅</p>
+            </div>
+        `;
         return;
     }
 
