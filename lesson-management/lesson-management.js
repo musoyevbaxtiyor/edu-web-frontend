@@ -95,7 +95,12 @@ function renderLessonsList(lessons) {
     lessonCountSpan.textContent = lessons.length;
 
     if (lessons.length === 0) {
-         lessonsListAdmin.innerHTML = '<li>Hozircha birorta ham dars qo\'shilmagan.</li>';
+         lessonsListAdmin.innerHTML = `
+            <li style="text-align: center; padding: 3rem; color: #64748b; font-size: 1.1rem;">
+                <i class="fas fa-inbox" style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.5; display: block;"></i>
+                Hozircha birorta ham dars qo'shilmagan.
+            </li>
+         `;
          return;
     }
 

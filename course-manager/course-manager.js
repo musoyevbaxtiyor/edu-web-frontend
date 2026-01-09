@@ -38,7 +38,7 @@ function setupEventListeners() {
     // Kurs qo'shish tugmasini JS orqali joylashtirish
     if (currentUserRole === 'admin' || currentUserRole === 'teacher') {
         addCourseBtnContainer.innerHTML = `
-            <button id="add-course-btn" class="btn action-btn manage-lessons-btn">➕ Yangi Kurs Qo'shish</button>
+            <button id="add-course-btn">Yangi Kurs Qo'shish</button>
         `;
         document.getElementById('add-course-btn').addEventListener('click', () => openCourseModal('add'));
     }
@@ -91,7 +91,12 @@ function displayCourses(courses) {
     courseListEl.innerHTML = '';
 
     if (courses.length === 0) {
-        courseListEl.innerHTML = '<p class="text-info">Hozircha kurslar mavjud emas.</p>';
+        courseListEl.innerHTML = `
+            <div style="grid-column: 1 / -1; text-align: center; padding: 3rem; background: white; border-radius: 1rem; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);">
+                <i class="fas fa-book-open" style="font-size: 4rem; margin-bottom: 1rem; opacity: 0.5; color: #64748b; display: block;"></i>
+                <p style="font-size: 1.2rem; color: #64748b; font-weight: 500;">Hozircha kurslar mavjud emas.</p>
+            </div>
+        `;
         return;
     }
 
@@ -99,23 +104,30 @@ function displayCourses(courses) {
         const card = document.createElement('div');
         card.className = 'course-card';
         
+        const description = course.description ? (course.description.length > 150 ? course.description.substring(0, 150) + '...' : course.description) : 'Tavsif mavjud emas.';
+        const price = course.price ? course.price.toLocaleString('uz-UZ') : '0';
+        const teacherName = course.teacher?.name || 'Noma\'lum';
+        
         card.innerHTML = `
             <h4>${course.title}</h4>
-            <p>${course.description.substring(0, 100)}...</p>
-            <p><strong>Narxi:</strong> ${course.price.toLocaleString('uz-UZ')} so'm</p>
-            <p>O'qituvchi: ${course.teacher?.name || 'Noma\'lum'}</p>
-            
+            <p>${description}</p>
+            <div class="price">${price} so'm</div>
+            <p style="color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 1rem;">
+                <i class="fas fa-user-tie"></i> O'qituvchi: ${teacherName}
+            </p>
             <div class="course-actions">
                 <a href="../lesson-management/lesson-management.html?courseId=${course._id}" 
-   class="action-btn manage-lessons-btn">📚 Darslarni Boshqarish</a>
+                   class="action-btn manage-lessons-btn">
+                    <i class="fas fa-book"></i> Darslarni Boshqarish
+                </a>
                 
                 ${(currentUserRole === 'admin' || currentUserRole === 'teacher') ? `
                     <button class="action-btn edit-btn" data-id="${course._id}" 
                             data-title="${course.title}" data-desc="${course.description}" data-price="${course.price}">
-                        ✏️ Tahrirlash
+                        <i class="fas fa-edit"></i> Tahrirlash
                     </button>
                     <button class="action-btn delete-btn" data-id="${course._id}">
-                        🗑️ O'chirish
+                        <i class="fas fa-trash"></i> O'chirish
                     </button>
                 ` : ''}
             </div>
