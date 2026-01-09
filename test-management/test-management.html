@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Boshqaruvi - O'qituvchi Paneli</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="stylesheet" href="test-management.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Top Navigation Bar -->
+    <nav class="top-nav">
+        <div class="nav-left">
+            <div class="logo-section">
+                <i class="fas fa-graduation-cap"></i>
+                <span>Edu Web</span>
+            </div>
+        </div>
+        <div class="nav-right">
+            <a href="../dashboard/dashboard.html" class="nav-link">
+                <i class="fas fa-home"></i>
+                <span>Dashboard</span>
+            </a>
+            <a href="../courses/courses.html" class="nav-link">
+                <i class="fas fa-book"></i>
+                <span>Kurslar</span>
+            </a>
+            <div class="user-menu" id="user-menu" style="cursor: pointer;">
+                <div class="user-avatar" id="user-avatar">
+                    <i class="fas fa-user"></i>
+                </div>
+                <span class="username-text" id="top-username">Foydalanuvchi</span>
+            </div>
+        </div>
+    </nav>
+
+    <div class="test-management-container">
+        <div class="page-header">
+            <h1>
+                <i class="fas fa-clipboard-question"></i>
+                Test Boshqaruvi
+            </h1>
+            <button class="btn-primary" id="add-test-btn">
+                <i class="fas fa-plus"></i>
+                Yangi Test Qo'shish
+            </button>
+        </div>
+
+        <!-- Loading State -->
+        <div id="loading-message" class="loading-state">
+            <div class="spinner"></div>
+            <p>Testlar yuklanmoqda...</p>
+        </div>
+
+        <!-- Tests List -->
+        <div id="tests-content" class="tests-content" style="display: none;">
+            <div id="tests-list" class="tests-grid">
+                <!-- Testlar bu yerda ko'rsatiladi -->
+            </div>
+        </div>
+
+        <!-- Add/Edit Test Modal -->
+        <div id="test-modal" class="modal" style="display: none;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 id="modal-title">Yangi Test Qo'shish</h2>
+                    <button class="modal-close" id="close-modal-btn">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <form id="test-form" class="test-form">
+                    <input type="hidden" id="test-id">
+                    
+                    <div class="form-group">
+                        <label for="test-title">
+                            <i class="fas fa-heading"></i>
+                            Test Sarlavhasi *
+                        </label>
+                        <input type="text" id="test-title" required placeholder="Masalan: typeof null">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="test-question">
+                            <i class="fas fa-question-circle"></i>
+                            Savol Matni *
+                        </label>
+                        <textarea id="test-question" rows="3" required placeholder="Savol matnini kiriting"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="test-code">
+                            <i class="fas fa-code"></i>
+                            Kod (ixtiyoriy)
+                        </label>
+                        <textarea id="test-code" rows="4" placeholder="JavaScript kodi (ixtiyoriy)"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label>
+                            <i class="fas fa-list-ul"></i>
+                            Variantlar (Javoblar) *
+                        </label>
+                        <div id="options-container" class="options-container">
+                            <!-- Variantlar bu yerda ko'rsatiladi -->
+                        </div>
+                        <button type="button" class="btn-secondary" id="add-option-btn">
+                            <i class="fas fa-plus"></i>
+                            Variant Qo'shish
+                        </button>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="correct-answer">
+                            <i class="fas fa-check-circle"></i>
+                            To'g'ri Javob Indeksi *
+                        </label>
+                        <select id="correct-answer" required>
+                            <option value="">Tanlang...</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="test-explanation">
+                            <i class="fas fa-lightbulb"></i>
+                            Tushuntirish (ixtiyoriy)
+                        </label>
+                        <textarea id="test-explanation" rows="3" placeholder="To'g'ri javob tushuntirishi"></textarea>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="test-difficulty">
+                                <i class="fas fa-signal"></i>
+                                Qiyinlik Darajasi
+                            </label>
+                            <select id="test-difficulty">
+                                <option value="easy">Oson</option>
+                                <option value="medium" selected>O'rtacha</option>
+                                <option value="hard">Qiyin</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="test-category">
+                                <i class="fas fa-tag"></i>
+                                Kategoriya
+                            </label>
+                            <input type="text" id="test-category" placeholder="Masalan: JavaScript, HTML, CSS">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="test-order">
+                            <i class="fas fa-sort-numeric-down"></i>
+                            Tartib Raqami
+                        </label>
+                        <input type="number" id="test-order" min="0" value="0">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="test-is-active" checked>
+                            <span>Test faol</span>
+                        </label>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn-primary">
+                            <i class="fas fa-save"></i>
+                            Saqlash
+                        </button>
+                        <button type="button" class="btn-secondary" id="cancel-form-btn">
+                            <i class="fas fa-times"></i>
+                            Bekor qilish
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="../assets/js/main.js"></script>
+    <script type="module" src="test-management.js"></script>
+</body>
+</html>

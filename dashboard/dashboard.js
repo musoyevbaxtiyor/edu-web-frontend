@@ -59,6 +59,12 @@ function displayProfile(user) {
     // Avatar harflarini ko'rsatish
     const initials = getInitials(displayName);
     userAvatar.innerHTML = `<span style="font-size: 1rem; font-weight: 600;">${initials}</span>`;
+    
+    // O'qituvchi va admin uchun test boshqarish linkini ko'rsatish
+    const testManagementNav = document.getElementById('test-management-nav-item');
+    if (testManagementNav && (user.role === 'teacher' || user.role === 'admin')) {
+        testManagementNav.style.display = 'flex';
+    }
 }
 
 // Ismning birinchi harflarini olish

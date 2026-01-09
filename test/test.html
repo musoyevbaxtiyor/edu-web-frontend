@@ -901,14 +901,18 @@
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
-
+<!-- Test data will be loaded dynamically from backend via test.js module -->
+<!-- Old inline script removed - test.js module will handle all functionality -->
+<!-- All test functionality is handled by test.js module -->
 <script>
-/* ===============================
-   TEST DATA
-================================ */
-
-const tests = [
-  {
+// Placeholder - test.js module will override everything
+console.log('test.js module will load tests from backend');
+</script>
+<script>
+  // This entire script block will be ignored - test.js handles everything
+  // Keeping for backward compatibility only
+  if (false) { // Never executes
+  const oldTests = [{
     title: "typeof null",
     question: "Quyidagi kod natijasi nima?",
     code: "typeof null",
@@ -1009,7 +1013,9 @@ document.getElementById("prevBtn").onclick = () => {
   }
 };
 
-renderTest();
+  } // End of if (false) block
 </script>
+<script type="module" src="../assets/js/main.js"></script>
+<script type="module" src="test.js"></script>
 </body>
 </html>
