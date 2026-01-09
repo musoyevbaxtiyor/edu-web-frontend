@@ -40,8 +40,8 @@ async function initializeDashboard() {
         // 3. Ma'lumotlarni sahifada ko'rsatish
         displayProfile(response.user);
         
-        // 4. Statistikani yuklash (agar API mavjud bo'lsa)
-        // loadStatistics(token);
+        // 4. Statistikani yuklash
+        await loadStatistics(token);
         
     } catch (error) {
         console.error("Profil yuklashda xato:", error);
@@ -77,34 +77,36 @@ function getInitials(name) {
     return (words[0].charAt(0) + words[words.length - 1].charAt(0)).toUpperCase();
 }
 
-// Statistikani yuklash (ixtiyoriy - agar backend API mavjud bo'lsa)
+// Statistikani yuklash
 async function loadStatistics(token) {
     try {
-        // Misol: Agar statistika API mavjud bo'lsa
-        // const statsResponse = await apiRequest('/users/statistics', {
-        //     method: 'GET',
-        //     headers: {
-        //         'Authorization': `Bearer ${token}`
-        //     }
-        // });
+        const statsResponse = await apiRequest('/users/statistics', {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
         
-        // coursesCount.textContent = statsResponse.courses || 0;
-        // completedCount.textContent = statsResponse.completed || 0;
-        // progressCount.textContent = `${statsResponse.progress || 0}%`;
-        // certificatesCount.textContent = statsResponse.certificates || 0;
-        
-        // Hozircha default qiymatlar
-        coursesCount.textContent = '0';
-        completedCount.textContent = '0';
-        progressCount.textContent = '0%';
-        certificatesCount.textContent = '0';
+        // Statistikalarni ko'rsatish
+        if (coursesCount) {
+            coursesCount.textContent = statsResponse.courses || 0;
+        }
+        if (completedCount) {
+            completedCount.textContent = statsResponse.completed || 0;
+        }
+        if (progressCount) {
+            progressCount.textContent = `${statsResponse.progress || 0}%`;
+        }
+        if (certificatesCount) {
+            certificatesCount.textContent = statsResponse.certificates || 0;
+        }
     } catch (error) {
         console.error("Statistika yuklashda xato:", error);
         // Xato bo'lsa ham default qiymatlar ko'rsatiladi
-        coursesCount.textContent = '0';
-        completedCount.textContent = '0';
-        progressCount.textContent = '0%';
-        certificatesCount.textContent = '0';
+        if (coursesCount) coursesCount.textContent = '0';
+        if (completedCount) completedCount.textContent = '0';
+        if (progressCount) progressCount.textContent = '0%';
+        if (certificatesCount) certificatesCount.textContent = '0';
     }
 }
 
