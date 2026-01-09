@@ -6,6 +6,7 @@
 <title>JavaScript Test Platformasi</title>
 
 <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet"/>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
 <style>
     * {
@@ -281,6 +282,129 @@
 
     .topic-item.active .topic-progress-fill {
       background: rgba(255, 255, 255, 0.9);
+    }
+
+    /* Categories Section */
+    .categories-section {
+      padding: 20px;
+      background: rgba(255, 255, 255, 0.95);
+      margin: 20px;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    }
+
+    .categories-header {
+      margin-bottom: 16px;
+    }
+
+    .categories-title {
+      font-size: 14px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #1e293b;
+      margin: 0;
+    }
+
+    .categories-section {
+      background: rgba(255, 255, 255, 0.95);
+      margin: 20px;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    }
+
+    .categories-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .category-item {
+      background: white;
+      padding: 14px;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      border: 2px solid #e2e8f0;
+      position: relative;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    }
+
+    .category-item:hover {
+      background: #f8fafc;
+      transform: translateX(4px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .category-item.active {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border-color: #667eea;
+      box-shadow: 0 4px 16px rgba(102, 126, 234, 0.3);
+    }
+
+    .category-item.active .category-name {
+      color: white;
+    }
+
+    .category-item.active .category-count {
+      color: white;
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    .category-item.active .category-progress-info {
+      color: rgba(255, 255, 255, 0.9);
+    }
+
+    .category-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 8px;
+    }
+
+    .category-name {
+      font-weight: 600;
+      font-size: 14px;
+      color: #1e293b;
+      flex: 1;
+    }
+
+    .category-count {
+      font-size: 12px;
+      color: #64748b;
+      background: rgba(100, 116, 139, 0.1);
+      padding: 4px 8px;
+      border-radius: 12px;
+      font-weight: 600;
+    }
+
+    .category-progress-info {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 12px;
+      color: #475569;
+      margin-bottom: 6px;
+      font-weight: 500;
+    }
+
+    .category-progress-bar {
+      width: 100%;
+      height: 4px;
+      background: #e2e8f0;
+      border-radius: 2px;
+      overflow: hidden;
+    }
+
+    .category-item.active .category-progress-bar {
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    .category-progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #10b981, #34d399);
+      border-radius: 2px;
+      transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
     /* Main Content */
@@ -777,6 +901,43 @@
         width: 100%;
       }
     }
+
+    /* Categories Media Query */
+    @media (max-width: 968px) {
+      .categories-section {
+        padding: 16px;
+      }
+
+      .category-item {
+        padding: 12px;
+      }
+
+      .category-name {
+        font-size: 13px;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .categories-section {
+        padding: 12px;
+      }
+
+      .categories-title {
+        font-size: 12px;
+      }
+
+      .category-item {
+        padding: 10px;
+      }
+
+      .category-name {
+        font-size: 12px;
+      }
+
+      .category-progress-info {
+        font-size: 11px;
+      }
+    }
     /* -------------------------------------------- */
     .line-numbers {
         white-space: pre;
@@ -858,6 +1019,151 @@
   border-color: #ef4444;
   color: #991b1b;
 }
+
+/* Tests List View */
+.tests-list-view {
+  animation: fadeIn 0.5s ease-out;
+}
+
+.tests-list-description {
+  color: #64748b;
+  font-size: 16px;
+  margin-bottom: 24px;
+}
+
+.tests-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+  margin-top: 24px;
+}
+
+.test-card-item {
+  background: white;
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 2px solid transparent;
+  position: relative;
+  overflow: hidden;
+}
+
+.test-card-item.difficulty-card {
+  text-align: center;
+  min-height: 200px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.test-card-item.difficulty-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+}
+
+.test-card-item::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 100%;
+  background: linear-gradient(180deg, #667eea, #764ba2);
+  transform: scaleY(0);
+  transition: transform 0.3s ease;
+}
+
+.test-card-item:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  border-color: #667eea;
+}
+
+.test-card-item:hover::before {
+  transform: scaleY(1);
+}
+
+.test-card-item.completed {
+  border-color: #10b981;
+  background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+}
+
+.test-card-item.completed::before {
+  background: linear-gradient(180deg, #10b981, #059669);
+  transform: scaleY(1);
+}
+
+.test-card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.test-card-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #1e293b;
+  flex: 1;
+  margin-right: 12px;
+}
+
+.test-card-status {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  flex-shrink: 0;
+}
+
+.test-card-item.completed .test-card-status {
+  background: #10b981;
+  color: white;
+}
+
+.test-card-item:not(.completed) .test-card-status {
+  background: #e2e8f0;
+  color: #64748b;
+}
+
+.test-card-meta {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  font-size: 13px;
+  color: #64748b;
+  margin-top: 12px;
+}
+
+.test-card-meta span {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.test-card-meta i {
+  color: #667eea;
+}
+
+.test-view {
+  animation: fadeIn 0.5s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
 </style>
 </head>
 
@@ -876,26 +1182,55 @@
         </div>
       </div>
     </div>
+    <!-- Kategoriyalar -->
+    <div class="categories-section">
+      <div class="categories-header">
+        <h3 class="categories-title">📚 Kategoriyalar</h3>
+      </div>
+      <div class="categories-list" id="categories-list">
+        <!-- Kategoriyalar bu yerda ko'rsatiladi -->
+      </div>
+    </div>
   </div>
 
   <div class="main-content">
     <div class="content-wrapper">
-
-      <h1 class="challenge-title" id="testTitle"></h1>
-
-      <div class="test-box">
-        <div class="test-question" id="testQuestion"></div>
-
-        <pre class="test-code"><code class="language-javascript" id="testCode"></code></pre>
-
-        <div class="test-options" id="testOptions"></div>
+      <!-- Testlar ro'yxati (boshlang'ich holat) -->
+      <div id="tests-list-view" class="tests-list-view">
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;">
+          <div>
+            <h1 class="challenge-title" id="tests-list-title">📚 Barcha Testlar</h1>
+            <p class="tests-list-description" id="tests-list-description">Testni tanlang va boshlang</p>
+          </div>
+          <button class="btn btn-secondary" id="backToAllBtn" style="display: none;">
+            <i class="fas fa-arrow-left"></i> Barcha kategoriyalar
+          </button>
+        </div>
+        <div class="tests-grid" id="tests-grid">
+          <!-- Testlar bu yerda ko'rsatiladi -->
+        </div>
       </div>
 
-      <div class="navigation">
-        <button class="btn btn-secondary" id="prevBtn">← Oldingi</button>
-        <button class="btn btn-secondary" id="nextBtn">Keyingi →</button>
-      </div>
+      <!-- Test ko'rsatish (tanlangandan keyin) -->
+      <div id="test-view" class="test-view" style="display: none;">
+        <h1 class="challenge-title" id="testTitle"></h1>
 
+        <div class="test-box">
+          <div class="test-question" id="testQuestion"></div>
+
+          <pre class="test-code"><code class="language-javascript" id="testCode"></code></pre>
+
+          <div class="test-options" id="testOptions"></div>
+        </div>
+
+        <div class="navigation">
+          <button class="btn btn-secondary" id="prevBtn">← Oldingi</button>
+          <button class="btn btn-secondary" id="backToListBtn">
+            <i class="fas fa-list"></i> Ro'yxatga qaytish
+          </button>
+          <button class="btn btn-secondary" id="nextBtn">Keyingi →</button>
+        </div>
+      </div>
     </div>
   </div>
 </div>

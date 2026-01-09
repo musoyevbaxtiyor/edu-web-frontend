@@ -3,6 +3,9 @@
 // 🔥 YANGI: Render'dan olingan URL manzilni kiriting
 const BASE_URL = 'https://edu-web-backend.onrender.com/api';
 
+// Base URL ni export qilish (fayl URL'lari uchun)
+export const BASE_SERVER_URL = BASE_URL.replace('/api', '');
+
 /**
  * Umumiy API so'rov funksiyasi (qulaylik uchun)
  * @param {string} endpoint - /auth/login kabi API manzili

@@ -1,6 +1,6 @@
 // edu-web-frontend/teacher-panel/teacher-panel.js
 
-import { apiRequest } from '../assets/js/api.js'; // apiRequest ni import qilish shart
+import { apiRequest, BASE_SERVER_URL } from '../assets/js/api.js'; // apiRequest va BASE_SERVER_URL ni import qilish shart
 import { showAlert } from '../assets/js/alert.js';
 
 const token = localStorage.getItem('userToken');
@@ -115,12 +115,11 @@ function openReviewModal(e) {
 
     let contentHTML = '';
     
-    // Asosiy server manzilini olish (Hozirgi holatda localhost:5000)
-    const baseUrl = 'http://localhost:5000'; 
-    
     // Agar submissionUrl mavjud bo'lsa
     if (submission.submissionUrl) {
-        const fileUrl = baseUrl + submission.submissionUrl;
+        // submissionUrl format: /uploads/submissions/filename
+        // BASE_SERVER_URL format: https://edu-web-backend.onrender.com
+        const fileUrl = BASE_SERVER_URL + submission.submissionUrl;
         const fileName = submission.submissionUrl.split('/').pop();
 
         contentHTML += `<h4>Topshirilgan fayl/link:</h4>`;
