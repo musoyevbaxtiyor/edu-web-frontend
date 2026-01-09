@@ -2,13 +2,10 @@ import { apiRequest } from '../assets/js/api.js';
 import { showAlert, showConfirm } from '../assets/js/alert.js';
 
 // Elementlar
-const loadingMessage = document.getElementById('loading-message');
-const profileInfo = document.getElementById('profile-info');
-const logoutButton = document.getElementById('logout-btn');
 const welcomeName = document.getElementById('welcome-name');
 const topUsername = document.getElementById('top-username');
 const userAvatar = document.getElementById('user-avatar');
-const profileAvatar = document.getElementById('profile-avatar');
+const userMenu = document.getElementById('user-menu');
 
 // Statistikalar elementlari
 const coursesCount = document.getElementById('courses-count');
@@ -54,16 +51,6 @@ async function initializeDashboard() {
 }
 
 function displayProfile(user) {
-    // Asosiy ma'lumotlar
-    document.getElementById('user-name').textContent = user.name || 'Noma\'lum';
-    document.getElementById('user-email').textContent = user.email || 'Noma\'lum';
-    document.getElementById('user-id').textContent = user._id || 'Noma\'lum';
-    
-    // Lavozim
-    const roleElement = document.getElementById('user-role');
-    const roleText = user.role || 'Foydalanuvchi';
-    roleElement.textContent = roleText;
-    
     // Ismni boshqa joylarda ham ko'rsatish
     const displayName = user.name || 'Foydalanuvchi';
     welcomeName.textContent = displayName;
@@ -72,14 +59,6 @@ function displayProfile(user) {
     // Avatar harflarini ko'rsatish
     const initials = getInitials(displayName);
     userAvatar.innerHTML = `<span style="font-size: 1rem; font-weight: 600;">${initials}</span>`;
-    profileAvatar.innerHTML = `<span style="font-size: 2rem; font-weight: 600;">${initials}</span>`;
-    
-    // Loading holatini yashirish va profilni ko'rsatish
-    loadingMessage.style.display = 'none';
-    profileInfo.style.display = 'block';
-    
-    // Animatsiya effekti
-    profileInfo.style.animation = 'fadeIn 0.5s ease';
 }
 
 // Ismning birinchi harflarini olish
@@ -135,7 +114,12 @@ async function handleLogout() {
     }
 }
 
-logoutButton.addEventListener('click', handleLogout);
+// User menu ga click event qo'shish - profil sahifasiga o'tish
+if (userMenu) {
+    userMenu.addEventListener('click', () => {
+        window.location.href = '../profile/profile.html';
+    });
+}
 
 // Sidebar navigatsiya aktiv holatini boshqarish
 document.querySelectorAll('.nav-item').forEach(item => {
