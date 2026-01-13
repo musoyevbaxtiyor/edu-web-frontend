@@ -50,10 +50,10 @@
                     <i class="fas fa-chart-line"></i>
                     <span>Statistika</span>
                 </a>
-                <a href="#" class="nav-item">
+                <a href="#" class="nav-item" id="notifications-nav-item">
                     <i class="fas fa-bell"></i>
                     <span>Xabarlar</span>
-                    <span class="badge">3</span>
+                    <span class="badge" id="notifications-badge">0</span>
                 </a>
                 <a href="../test/test.html" class="nav-item" id="test-nav-item">
                     <i class="fas fa-clipboard-question"></i>
@@ -76,14 +76,16 @@
 
         <!-- Main Content -->
         <main class="main-content">
-            <!-- Welcome Section -->
-            <div class="welcome-section">
-                <h1>Xush kelibsiz, <span id="welcome-name">Foydalanuvchi</span>!</h1>
-                <p>Bugun nima o'rganamiz?</p>
-            </div>
+            <!-- Dashboard View -->
+            <div id="dashboard-view">
+                <!-- Welcome Section -->
+                <div class="welcome-section">
+                    <h1>Xush kelibsiz, <span id="welcome-name">Foydalanuvchi</span>!</h1>
+                    <p>Bugun nima o'rganamiz?</p>
+                </div>
 
-            <!-- Stats Cards -->
-            <div class="stats-grid">
+                <!-- Stats Cards -->
+                <div class="stats-grid">
                 <div class="stat-card stat-primary">
                     <div class="stat-icon">
                         <i class="fas fa-book"></i>
@@ -128,6 +130,36 @@
                         <h3 id="coins-count">0</h3>
                         <p>Coins (Tanga)</p>
                     </div>
+                </div>
+            </div>
+            </div>
+
+            <!-- Notifications View -->
+            <div id="notifications-view" style="display: none;">
+                <div class="notifications-header">
+                    <h1>
+                        <i class="fas fa-bell"></i>
+                        Xabarlar
+                    </h1>
+                    <button class="refresh-btn" id="refresh-notifications-btn">
+                        <i class="fas fa-sync-alt"></i>
+                        Yangilash
+                    </button>
+                </div>
+
+                <div class="notifications-container">
+                    <div id="notifications-loading" class="loading-state">
+                        <div class="spinner"></div>
+                        <p>Xabarlar yuklanmoqda...</p>
+                    </div>
+                    
+                    <div id="notifications-empty" class="empty-state" style="display: none;">
+                        <i class="fas fa-bell-slash"></i>
+                        <h3>Hozircha xabarlar yo'q</h3>
+                        <p>Sizda yangi xabarlar mavjud emas.</p>
+                    </div>
+
+                    <div id="notifications-list" class="notifications-list"></div>
                 </div>
             </div>
         </main>

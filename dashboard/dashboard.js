@@ -14,6 +14,18 @@ const progressCount = document.getElementById('progress-count');
 const certificatesCount = document.getElementById('certificates-count');
 const coinsCount = document.getElementById('coins-count');
 
+// Xabarlar elementlari
+const dashboardView = document.getElementById('dashboard-view');
+const notificationsView = document.getElementById('notifications-view');
+const notificationsNavItem = document.getElementById('notifications-nav-item');
+const notificationsBadge = document.getElementById('notifications-badge');
+const notificationsList = document.getElementById('notifications-list');
+const notificationsLoading = document.getElementById('notifications-loading');
+const notificationsEmpty = document.getElementById('notifications-empty');
+const refreshNotificationsBtn = document.getElementById('refresh-notifications-btn');
+
+let currentUserRole = null;
+
 document.addEventListener('DOMContentLoaded', initializeDashboard);
 
 async function initializeDashboard() {
@@ -40,9 +52,16 @@ async function initializeDashboard() {
 
         // 3. Ma'lumotlarni sahifada ko'rsatish
         displayProfile(response.user);
+        currentUserRole = response.user.role;
         
         // 4. Statistikani yuklash
         await loadStatistics(token);
+        
+        // 5. Xabarlar sonini yuklash
+        await loadNotificationsCount(token);
+        
+        // 6. Event listener'larni qo'shish
+        setupEventListeners(token);
         
     } catch (error) {
         console.error("Profil yuklashda xato:", error);
@@ -134,10 +153,180 @@ if (userMenu) {
     });
 }
 
-// Sidebar navigatsiya aktiv holatini boshqarish
-document.querySelectorAll('.nav-item').forEach(item => {
-    item.addEventListener('click', function() {
-        document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
-        this.classList.add('active');
+// Event listener'larni sozlash
+function setupEventListeners(token) {
+    // Xabarlar nav item
+    if (notificationsNavItem) {
+        notificationsNavItem.addEventListener('click', (e) => {
+            e.preventDefault();
+            showNotificationsView(token);
+        });
+    }
+
+    // Refresh notifications button
+    if (refreshNotificationsBtn) {
+        refreshNotificationsBtn.addEventListener('click', () => {
+            loadNotifications(token);
+        });
+    }
+
+    // Sidebar navigatsiya aktiv holatini boshqarish
+    document.querySelectorAll('.nav-item').forEach(item => {
+        if (item.id !== 'notifications-nav-item') {
+            item.addEventListener('click', function(e) {
+                if (this.getAttribute('href') === '#') {
+                    e.preventDefault();
+                }
+                // Dashboard view'ni ko'rsatish
+                if (dashboardView) dashboardView.style.display = 'block';
+                if (notificationsView) notificationsView.style.display = 'none';
+            });
+        }
     });
-});
+}
+
+// Xabarlar ko'rinishini ko'rsatish
+async function showNotificationsView(token) {
+    if (dashboardView) dashboardView.style.display = 'none';
+    if (notificationsView) notificationsView.style.display = 'block';
+    
+    // Aktiv holatni o'zgartirish
+    document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
+    if (notificationsNavItem) notificationsNavItem.classList.add('active');
+    
+    // Xabarlarni yuklash
+    await loadNotifications(token);
+}
+
+// Xabarlar sonini yuklash
+async function loadNotificationsCount(token) {
+    try {
+        const response = await apiRequest('/users/notifications', {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+        
+        const count = response.notifications?.length || 0;
+        if (notificationsBadge) {
+            notificationsBadge.textContent = count;
+            if (count === 0) {
+                notificationsBadge.style.display = 'none';
+            } else {
+                notificationsBadge.style.display = 'flex';
+            }
+        }
+    } catch (error) {
+        console.error("Xabarlar sonini yuklashda xato:", error);
+    }
+}
+
+// Xabarlarni yuklash va ko'rsatish
+async function loadNotifications(token) {
+    try {
+        if (notificationsLoading) notificationsLoading.style.display = 'flex';
+        if (notificationsEmpty) notificationsEmpty.style.display = 'none';
+        if (notificationsList) notificationsList.innerHTML = '';
+
+        const response = await apiRequest('/users/notifications', {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+
+        const notifications = response.notifications || [];
+
+        if (notificationsLoading) notificationsLoading.style.display = 'none';
+
+        if (notifications.length === 0) {
+            if (notificationsEmpty) notificationsEmpty.style.display = 'block';
+            if (notificationsList) notificationsList.innerHTML = '';
+        } else {
+            if (notificationsEmpty) notificationsEmpty.style.display = 'none';
+            displayNotifications(notifications);
+        }
+
+        // Badge'ni yangilash
+        if (notificationsBadge) {
+            notificationsBadge.textContent = notifications.length;
+            if (notifications.length === 0) {
+                notificationsBadge.style.display = 'none';
+            } else {
+                notificationsBadge.style.display = 'flex';
+            }
+        }
+
+    } catch (error) {
+        console.error("Xabarlarni yuklashda xato:", error);
+        if (notificationsLoading) notificationsLoading.style.display = 'none';
+        if (notificationsEmpty) notificationsEmpty.style.display = 'block';
+        showAlert("Xabarlarni yuklashda xato yuz berdi.", 'error');
+    }
+}
+
+// Xabarlarni ko'rsatish
+function displayNotifications(notifications) {
+    if (!notificationsList) return;
+
+    notificationsList.innerHTML = notifications.map(notif => {
+        const date = new Date(notif.date).toLocaleString('uz-UZ', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+
+        const statusClass = notif.status === 'approved' ? 'notification-success' : 
+                           notif.status === 'rejected' ? 'notification-error' : 
+                           'notification-info';
+        
+        const icon = notif.status === 'approved' ? 'fa-check-circle' :
+                    notif.status === 'rejected' ? 'fa-times-circle' :
+                    'fa-bell';
+
+        let actionButton = '';
+        if (currentUserRole === 'student' && notif.status === 'approved' && notif.courseId) {
+            actionButton = `<a href="../lesson-view/lesson-view.html?courseId=${notif.courseId}" class="notification-action-btn">
+                <i class="fas fa-eye"></i> Kursni Ko'rish
+            </a>`;
+        } else if ((currentUserRole === 'teacher' || currentUserRole === 'admin') && (notif.status === 'submitted' || notif.status === 'in_review')) {
+            actionButton = `<a href="../teacher-panel/teacher-panel.html" class="notification-action-btn">
+                <i class="fas fa-check"></i> Tekshirish
+            </a>`;
+        }
+
+        return `
+            <div class="notification-item ${statusClass}">
+                <div class="notification-icon">
+                    <i class="fas ${icon}"></i>
+                </div>
+                <div class="notification-content">
+                    <h4>${escapeHtml(notif.title)}</h4>
+                    <p>${escapeHtml(notif.message)}</p>
+                    <div class="notification-meta">
+                        <span class="notification-course">${escapeHtml(notif.course)}</span>
+                        <span class="notification-date">${date}</span>
+                    </div>
+                    ${notif.coins && notif.coins > 0 ? `
+                        <div class="notification-coins">
+                            <i class="fas fa-coins"></i>
+                            <span>+${notif.coins} coins</span>
+                        </div>
+                    ` : ''}
+                </div>
+                ${actionButton ? `<div class="notification-actions">${actionButton}</div>` : ''}
+            </div>
+        `;
+    }).join('');
+}
+
+// HTML xavfsizligi uchun funksiya
+function escapeHtml(text) {
+    if (!text) return '';
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
