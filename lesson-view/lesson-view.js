@@ -20,7 +20,7 @@ const lessonsLoading = document.getElementById('lessons-loading');
 const submissionDetailsEl = document.getElementById('submission-details');
 const submittedFileInfoEl = document.getElementById('submitted-file-info');
 const teacherFeedbackSectionEl = document.getElementById('teacher-feedback-section');
-const teacherGradeEl = document.getElementById('teacher-grade');
+const teacherCoinsEl = document.getElementById('teacher-coins');
 const teacherFeedbackTextEl = document.getElementById('teacher-feedback-text');
 const submissionStatusBadgeEl = document.getElementById('submission-status-badge');
 
@@ -535,11 +535,11 @@ function displaySubmittedFile(submission) {
 function displayTeacherFeedback(submission) {
     teacherFeedbackSectionEl.style.display = 'block';
 
-    // Baho
-    if (submission.grade !== undefined && submission.grade !== null) {
-        teacherGradeEl.textContent = submission.grade;
+    // Coins
+    if (submission.coins !== undefined && submission.coins !== null) {
+        teacherCoinsEl.textContent = submission.coins;
     } else {
-        teacherGradeEl.textContent = '-';
+        teacherCoinsEl.textContent = '0';
     }
 
     // Izoh

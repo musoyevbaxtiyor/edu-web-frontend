@@ -12,6 +12,7 @@ const coursesCount = document.getElementById('courses-count');
 const completedCount = document.getElementById('completed-count');
 const progressCount = document.getElementById('progress-count');
 const certificatesCount = document.getElementById('certificates-count');
+const coinsCount = document.getElementById('coins-count');
 
 document.addEventListener('DOMContentLoaded', initializeDashboard);
 
@@ -100,6 +101,9 @@ async function loadStatistics(token) {
         if (certificatesCount) {
             certificatesCount.textContent = statsResponse.certificates || 0;
         }
+        if (coinsCount) {
+            coinsCount.textContent = statsResponse.coins || 0;
+        }
     } catch (error) {
         console.error("Statistika yuklashda xato:", error);
         // Xato bo'lsa ham default qiymatlar ko'rsatiladi
@@ -107,6 +111,7 @@ async function loadStatistics(token) {
         if (completedCount) completedCount.textContent = '0';
         if (progressCount) progressCount.textContent = '0%';
         if (certificatesCount) certificatesCount.textContent = '0';
+        if (coinsCount) coinsCount.textContent = '0';
     }
 }
 
