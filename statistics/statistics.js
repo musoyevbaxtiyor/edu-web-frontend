@@ -1,3 +1,5 @@
+// edu-web-frontend/statistics/statistics.js
+
 import { apiRequest } from '../assets/js/api.js';
 import { showAlert } from '../assets/js/alert.js';
 
@@ -41,7 +43,6 @@ async function initializeStatistics() {
         const profileResponse = await apiRequest('/users/profile', {
             method: 'GET',
             headers: {
-                'Content-Type': 'application/json',
                 'Authorization': `Bearer ${token}`
             }
         });
@@ -60,10 +61,14 @@ async function initializeStatistics() {
 
 function displayUserInfo(user) {
     const displayName = user.name || 'Foydalanuvchi';
-    topUsername.textContent = displayName;
+    if (topUsername) {
+        topUsername.textContent = displayName;
+    }
     
     const initials = getInitials(displayName);
-    userAvatar.innerHTML = `<span style="font-size: 1rem; font-weight: 600;">${initials}</span>`;
+    if (userAvatar) {
+        userAvatar.innerHTML = `<span style="font-size: 1rem; font-weight: 600;">${initials}</span>`;
+    }
 }
 
 function getInitials(name) {
@@ -77,9 +82,9 @@ function getInitials(name) {
 
 async function loadRatings(token) {
     try {
-        loadingState.style.display = 'block';
-        emptyState.style.display = 'none';
-        statisticsContent.style.display = 'none';
+        if (loadingState) loadingState.style.display = 'flex';
+        if (emptyState) emptyState.style.display = 'none';
+        if (statisticsContent) statisticsContent.style.display = 'none';
 
         const response = await apiRequest('/users/ratings', {
             method: 'GET',
@@ -88,51 +93,58 @@ async function loadRatings(token) {
             }
         });
 
-        if (!response.success || !response.ratings || response.ratings.length === 0) {
+        // Backend'dan kelgan ma'lumotlarni tekshirish
+        if (!response || !response.ratings || response.ratings.length === 0) {
             showEmptyState();
             return;
         }
 
-        allRatings = response.ratings;
+        allRatings = response.ratings || [];
         filteredRatings = [...allRatings];
 
-        displayStatistics(response.ratings);
+        displayStatistics(allRatings);
 
-        loadingState.style.display = 'none';
-        statisticsContent.style.display = 'block';
+        if (loadingState) loadingState.style.display = 'none';
+        if (statisticsContent) statisticsContent.style.display = 'block';
 
     } catch (error) {
         console.error("Reyting yuklashda xato:", error);
-        showAlert("Reyting ma'lumotlarini yuklashda xato yuz berdi.", 'error');
+        showAlert("Reyting ma'lumotlarini yuklashda xato yuz berdi: " + (error.message || 'Noma\'lum xato'), 'error');
         showEmptyState();
     }
 }
 
 function showEmptyState() {
-    loadingState.style.display = 'none';
-    emptyState.style.display = 'block';
-    statisticsContent.style.display = 'none';
+    if (loadingState) loadingState.style.display = 'none';
+    if (emptyState) emptyState.style.display = 'block';
+    if (statisticsContent) statisticsContent.style.display = 'none';
 }
 
 function displayStatistics(ratings) {
+    if (!ratings || ratings.length === 0) {
+        showEmptyState();
+        return;
+    }
+
     // Update summary cards
     const totalStudents = ratings.length;
-    const totalLessons = ratings.reduce((sum, r) => sum + r.completedLessons, 0);
-    const totalTests = ratings.reduce((sum, r) => sum + r.totalTests, 0);
-    const averageScore = ratings.length > 0
-        ? Math.round(ratings.reduce((sum, r) => sum + r.totalScore, 0) / ratings.length)
-        : 0;
+    const totalLessons = ratings.reduce((sum, r) => sum + (r.completedLessons || 0), 0);
+    const totalTests = ratings.reduce((sum, r) => sum + (r.totalTests || 0), 0);
+    const totalScores = ratings.reduce((sum, r) => sum + (r.totalScore || 0), 0);
+    const averageScore = totalStudents > 0 ? Math.round(totalScores / totalStudents) : 0;
 
-    totalStudentsEl.textContent = totalStudents;
-    totalLessonsEl.textContent = totalLessons;
-    totalTestsEl.textContent = totalTests;
-    averageScoreEl.textContent = averageScore;
+    if (totalStudentsEl) totalStudentsEl.textContent = totalStudents;
+    if (totalLessonsEl) totalLessonsEl.textContent = totalLessons;
+    if (totalTestsEl) totalTestsEl.textContent = totalTests;
+    if (averageScoreEl) averageScoreEl.textContent = averageScore;
 
     // Render ratings table
     renderRatingsTable(ratings);
 }
 
 function renderRatingsTable(ratings) {
+    if (!ratingsTbody) return;
+
     if (!ratings || ratings.length === 0) {
         ratingsTbody.innerHTML = `
             <tr>
@@ -148,7 +160,10 @@ function renderRatingsTable(ratings) {
         const rank = rating.rank || index + 1;
         const rankClass = rank === 1 ? 'rank-1' : rank === 2 ? 'rank-2' : rank === 3 ? 'rank-3' : '';
         
-        const studentInitials = getInitials(rating.student.name);
+        const studentName = rating.student?.name || 'Noma\'lum';
+        const studentEmail = rating.student?.email || '';
+        const studentId = rating.student?._id || '';
+        const studentInitials = getInitials(studentName);
         const accuracyPercent = rating.testAccuracy || 0;
 
         return `
@@ -158,8 +173,8 @@ function renderRatingsTable(ratings) {
                     <div class="student-cell">
                         <div class="student-avatar">${studentInitials}</div>
                         <div class="student-info">
-                            <h4>${rating.student.name}</h4>
-                            <p>${rating.student.email}</p>
+                            <h4>${escapeHtml(studentName)}</h4>
+                            <p>${escapeHtml(studentEmail)}</p>
                         </div>
                     </div>
                 </td>
@@ -182,45 +197,72 @@ function renderRatingsTable(ratings) {
                     </div>
                 </td>
                 <td>
-                    <button class="view-btn" onclick="viewStudentDetails('${rating.student._id}')">
+                    <button class="view-btn" data-student-id="${studentId}">
                         <i class="fas fa-eye"></i> Ko'rish
                     </button>
                 </td>
             </tr>
         `;
     }).join('');
+
+    // Event listener qo'shish (event delegation)
+    ratingsTbody.querySelectorAll('.view-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const studentId = e.currentTarget.getAttribute('data-student-id');
+            if (studentId) {
+                viewStudentDetails(studentId);
+            }
+        });
+    });
+}
+
+// HTML xavfsizligi uchun funksiya
+function escapeHtml(text) {
+    if (!text) return '';
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
 }
 
 // Search functionality
-searchInput.addEventListener('input', (e) => {
-    const searchTerm = e.target.value.toLowerCase().trim();
-    
-    if (!searchTerm) {
-        filteredRatings = [...allRatings];
-    } else {
-        filteredRatings = allRatings.filter(rating => 
-            rating.student.name.toLowerCase().includes(searchTerm) ||
-            rating.student.email.toLowerCase().includes(searchTerm)
-        );
-    }
+if (searchInput) {
+    searchInput.addEventListener('input', (e) => {
+        const searchTerm = e.target.value.toLowerCase().trim();
+        
+        if (!searchTerm) {
+            filteredRatings = [...allRatings];
+        } else {
+            filteredRatings = allRatings.filter(rating => {
+                const name = rating.student?.name?.toLowerCase() || '';
+                const email = rating.student?.email?.toLowerCase() || '';
+                return name.includes(searchTerm) || email.includes(searchTerm);
+            });
+        }
 
-    displayStatistics(filteredRatings);
-});
+        displayStatistics(filteredRatings);
+    });
+}
 
 // Refresh button
-refreshBtn.addEventListener('click', async () => {
-    const token = localStorage.getItem('userToken');
-    if (token) {
-        await loadRatings(token);
-        showAlert('Ma\'lumotlar yangilandi!', 'success');
-    }
-});
+if (refreshBtn) {
+    refreshBtn.addEventListener('click', async () => {
+        const token = localStorage.getItem('userToken');
+        if (token) {
+            await loadRatings(token);
+            showAlert('Ma\'lumotlar yangilandi!', 'success');
+        }
+    });
+}
 
-// View student details (placeholder function)
-window.viewStudentDetails = function(studentId) {
+// View student details function
+function viewStudentDetails(studentId) {
+    if (!studentId) {
+        showAlert('Talaba ID topilmadi.', 'warning');
+        return;
+    }
     // TODO: Implement student detail view
     showAlert('Talaba tafsilotlari sahifasi tez orada qo\'shiladi.', 'info');
-};
+}
 
 // User menu click
 if (userMenu) {

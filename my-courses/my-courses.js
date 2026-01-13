@@ -8,7 +8,45 @@ const loadingMessage = document.getElementById('loading-message');
 const coursesCount = document.getElementById('courses-count');
 const userAvatar = document.getElementById('user-avatar');
 
-document.addEventListener('DOMContentLoaded', initializeMyCourses);
+let currentUserRole = null; // Foydalanuvchi roli
+
+document.addEventListener('DOMContentLoaded', () => {
+    initializeEventListeners(); // Bir marta event listener qo'shish
+    initializeMyCourses();
+});
+
+// Event listener'ni bir marta qo'shish (event delegation)
+function initializeEventListeners() {
+    if (myCoursesList) {
+        myCoursesList.addEventListener('click', (e) => {
+            // Talaba kurslari uchun "Kurs Materiallariga O'tish" tugmasi
+            if (e.target.classList.contains('view-content-btn') || e.target.closest('.view-content-btn')) {
+                const button = e.target.classList.contains('view-content-btn') 
+                    ? e.target 
+                    : e.target.closest('.view-content-btn');
+                const courseId = button.dataset.courseId;
+                
+                if (courseId) {
+                    window.location.href = `../lesson-view/lesson-view.html?courseId=${courseId}`;
+                }
+                return;
+            }
+            
+            // O'qituvchi kurslari uchun "Kursni Ko'rish" tugmasi
+            if (e.target.classList.contains('view-btn') || e.target.closest('.view-btn')) {
+                const button = e.target.classList.contains('view-btn') 
+                    ? e.target 
+                    : e.target.closest('.view-btn');
+                const courseId = button.dataset.courseId;
+                
+                if (courseId) {
+                    window.location.href = `../course-page/course.html?id=${courseId}`;
+                }
+                return;
+            }
+        });
+    }
+}
 
 // Boshlanish funksiyasi
 async function initializeMyCourses() {
@@ -26,8 +64,12 @@ async function initializeMyCourses() {
         // Foydalanuvchi ma'lumotlarini olish
         await loadUserProfile(token);
         
-        // Kurslarni yuklash
-        await fetchMyEnrolledCourses(token);
+        // Rolega qarab kurslarni yuklash
+        if (currentUserRole === 'teacher' || currentUserRole === 'admin') {
+            await fetchMyCreatedCourses(token);
+        } else {
+            await fetchMyEnrolledCourses(token);
+        }
     } catch (error) {
         console.error("Xato:", error);
         showAlert("Sessiya tugagan yoki token yaroqsiz. Qayta kiring.", 'error');
@@ -50,6 +92,7 @@ async function loadUserProfile(token) {
         
         // User avatar ni ko'rsatish
         const userName = profileResponse.user.name || 'Foydalanuvchi';
+        currentUserRole = profileResponse.user.role; // Rolni saqlash
         const initials = getInitials(userName);
         if (userAvatar) {
             userAvatar.innerHTML = `<span style="font-size: 1rem; font-weight: 600;">${initials}</span>`;
@@ -69,7 +112,40 @@ function getInitials(name) {
     return (words[0].charAt(0) + words[words.length - 1].charAt(0)).toUpperCase();
 }
 
-// 1. Ro'yxatdan o'tilgan kurslarni Backenddan yuklash funksiyasi
+// 1. O'qituvchining yaratgan kurslarini Backenddan yuklash funksiyasi
+async function fetchMyCreatedCourses(token) {
+    try {
+        const response = await apiRequest('/courses/teacher/me', {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+
+        const courses = response.courses || [];
+        
+        // Loading holatini yashirish
+        loadingMessage.style.display = 'none';
+        
+        // Kurslar sonini yangilash
+        updateCoursesCount(courses.length);
+        
+        // Kurslarni ko'rsatish
+        displayTeacherCourses(courses);
+        
+    } catch (error) {
+        // Avtorizatsiya xatosi yoki boshqa xatolar uchun
+        console.error("Mening kurslarimni yuklashda xato:", error);
+        loadingMessage.innerHTML = '<p>Kurslarni yuklashda xato yuz berdi. Iltimos, qayta kiring.</p>';
+        showAlert("Sessiya tugagan yoki token yaroqsiz. Qayta kiring.", 'error');
+        localStorage.removeItem('userToken');
+        setTimeout(() => {
+            window.location.href = '../login/login.html';
+        }, 2000);
+    }
+}
+
+// 2. Talabaning ro'yxatdan o'tilgan kurslarini Backenddan yuklash funksiyasi
 async function fetchMyEnrolledCourses(token) {
     try {
         const response = await apiRequest('/enroll/my-courses', {
@@ -109,7 +185,67 @@ function updateCoursesCount(count) {
     }
 }
 
-// 2. Kurslarni HTMLga joylash
+// 2. O'qituvchi kurslarini HTMLga joylash
+function displayTeacherCourses(courses) {
+    myCoursesList.innerHTML = '';
+
+    if (courses.length === 0) {
+        displayEmptyStateForTeacher();
+        return;
+    }
+
+    courses.forEach(course => {
+        const card = document.createElement('div');
+        card.className = 'course-card enrolled-card';
+        
+        // Yaratilgan sanani formatlash
+        const createdAt = course.createdAt 
+            ? new Date(course.createdAt).toLocaleDateString('uz-UZ', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            })
+            : 'Noma\'lum';
+        
+        // Status badge
+        const statusBadge = course.isPublished 
+            ? '<span class="status-badge published"><i class="fas fa-check-circle"></i> Nashr qilingan</span>'
+            : '<span class="status-badge draft"><i class="fas fa-edit"></i> Qoralama</span>';
+        
+        card.innerHTML = `
+            <h4>${course.title || 'Noma\'lum Kurs'}</h4>
+            <p>${course.description || 'Tavsif mavjud emas'}</p>
+            <div class="course-meta">
+                <div class="status">
+                    ${statusBadge}
+                </div>
+                <div class="teacher">
+                    <i class="fas fa-calendar"></i>
+                    <span>Yaratilgan sana: ${createdAt}</span>
+                </div>
+                ${course.price ? `
+                <div class="price-info">
+                    <i class="fas fa-money-bill-wave"></i>
+                    <span>Narx: ${course.price.toLocaleString('uz-UZ')} so'm</span>
+                </div>
+                ` : ''}
+            </div>
+            <div class="course-actions-teacher">
+                <a href="../lesson-management/lesson-management.html?courseId=${course._id}" class="action-btn manage-btn">
+                    <i class="fas fa-book"></i>
+                    Darslarni Boshqarish
+                </a>
+                <button class="action-btn view-btn" data-course-id="${course._id}">
+                    <i class="fas fa-eye"></i>
+                    Kursni Ko'rish
+                </button>
+            </div>
+        `;
+        myCoursesList.appendChild(card);
+    });
+}
+
+// 3. Talaba kurslarini HTMLga joylash
 function displayCourses(courses) {
     myCoursesList.innerHTML = '';
 
@@ -151,12 +287,9 @@ function displayCourses(courses) {
         `;
         myCoursesList.appendChild(card);
     });
-    
-    // Tugmalar mantiqini qo'shamiz
-    addContentViewListeners();
 }
 
-// Bo'sh holatni ko'rsatish
+// Bo'sh holatni ko'rsatish (Talaba uchun)
 function displayEmptyState() {
     myCoursesList.innerHTML = `
         <div class="empty-state">
@@ -171,21 +304,18 @@ function displayEmptyState() {
     `;
 }
 
-// 3. Tugmalarni tinglovchi funksiya
-function addContentViewListeners() {
-    // myCoursesList konteyneriga klik hodisasi tinglovchisini qo'shamiz
-    myCoursesList.addEventListener('click', (e) => {
-        // Agar bosilgan element "view-content-btn" klassiga ega bo'lsa
-        if (e.target.classList.contains('view-content-btn') || e.target.closest('.view-content-btn')) {
-            const button = e.target.classList.contains('view-content-btn') 
-                ? e.target 
-                : e.target.closest('.view-content-btn');
-            const courseId = button.dataset.courseId;
-            
-            if (courseId) {
-                // Kurs materiallari sahifasiga yo'naltiramiz
-                window.location.href = `../lesson-view/lesson-view.html?courseId=${courseId}`;
-            }
-        }
-    });
+// Bo'sh holatni ko'rsatish (O'qituvchi uchun)
+function displayEmptyStateForTeacher() {
+    myCoursesList.innerHTML = `
+        <div class="empty-state">
+            <i class="fas fa-book-open"></i>
+            <h3>Hozirda kurslar mavjud emas</h3>
+            <p>Siz hali hech qanday kurs yaratmagansiz. Birinchi kursingizni yarating!</p>
+            <a href="../course-manager/course-manager.html" class="btn-primary">
+                <i class="fas fa-plus"></i>
+                Yangi Kurs Yaratish
+            </a>
+        </div>
+    `;
 }
+
