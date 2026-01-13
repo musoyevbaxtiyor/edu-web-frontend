@@ -13,6 +13,16 @@ const completedCount = document.getElementById('completed-count');
 const progressCount = document.getElementById('progress-count');
 const certificatesCount = document.getElementById('certificates-count');
 const coinsCount = document.getElementById('coins-count');
+const totalScore = document.getElementById('total-score');
+
+// Ballar elementlari
+const scoresSection = document.getElementById('scores-section');
+const submissionScore = document.getElementById('submission-score');
+const testScore = document.getElementById('test-score');
+const totalScoreDetail = document.getElementById('total-score-detail');
+const rank = document.getElementById('rank');
+const completedLessonsScore = document.getElementById('completed-lessons-score');
+const testAccuracy = document.getElementById('test-accuracy');
 
 // Xabarlar elementlari
 const dashboardView = document.getElementById('dashboard-view');
@@ -57,10 +67,15 @@ async function initializeDashboard() {
         // 4. Statistikani yuklash
         await loadStatistics(token);
         
-        // 5. Xabarlar sonini yuklash
+        // 5. Ballarni yuklash (faqat studentlar uchun)
+        if (currentUserRole === 'student') {
+            await loadMyScores(token);
+        }
+        
+        // 6. Xabarlar sonini yuklash
         await loadNotificationsCount(token);
         
-        // 6. Event listener'larni qo'shish
+        // 7. Event listener'larni qo'shish
         setupEventListeners(token);
         
     } catch (error) {
@@ -131,6 +146,59 @@ async function loadStatistics(token) {
         if (progressCount) progressCount.textContent = '0%';
         if (certificatesCount) certificatesCount.textContent = '0';
         if (coinsCount) coinsCount.textContent = '0';
+    }
+}
+
+// Ballarni yuklash (faqat studentlar uchun)
+async function loadMyScores(token) {
+    try {
+        const scoresResponse = await apiRequest('/users/my-scores', {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+
+        // Stats card'da umumiy ballni ko'rsatish
+        if (totalScore) {
+            totalScore.textContent = scoresResponse.totalScore || 0;
+        }
+
+        // Ballar bo'limini ko'rsatish
+        if (scoresSection) {
+            scoresSection.style.display = 'block';
+        }
+
+        // Ballarni ko'rsatish
+        if (submissionScore) {
+            submissionScore.textContent = scoresResponse.submissionScore || 0;
+        }
+        if (testScore) {
+            testScore.textContent = scoresResponse.testScore || 0;
+        }
+        if (totalScoreDetail) {
+            totalScoreDetail.textContent = scoresResponse.totalScore || 0;
+        }
+        if (rank) {
+            rank.textContent = scoresResponse.rank || '-';
+        }
+        if (completedLessonsScore) {
+            completedLessonsScore.textContent = scoresResponse.completedLessons || 0;
+        }
+        if (testAccuracy) {
+            testAccuracy.textContent = `${scoresResponse.testAccuracy || 0}%`;
+        }
+
+    } catch (error) {
+        console.error("Ballar yuklashda xato:", error);
+        // Xato bo'lsa ham default qiymatlar ko'rsatiladi
+        if (totalScore) totalScore.textContent = '0';
+        if (submissionScore) submissionScore.textContent = '0';
+        if (testScore) testScore.textContent = '0';
+        if (totalScoreDetail) totalScoreDetail.textContent = '0';
+        if (rank) rank.textContent = '-';
+        if (completedLessonsScore) completedLessonsScore.textContent = '0';
+        if (testAccuracy) testAccuracy.textContent = '0%';
     }
 }
 

@@ -352,6 +352,14 @@ body {
     background: linear-gradient(135deg, #f59e0b, #fbbf24);
 }
 
+.stat-scores::before {
+    background: #8b5cf6;
+}
+
+.stat-scores .stat-icon {
+    background: linear-gradient(135deg, #8b5cf6, #a78bfa);
+}
+
 .stat-content h3 {
     font-size: 2rem;
     font-weight: 700;
@@ -723,6 +731,130 @@ body {
 #notifications-loading p {
     color: var(--text-secondary);
     font-size: 1.1rem;
+}
+
+/* ============================================
+   SCORES SECTION
+   ============================================ */
+
+.scores-section {
+    background: var(--card-bg);
+    border-radius: 1rem;
+    padding: 2rem;
+    box-shadow: var(--shadow-lg);
+}
+
+.scores-header {
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid var(--border-color);
+}
+
+.scores-header h2 {
+    font-size: 1.75rem;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.scores-header h2 i {
+    color: #8b5cf6;
+}
+
+.scores-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+}
+
+.score-card {
+    background: var(--light-bg);
+    border-radius: 1rem;
+    padding: 1.5rem;
+    box-shadow: var(--shadow-md);
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    transition: all 0.3s ease;
+    border-left: 4px solid transparent;
+}
+
+.score-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-lg);
+}
+
+.score-primary {
+    border-left-color: var(--primary-color);
+}
+
+.score-warning {
+    border-left-color: var(--warning-color);
+}
+
+.score-success {
+    border-left-color: var(--success-color);
+}
+
+.score-info {
+    border-left-color: var(--info-color);
+}
+
+.score-secondary {
+    border-left-color: #64748b;
+}
+
+.score-accent {
+    border-left-color: #8b5cf6;
+}
+
+.score-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    color: white;
+    flex-shrink: 0;
+}
+
+.score-primary .score-icon {
+    background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+}
+
+.score-warning .score-icon {
+    background: linear-gradient(135deg, var(--warning-color), #fbbf24);
+}
+
+.score-success .score-icon {
+    background: linear-gradient(135deg, var(--success-color), #34d399);
+}
+
+.score-info .score-icon {
+    background: linear-gradient(135deg, var(--info-color), #60a5fa);
+}
+
+.score-secondary .score-icon {
+    background: linear-gradient(135deg, #64748b, #94a3b8);
+}
+
+.score-accent .score-icon {
+    background: linear-gradient(135deg, #8b5cf6, #a78bfa);
+}
+
+.score-content h3 {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 0.25rem;
+}
+
+.score-content p {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
 }
 
 /* Profile Info */
