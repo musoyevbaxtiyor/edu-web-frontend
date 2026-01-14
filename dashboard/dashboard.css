@@ -243,6 +243,7 @@ body {
     padding: 2rem;
     border-radius: 1rem;
     box-shadow: var(--shadow-lg);
+    margin-bottom: 20px;
 }
 
 .welcome-section h1 {

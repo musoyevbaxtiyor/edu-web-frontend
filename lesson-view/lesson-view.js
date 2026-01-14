@@ -20,6 +20,7 @@ const lessonsLoading = document.getElementById('lessons-loading');
 const submissionDetailsEl = document.getElementById('submission-details');
 const submittedFileInfoEl = document.getElementById('submitted-file-info');
 const teacherFeedbackSectionEl = document.getElementById('teacher-feedback-section');
+const teacherGradeEl = document.getElementById('teacher-grade');
 const teacherCoinsEl = document.getElementById('teacher-coins');
 const teacherFeedbackTextEl = document.getElementById('teacher-feedback-text');
 const submissionStatusBadgeEl = document.getElementById('submission-status-badge');
@@ -534,6 +535,13 @@ function displaySubmittedFile(submission) {
 // O'qituvchi bahosi va izohini ko'rsatish
 function displayTeacherFeedback(submission) {
     teacherFeedbackSectionEl.style.display = 'block';
+
+    // Grade (Ball)
+    if (submission.grade !== undefined && submission.grade !== null) {
+        teacherGradeEl.textContent = `${submission.grade}/100`;
+    } else {
+        teacherGradeEl.textContent = '-';
+    }
 
     // Coins
     if (submission.coins !== undefined && submission.coins !== null) {

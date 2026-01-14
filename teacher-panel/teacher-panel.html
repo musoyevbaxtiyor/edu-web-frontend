@@ -32,8 +32,16 @@
                     <!-- Topshirilgan fayl va izohlar bu yerda ko'rsatiladi -->
                 </div>
                 
-                <label for="coins-input">Coins (Tanga):</label>
-                <input type="number" id="coins-input" min="0" value="10" placeholder="Coins miqdorini kiriting">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <div>
+                        <label for="grade-input">Ball (0-100):</label>
+                        <input type="number" id="grade-input" min="0" max="100" value="0" placeholder="Ball kiriting (0-100)">
+                    </div>
+                    <div>
+                        <label for="coins-input">Coins (Tanga):</label>
+                        <input type="number" id="coins-input" min="0" value="10" placeholder="Coins miqdorini kiriting">
+                    </div>
+                </div>
                 
                 <label for="feedback-input">Fikr (Feedback):</label>
                 <textarea id="feedback-input" placeholder="Talaba uchun fikr yozing..."></textarea>

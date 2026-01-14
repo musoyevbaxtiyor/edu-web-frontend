@@ -186,7 +186,8 @@ function openReviewModal(e) {
 
     submissionContentEl.innerHTML = contentHTML;
 
-    // Eski feedback va coins'ni tozalash
+    // Eski feedback, coins va grade'ni tozalash
+    document.getElementById('grade-input').value = submission.grade || 0;
     document.getElementById('coins-input').value = submission.coins || 10;
     document.getElementById('feedback-input').value = submission.feedback || '';
     
@@ -198,25 +199,34 @@ function openReviewModal(e) {
 async function handleSubmissionReview(status) {
     if (!currentSubmissionId) return;
     
+    const grade = document.getElementById('grade-input').value;
     const coins = document.getElementById('coins-input').value;
     const feedback = document.getElementById('feedback-input').value;
     
-    // Faqat tasdiqlashda coins'ni tekshirish
-    if (status === 'approved' && (!coins || coins < 0)) {
-        showAlert("Iltimos, 0 dan katta bo'lgan coins miqdorini kiriting.", 'warning');
-        return;
+    // Faqat tasdiqlashda coins va grade'ni tekshirish
+    if (status === 'approved') {
+        if (!coins || coins < 0) {
+            showAlert("Iltimos, 0 dan katta bo'lgan coins miqdorini kiriting.", 'warning');
+            return;
+        }
+        if (grade === '' || grade < 0 || grade > 100) {
+            showAlert("Iltimos, 0 dan 100 gacha bo'lgan ball kiriting.", 'warning');
+            return;
+        }
     }
     
     const url = `/submissions/review/${currentSubmissionId}`; 
 
     try {
-        // Coins rad etishda 0, tasdiqlashda kiritilgan coins bo'lsin
+        // Coins va grade rad etishda 0, tasdiqlashda kiritilgan qiymatlar bo'lsin
         const finalCoins = status === 'approved' ? coins : 0;
+        const finalGrade = status === 'approved' ? grade : null;
 
         const response = await apiRequest(url, {
             method: 'PUT',
             headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
             body: JSON.stringify({ 
+                grade: finalGrade,
                 coins: finalCoins,
                 feedback: feedback,
                 status: status 
