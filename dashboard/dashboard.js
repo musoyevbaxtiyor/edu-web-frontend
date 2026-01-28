@@ -52,7 +52,19 @@ const userInfoWrapper = document.getElementById('user-info-wrapper');
 const userInfoBody = document.getElementById('user-info-body');
 const refreshUserInfoBtn = document.getElementById('refresh-user-info-btn');
 
+const userEditModal = document.getElementById('user-edit-modal');
+const userEditModalClose = document.getElementById('user-edit-modal-close');
+const userEditModalCancel = document.getElementById('user-edit-modal-cancel');
+const userEditModalBackdrop = document.querySelector('.user-edit-modal-backdrop');
+const userEditInfoGrid = document.getElementById('user-edit-info-grid');
+const userEditPasswordForm = document.getElementById('user-edit-password-form');
+const userEditNewPassword = document.getElementById('user-edit-new-password');
+const userEditConfirmPassword = document.getElementById('user-edit-confirm-password');
+
 let currentUserRole = null;
+let lastLoadedUsers = [];
+let userInfoToken = null;
+let currentEditUser = null;
 
 document.addEventListener('DOMContentLoaded', initializeDashboard);
 
@@ -288,7 +300,48 @@ function setupEventListeners(token) {
     // Refresh user info button
     if (refreshUserInfoBtn) {
         refreshUserInfoBtn.addEventListener('click', () => {
+            userInfoToken = token;
             loadUserInfo(token);
+        });
+    }
+
+    // User Info: qator bosish (modal)
+    setupUserInfoRowClick();
+
+    // User Edit Modal: yopish, form submit
+    if (userEditModalClose) userEditModalClose.addEventListener('click', closeUserEditModal);
+    if (userEditModalCancel) userEditModalCancel.addEventListener('click', closeUserEditModal);
+    if (userEditModalBackdrop) userEditModalBackdrop.addEventListener('click', closeUserEditModal);
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && userEditModal && userEditModal.style.display === 'flex') closeUserEditModal();
+    });
+    if (userEditPasswordForm) {
+        userEditPasswordForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const newPw = userEditNewPassword?.value?.trim();
+            const confirmPw = userEditConfirmPassword?.value?.trim();
+            if (!newPw || newPw.length < 6) {
+                showAlert('Yangi parol kamida 6 belgidan iborat bo\'lishi kerak.', 'warning');
+                return;
+            }
+            if (newPw !== confirmPw) {
+                showAlert('Parol va tasdiqlash mos kelmadi.', 'warning');
+                return;
+            }
+            if (!currentEditUser?._id || !userInfoToken) return;
+            try {
+                await apiRequest(`/users/admin/${currentEditUser._id}/password`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${userInfoToken}` },
+                    body: JSON.stringify({ newPassword: newPw })
+                });
+                showAlert('Parol muvaffaqiyatli o\'zgartirildi.', 'success');
+                closeUserEditModal();
+                await loadUserInfo(userInfoToken);
+            } catch (err) {
+                console.error('Parol o\'zgartirishda xato:', err);
+                showAlert(err.message || 'Parol o\'zgartirishda xato yuz berdi.', 'error');
+            }
         });
     }
 
@@ -333,6 +386,7 @@ async function showTasksTableView(token) {
 
 // User Info ko'rinishini ko'rsatish (admin)
 async function showUserInfoView(token) {
+    userInfoToken = token;
     if (dashboardView) dashboardView.style.display = 'none';
     if (notificationsView) notificationsView.style.display = 'none';
     if (tasksTableView) tasksTableView.style.display = 'none';
@@ -356,6 +410,7 @@ async function loadUserInfo(token) {
             headers: { 'Authorization': `Bearer ${token}` }
         });
         const users = res.users || [];
+        lastLoadedUsers = users;
         userInfoLoading.style.display = 'none';
 
         if (users.length === 0) {
@@ -385,7 +440,7 @@ function displayUserInfoTable(users) {
         const phone = u.phone || '—';
         const coins = u.coins != null ? u.coins : '—';
         const createdAt = u.createdAt ? new Date(u.createdAt).toLocaleString('uz-UZ', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : '—';
-        return `<tr>
+        return `<tr class="user-info-row" data-user-id="${escapeHtml(u._id)}" title="Bosib parolni o'zgartirish">
             <td>${i + 1}</td>
             <td><span class="user-role-badge user-role-${u.role || 'student'}">${escapeHtml(role)}</span></td>
             <td>${escapeHtml(name)}</td>
@@ -397,6 +452,49 @@ function displayUserInfoTable(users) {
             <td>${escapeHtml(createdAt)}</td>
         </tr>`;
     }).join('');
+}
+
+// User Edit Modal: ochish
+function openUserEditModal(user) {
+    if (!userEditModal || !userEditInfoGrid) return;
+    currentEditUser = user;
+    const roleLabels = { student: 'O\'quvchi', teacher: 'O\'qituvchi', admin: 'Admin' };
+    const role = roleLabels[user.role] || user.role || '—';
+    const createdAt = user.createdAt ? new Date(user.createdAt).toLocaleString('uz-UZ', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : '—';
+    userEditInfoGrid.innerHTML = `
+        <div class="user-edit-info-item"><strong>Ism:</strong> ${escapeHtml(user.name || '—')}</div>
+        <div class="user-edit-info-item"><strong>Rol:</strong> <span class="user-role-badge user-role-${user.role || 'student'}">${escapeHtml(role)}</span></div>
+        <div class="user-edit-info-item"><strong>Yosh:</strong> ${user.age != null ? user.age : '—'}</div>
+        <div class="user-edit-info-item"><strong>Email:</strong> ${escapeHtml(user.email || '—')}</div>
+        <div class="user-edit-info-item"><strong>Telefon:</strong> ${escapeHtml(user.phone || '—')}</div>
+        <div class="user-edit-info-item"><strong>Coins:</strong> ${user.coins != null ? user.coins : '—'}</div>
+        <div class="user-edit-info-item"><strong>Ro'yxatdan o'tgan:</strong> ${escapeHtml(createdAt)}</div>
+        <div class="user-edit-info-item"><strong>Parol:</strong> <span class="text-muted">•••••• (yashirilgan)</span></div>
+    `;
+    if (userEditPasswordForm) userEditPasswordForm.reset();
+    userEditModal.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+}
+
+// User Edit Modal: yopish
+function closeUserEditModal() {
+    if (!userEditModal) return;
+    userEditModal.style.display = 'none';
+    document.body.style.overflow = '';
+    currentEditUser = null;
+    if (userEditPasswordForm) userEditPasswordForm.reset();
+}
+
+// User Info qatoriga bosish (modal ochish)
+function setupUserInfoRowClick() {
+    if (!userInfoBody) return;
+    userInfoBody.addEventListener('click', (e) => {
+        const row = e.target.closest('tr.user-info-row');
+        if (!row || !row.dataset.userId) return;
+        const userId = row.dataset.userId;
+        const user = lastLoadedUsers.find((u) => u._id === userId);
+        if (user) openUserEditModal(user);
+    });
 }
 
 // Vazifalar jadvalini yuklash

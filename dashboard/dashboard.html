@@ -292,6 +292,39 @@
                 </div>
             </div>
 
+            <!-- User Edit Modal (Admin: parol ko'rish/o'zgartirish) -->
+            <div id="user-edit-modal" class="user-edit-modal" style="display: none;">
+                <div class="user-edit-modal-backdrop"></div>
+                <div class="user-edit-modal-content">
+                    <div class="user-edit-modal-header">
+                        <h3><i class="fas fa-user-edit"></i> Foydalanuvchi ma'lumotlari</h3>
+                        <button type="button" class="user-edit-modal-close" id="user-edit-modal-close" aria-label="Yopish">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    <div class="user-edit-modal-body">
+                        <div class="user-edit-info-grid" id="user-edit-info-grid"></div>
+                        <p class="user-edit-password-note">
+                            <i class="fas fa-lock"></i> Parol xavfsizlik uchun yashirilgan (xesh). Yangi parol kiritib o'zgartirishingiz mumkin.
+                        </p>
+                        <form id="user-edit-password-form" class="user-edit-password-form">
+                            <div class="form-group">
+                                <label for="user-edit-new-password">Yangi parol</label>
+                                <input type="password" id="user-edit-new-password" name="newPassword" minlength="6" placeholder="Kamida 6 belgi" autocomplete="new-password">
+                            </div>
+                            <div class="form-group">
+                                <label for="user-edit-confirm-password">Parolni tasdiqlang</label>
+                                <input type="password" id="user-edit-confirm-password" name="confirmPassword" minlength="6" placeholder="Qayta kiriting" autocomplete="new-password">
+                            </div>
+                            <div class="user-edit-modal-actions">
+                                <button type="submit" class="btn-save"><i class="fas fa-save"></i> Saqlash</button>
+                                <button type="button" class="btn-cancel" id="user-edit-modal-cancel"><i class="fas fa-times"></i> Yopish</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
             <!-- Notifications View -->
             <div id="notifications-view" style="display: none;">
                 <div class="notifications-header">
