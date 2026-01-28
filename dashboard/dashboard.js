@@ -102,10 +102,18 @@ async function initializeDashboard() {
             await loadMyScores(token);
         }
         
-        // 6. Xabarlar sonini yuklash
+        // 6. Telegram bot ma'lumotlarini yuklash
+        await loadTelegramBotInfo(token);
+        
+        // 7. Telegram bot tugmasiga event listener qo'shish
+        if (telegramConnectBtn) {
+            telegramConnectBtn.addEventListener('click', () => handleTelegramConnect(token));
+        }
+        
+        // 8. Xabarlar sonini yuklash
         await loadNotificationsCount(token);
         
-        // 7. Event listener'larni qo'shish
+        // 9. Event listener'larni qo'shish
         setupEventListeners(token);
         
     } catch (error) {
@@ -483,6 +491,75 @@ function closeUserEditModal() {
     document.body.style.overflow = '';
     currentEditUser = null;
     if (userEditPasswordForm) userEditPasswordForm.reset();
+}
+
+// ============================================
+// TELEGRAM BOT FUNKSIYALARI
+// ============================================
+
+// Telegram bot ma'lumotlarini yuklash
+async function loadTelegramBotInfo(token) {
+    try {
+        const response = await apiRequest('/telegram/token', {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+        
+        if (response.success) {
+            if (response.isConnected) {
+                telegramStatus.textContent = 'Ulangan';
+                if (telegramCard) {
+                    telegramCard.classList.add('connected');
+                }
+                if (telegramConnectBtn) {
+                    telegramConnectBtn.innerHTML = '<i class="fab fa-telegram"></i> Botga O\'tish';
+                }
+            } else {
+                telegramStatus.textContent = 'Ulanmagan';
+                if (telegramCard) {
+                    telegramCard.classList.remove('connected');
+                }
+            }
+        }
+    } catch (error) {
+        console.error('Telegram bot ma\'lumotlarini yuklashda xato:', error);
+        if (telegramStatus) {
+            telegramStatus.textContent = 'Xato';
+        }
+    }
+}
+
+// Telegram botga ulash
+async function handleTelegramConnect(token) {
+    try {
+        const response = await apiRequest('/telegram/token', {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+        
+        if (response.success && response.botLink) {
+            // Bot linkini ochish
+            window.open(response.botLink, '_blank');
+            
+            showAlert(
+                'Telegram bot linki ochildi! Botda /start tugmasini bosing yoki link orqali avtomatik ulanasiz.',
+                'info',
+                5000
+            );
+            
+            // 3 soniyadan keyin statusni yangilash
+            setTimeout(() => {
+                loadTelegramBotInfo(token);
+            }, 3000);
+        }
+    } catch (error) {
+        console.error('Telegram botga ulashda xato:', error);
+        showAlert('Telegram botga ulashda xato yuz berdi.', 'error');
+    }
 }
 
 // User Info qatoriga bosish (modal ochish)
