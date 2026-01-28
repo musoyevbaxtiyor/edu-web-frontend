@@ -498,6 +498,45 @@ main > h3::before {
     }
 }
 
+/* ============================================
+   ALERT MODAL STYLES (O'qituvchi panel uchun)
+   ============================================ */
+
+/* Alert container z-index ni o'qituvchi panel modalidan yuqori qilish */
+#alert-container {
+    z-index: 3000 !important; /* Modal z-index: 2000, shuning uchun alert yuqorida bo'lishi kerak */
+}
+
+/* Alert modal o'qituvchi panel dizayniga moslashtirish */
+.custom-alert {
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2) !important;
+    backdrop-filter: blur(10px);
+}
+
+/* Dark mode uchun alert stillari */
+body.dark #alert-container .custom-alert {
+    background: rgba(30, 41, 59, 0.95) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Confirm dialog z-index */
+.custom-confirm-overlay {
+    z-index: 3001 !important; /* Alert'dan ham yuqorida */
+}
+
+.custom-confirm-dialog {
+    backdrop-filter: blur(10px);
+}
+
+body.dark .custom-confirm-dialog {
+    background: rgba(30, 41, 59, 0.95) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+
 @media (max-width: 640px) {
     #submissions-list-container {
         grid-template-columns: 1fr;
@@ -516,5 +555,17 @@ main > h3::before {
         width: 100%;
         margin-right: 0;
         margin-top: 0.75rem;
+    }
+    
+    /* Alert responsive */
+    #alert-container {
+        right: 10px !important;
+        left: 10px !important;
+        max-width: calc(100% - 20px) !important;
+    }
+    
+    .custom-alert {
+        min-width: auto !important;
+        max-width: 100% !important;
     }
 }
