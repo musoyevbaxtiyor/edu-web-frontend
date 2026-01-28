@@ -249,12 +249,15 @@ function displayTeacherCourses(courses) {
 function displayCourses(courses) {
     myCoursesList.innerHTML = '';
 
-    if (courses.length === 0) {
+    // Null kurslarni filtrlash (xavfsizlik uchun)
+    const validCourses = courses.filter(course => course && course._id);
+
+    if (validCourses.length === 0) {
         displayEmptyState();
         return;
     }
 
-    courses.forEach(course => {
+    validCourses.forEach(course => {
         const card = document.createElement('div');
         card.className = 'course-card enrolled-card';
         

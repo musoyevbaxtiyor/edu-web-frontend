@@ -102,14 +102,14 @@ async function fetchEnrolledCourseIds(token) {
         // FQ'AT KURS ID'LARINI SAQLAYMIZ
         // MUHIM TEKSHIRUV: Agar 304 kelib bo'sh obyekt qaytgan bo'lsa yoki 'courses' topilmasa
         if (response && response.courses && Array.isArray(response.courses)) {
-            enrolledCourseIds = response.courses.map(course => course._id);
+            // Null kurslarni filtrlash (o'chirilgan kurslar)
+            enrolledCourseIds = response.courses
+                .filter(course => course && course._id) // Null va undefined kurslarni olib tashlash
+                .map(course => course._id);
         } else {
             // Agar javobda kurslar ro'yxati bo'lmasa yoki 304 bo'lsa, ro'yxatni bo'sh qoldiramiz
             enrolledCourseIds = [];
         }
-        
-        // Faqat kurs ID'larini saqlaymiz
-        enrolledCourseIds = response.courses.map(course => course._id);
         
     } catch (error) {
         console.error("Ro'yxatdan o'tilgan kurslarni yuklashda xato:", error);
