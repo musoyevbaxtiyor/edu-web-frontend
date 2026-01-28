@@ -860,6 +860,125 @@ body {
 }
 
 /* ============================================
+   USER INFO (ADMIN)
+   ============================================ */
+
+.user-info-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    background: var(--card-bg);
+    padding: 2rem;
+    border-radius: 1rem;
+    box-shadow: var(--shadow-lg);
+}
+
+.user-info-header h1 {
+    font-size: 2rem;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.user-info-header h1 i {
+    color: var(--primary-color);
+}
+
+.user-info-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.user-info-table-wrapper {
+    background: var(--card-bg);
+    border-radius: 1rem;
+    box-shadow: var(--shadow-lg);
+    overflow-x: auto;
+}
+
+.user-info-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.user-info-table th,
+.user-info-table td {
+    padding: 1rem 1.25rem;
+    text-align: left;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.user-info-table th {
+    background: var(--light-bg);
+    font-weight: 600;
+    color: var(--text-primary);
+    font-size: 0.95rem;
+}
+
+.user-info-table tbody tr:hover {
+    background: rgba(99, 102, 241, 0.04);
+}
+
+.user-info-table td {
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+}
+
+.user-role-badge {
+    display: inline-block;
+    padding: 0.35rem 0.75rem;
+    border-radius: 2rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.user-role-badge.user-role-student {
+    background: rgba(59, 130, 246, 0.15);
+    color: var(--info-color);
+}
+
+.user-role-badge.user-role-teacher {
+    background: rgba(139, 92, 246, 0.15);
+    color: #8b5cf6;
+}
+
+.user-role-badge.user-role-admin {
+    background: rgba(239, 68, 68, 0.15);
+    color: var(--danger-color);
+}
+
+#user-info-loading,
+#user-info-empty {
+    background: var(--card-bg);
+    border-radius: 1rem;
+    box-shadow: var(--shadow-lg);
+}
+
+#user-info-empty {
+    text-align: center;
+    padding: 4rem 2rem;
+}
+
+#user-info-empty i {
+    font-size: 4rem;
+    color: var(--text-secondary);
+    margin-bottom: 1rem;
+}
+
+#user-info-empty h3 {
+    font-size: 1.5rem;
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+}
+
+#user-info-empty p {
+    color: var(--text-secondary);
+}
+
+/* ============================================
    SCORES SECTION
    ============================================ */
 
@@ -1167,23 +1286,28 @@ body {
     }
 
     .notifications-header,
-    .tasks-table-header {
+    .tasks-table-header,
+    .user-info-header {
         flex-direction: column;
         align-items: flex-start;
         gap: 1rem;
     }
 
     .notifications-header h1,
-    .tasks-table-header h1 {
+    .tasks-table-header h1,
+    .user-info-header h1 {
         font-size: 1.5rem;
     }
 
-    .tasks-table-wrapper {
+    .tasks-table-wrapper,
+    .user-info-table-wrapper {
         overflow-x: auto;
     }
 
     .tasks-table th,
-    .tasks-table td {
+    .tasks-table td,
+    .user-info-table th,
+    .user-info-table td {
         padding: 0.75rem 1rem;
         font-size: 0.875rem;
     }

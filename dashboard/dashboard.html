@@ -63,9 +63,13 @@
                     <i class="fas fa-cog"></i>
                     <span>Test Boshqaruvi</span>
                 </a>
-                <a href="#" class="nav-item" id="tasks-table-nav-item" style="display: none;">
+                <a href="#" class="nav-item" id="tasks-table-nav-item">
                     <i class="fas fa-table"></i>
                     <span>Vazifalar Jadvali</span>
+                </a>
+                <a href="#" class="nav-item" id="user-info-nav-item" style="display: none;">
+                    <i class="fas fa-users-cog"></i>
+                    <span>User Info</span>
                 </a>
                 <a href="../profile/profile.html" class="nav-item">
                     <i class="fas fa-user-circle"></i>
@@ -244,6 +248,45 @@
                                 </tr>
                             </thead>
                             <tbody id="tasks-table-body"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- User Info (Admin) -->
+            <div id="user-info-view" style="display: none;">
+                <div class="user-info-header">
+                    <h1><i class="fas fa-users-cog"></i> Foydalanuvchilar</h1>
+                    <button class="refresh-btn" id="refresh-user-info-btn">
+                        <i class="fas fa-sync-alt"></i> Yangilash
+                    </button>
+                </div>
+                <div class="user-info-container">
+                    <div id="user-info-loading" class="loading-state">
+                        <div class="spinner"></div>
+                        <p>Foydalanuvchilar yuklanmoqda...</p>
+                    </div>
+                    <div id="user-info-empty" class="empty-state" style="display: none;">
+                        <i class="fas fa-user-slash"></i>
+                        <h3>Foydalanuvchilar topilmadi</h3>
+                        <p>Hozircha ro'yxatda foydalanuvchi yo'q.</p>
+                    </div>
+                    <div id="user-info-wrapper" class="user-info-table-wrapper" style="display: none;">
+                        <table class="user-info-table">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Rol</th>
+                                    <th>Ism</th>
+                                    <th>Yosh</th>
+                                    <th>Email</th>
+                                    <th>Telefon</th>
+                                    <th>Parol</th>
+                                    <th>Coins</th>
+                                    <th>Ro'yxatdan o'tgan</th>
+                                </tr>
+                            </thead>
+                            <tbody id="user-info-body"></tbody>
                         </table>
                     </div>
                 </div>

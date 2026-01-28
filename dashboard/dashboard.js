@@ -43,6 +43,15 @@ const tasksTableWrapper = document.getElementById('tasks-table-wrapper');
 const tasksTableBody = document.getElementById('tasks-table-body');
 const refreshTasksTableBtn = document.getElementById('refresh-tasks-table-btn');
 
+// User Info (admin)
+const userInfoView = document.getElementById('user-info-view');
+const userInfoNavItem = document.getElementById('user-info-nav-item');
+const userInfoLoading = document.getElementById('user-info-loading');
+const userInfoEmpty = document.getElementById('user-info-empty');
+const userInfoWrapper = document.getElementById('user-info-wrapper');
+const userInfoBody = document.getElementById('user-info-body');
+const refreshUserInfoBtn = document.getElementById('refresh-user-info-btn');
+
 let currentUserRole = null;
 
 document.addEventListener('DOMContentLoaded', initializeDashboard);
@@ -104,15 +113,17 @@ function displayProfile(user) {
     const initials = getInitials(displayName);
     userAvatar.innerHTML = `<span style="font-size: 1rem; font-weight: 600;">${initials}</span>`;
     
-    // O'qituvchi va admin uchun test boshqarish va vazifalar jadvalini ko'rsatish
+    // O'qituvchi va admin uchun test boshqarish
     const testManagementNav = document.getElementById('test-management-nav-item');
-    const tasksTableNav = document.getElementById('tasks-table-nav-item');
     if (testManagementNav && (user.role === 'teacher' || user.role === 'admin')) {
         testManagementNav.style.display = 'flex';
     }
-    if (tasksTableNav && (user.role === 'teacher' || user.role === 'admin')) {
-        tasksTableNav.style.display = 'flex';
+    // Admin uchun User Info
+    const userInfoNav = document.getElementById('user-info-nav-item');
+    if (userInfoNav && user.role === 'admin') {
+        userInfoNav.style.display = 'flex';
     }
+    // Vazifalar jadvali hammaga ko'rinadi
 }
 
 // Ismning birinchi harflarini olish
@@ -244,11 +255,19 @@ function setupEventListeners(token) {
         });
     }
 
-    // Vazifalar jadvali nav item (o'qituvchi)
+    // Vazifalar jadvali nav item
     if (tasksTableNavItem) {
         tasksTableNavItem.addEventListener('click', (e) => {
             e.preventDefault();
             showTasksTableView(token);
+        });
+    }
+
+    // User Info nav item (admin)
+    if (userInfoNavItem) {
+        userInfoNavItem.addEventListener('click', (e) => {
+            e.preventDefault();
+            showUserInfoView(token);
         });
     }
 
@@ -266,9 +285,16 @@ function setupEventListeners(token) {
         });
     }
 
+    // Refresh user info button
+    if (refreshUserInfoBtn) {
+        refreshUserInfoBtn.addEventListener('click', () => {
+            loadUserInfo(token);
+        });
+    }
+
     // Sidebar navigatsiya aktiv holatini boshqarish
     document.querySelectorAll('.nav-item').forEach(item => {
-        const specialIds = ['notifications-nav-item', 'tasks-table-nav-item'];
+        const specialIds = ['notifications-nav-item', 'tasks-table-nav-item', 'user-info-nav-item'];
         if (!specialIds.includes(item.id)) {
             item.addEventListener('click', function(e) {
                 if (this.getAttribute('href') === '#') {
@@ -277,6 +303,7 @@ function setupEventListeners(token) {
                 if (dashboardView) dashboardView.style.display = 'block';
                 if (notificationsView) notificationsView.style.display = 'none';
                 if (tasksTableView) tasksTableView.style.display = 'none';
+                if (userInfoView) userInfoView.style.display = 'none';
             });
         }
     });
@@ -287,19 +314,89 @@ async function showNotificationsView(token) {
     if (dashboardView) dashboardView.style.display = 'none';
     if (notificationsView) notificationsView.style.display = 'block';
     if (tasksTableView) tasksTableView.style.display = 'none';
+    if (userInfoView) userInfoView.style.display = 'none';
     document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
     if (notificationsNavItem) notificationsNavItem.classList.add('active');
     await loadNotifications(token);
 }
 
-// Vazifalar jadvali ko'rinishini ko'rsatish (o'qituvchi)
+// Vazifalar jadvali ko'rinishini ko'rsatish
 async function showTasksTableView(token) {
     if (dashboardView) dashboardView.style.display = 'none';
     if (notificationsView) notificationsView.style.display = 'none';
     if (tasksTableView) tasksTableView.style.display = 'block';
+    if (userInfoView) userInfoView.style.display = 'none';
     document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
     if (tasksTableNavItem) tasksTableNavItem.classList.add('active');
     await loadTasksTable(token);
+}
+
+// User Info ko'rinishini ko'rsatish (admin)
+async function showUserInfoView(token) {
+    if (dashboardView) dashboardView.style.display = 'none';
+    if (notificationsView) notificationsView.style.display = 'none';
+    if (tasksTableView) tasksTableView.style.display = 'none';
+    if (userInfoView) userInfoView.style.display = 'block';
+    document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
+    if (userInfoNavItem) userInfoNavItem.classList.add('active');
+    await loadUserInfo(token);
+}
+
+// User Info yuklash
+async function loadUserInfo(token) {
+    if (!userInfoLoading || !userInfoEmpty || !userInfoWrapper || !userInfoBody) return;
+    userInfoLoading.style.display = 'flex';
+    userInfoEmpty.style.display = 'none';
+    userInfoWrapper.style.display = 'none';
+    userInfoBody.innerHTML = '';
+
+    try {
+        const res = await apiRequest('/users/admin/all', {
+            method: 'GET',
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const users = res.users || [];
+        userInfoLoading.style.display = 'none';
+
+        if (users.length === 0) {
+            userInfoEmpty.style.display = 'block';
+        } else {
+            userInfoWrapper.style.display = 'block';
+            displayUserInfoTable(users);
+        }
+    } catch (err) {
+        console.error('User Info yuklashda xato:', err);
+        userInfoLoading.style.display = 'none';
+        userInfoEmpty.style.display = 'block';
+        showAlert('Foydalanuvchilarni yuklashda xato yuz berdi.', 'error');
+    }
+}
+
+// User Info jadvalini ko'rsatish
+function displayUserInfoTable(users) {
+    if (!userInfoBody) return;
+    const roleLabels = { student: 'O\'quvchi', teacher: 'O\'qituvchi', admin: 'Admin' };
+
+    userInfoBody.innerHTML = users.map((u, i) => {
+        const role = roleLabels[u.role] || u.role || '—';
+        const name = u.name || '—';
+        const age = u.age != null ? u.age : '—';
+        const email = u.email || '—';
+        const phone = u.phone || '—';
+        const coins = u.coins != null ? u.coins : '—';
+        const createdAt = u.createdAt ? new Date(u.createdAt).toLocaleString('uz-UZ', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : '—';
+        return `<tr>
+            <td>${i + 1}</td>
+            <td><span class="user-role-badge user-role-${u.role || 'student'}">${escapeHtml(role)}</span></td>
+            <td>${escapeHtml(name)}</td>
+            <td>${age}</td>
+            <td>${escapeHtml(email)}</td>
+            <td>${escapeHtml(phone)}</td>
+            <td>••••••</td>
+            <td>${coins}</td>
+            <td>${escapeHtml(createdAt)}</td>
+        </tr>`;
+    }).join('');
 }
 
 // Vazifalar jadvalini yuklash
@@ -310,8 +407,12 @@ async function loadTasksTable(token) {
     tasksTableWrapper.style.display = 'none';
     tasksTableBody.innerHTML = '';
 
+    const endpoint = (currentUserRole === 'teacher' || currentUserRole === 'admin')
+        ? '/submissions/teacher/all'
+        : '/submissions/my';
+
     try {
-        const res = await apiRequest('/submissions/teacher/all', {
+        const res = await apiRequest(endpoint, {
             method: 'GET',
             headers: { 'Authorization': `Bearer ${token}` }
         });
