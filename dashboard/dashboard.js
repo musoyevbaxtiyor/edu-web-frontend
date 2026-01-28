@@ -34,6 +34,15 @@ const notificationsLoading = document.getElementById('notifications-loading');
 const notificationsEmpty = document.getElementById('notifications-empty');
 const refreshNotificationsBtn = document.getElementById('refresh-notifications-btn');
 
+// Vazifalar jadvali (o'qituvchi)
+const tasksTableView = document.getElementById('tasks-table-view');
+const tasksTableNavItem = document.getElementById('tasks-table-nav-item');
+const tasksTableLoading = document.getElementById('tasks-table-loading');
+const tasksTableEmpty = document.getElementById('tasks-table-empty');
+const tasksTableWrapper = document.getElementById('tasks-table-wrapper');
+const tasksTableBody = document.getElementById('tasks-table-body');
+const refreshTasksTableBtn = document.getElementById('refresh-tasks-table-btn');
+
 let currentUserRole = null;
 
 document.addEventListener('DOMContentLoaded', initializeDashboard);
@@ -95,10 +104,14 @@ function displayProfile(user) {
     const initials = getInitials(displayName);
     userAvatar.innerHTML = `<span style="font-size: 1rem; font-weight: 600;">${initials}</span>`;
     
-    // O'qituvchi va admin uchun test boshqarish linkini ko'rsatish
+    // O'qituvchi va admin uchun test boshqarish va vazifalar jadvalini ko'rsatish
     const testManagementNav = document.getElementById('test-management-nav-item');
+    const tasksTableNav = document.getElementById('tasks-table-nav-item');
     if (testManagementNav && (user.role === 'teacher' || user.role === 'admin')) {
         testManagementNav.style.display = 'flex';
+    }
+    if (tasksTableNav && (user.role === 'teacher' || user.role === 'admin')) {
+        tasksTableNav.style.display = 'flex';
     }
 }
 
@@ -231,6 +244,14 @@ function setupEventListeners(token) {
         });
     }
 
+    // Vazifalar jadvali nav item (o'qituvchi)
+    if (tasksTableNavItem) {
+        tasksTableNavItem.addEventListener('click', (e) => {
+            e.preventDefault();
+            showTasksTableView(token);
+        });
+    }
+
     // Refresh notifications button
     if (refreshNotificationsBtn) {
         refreshNotificationsBtn.addEventListener('click', () => {
@@ -238,16 +259,24 @@ function setupEventListeners(token) {
         });
     }
 
+    // Refresh tasks table button
+    if (refreshTasksTableBtn) {
+        refreshTasksTableBtn.addEventListener('click', () => {
+            loadTasksTable(token);
+        });
+    }
+
     // Sidebar navigatsiya aktiv holatini boshqarish
     document.querySelectorAll('.nav-item').forEach(item => {
-        if (item.id !== 'notifications-nav-item') {
+        const specialIds = ['notifications-nav-item', 'tasks-table-nav-item'];
+        if (!specialIds.includes(item.id)) {
             item.addEventListener('click', function(e) {
                 if (this.getAttribute('href') === '#') {
                     e.preventDefault();
                 }
-                // Dashboard view'ni ko'rsatish
                 if (dashboardView) dashboardView.style.display = 'block';
                 if (notificationsView) notificationsView.style.display = 'none';
+                if (tasksTableView) tasksTableView.style.display = 'none';
             });
         }
     });
@@ -257,13 +286,74 @@ function setupEventListeners(token) {
 async function showNotificationsView(token) {
     if (dashboardView) dashboardView.style.display = 'none';
     if (notificationsView) notificationsView.style.display = 'block';
-    
-    // Aktiv holatni o'zgartirish
+    if (tasksTableView) tasksTableView.style.display = 'none';
     document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
     if (notificationsNavItem) notificationsNavItem.classList.add('active');
-    
-    // Xabarlarni yuklash
     await loadNotifications(token);
+}
+
+// Vazifalar jadvali ko'rinishini ko'rsatish (o'qituvchi)
+async function showTasksTableView(token) {
+    if (dashboardView) dashboardView.style.display = 'none';
+    if (notificationsView) notificationsView.style.display = 'none';
+    if (tasksTableView) tasksTableView.style.display = 'block';
+    document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
+    if (tasksTableNavItem) tasksTableNavItem.classList.add('active');
+    await loadTasksTable(token);
+}
+
+// Vazifalar jadvalini yuklash
+async function loadTasksTable(token) {
+    if (!tasksTableLoading || !tasksTableEmpty || !tasksTableWrapper || !tasksTableBody) return;
+    tasksTableLoading.style.display = 'flex';
+    tasksTableEmpty.style.display = 'none';
+    tasksTableWrapper.style.display = 'none';
+    tasksTableBody.innerHTML = '';
+
+    try {
+        const res = await apiRequest('/submissions/teacher/all', {
+            method: 'GET',
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const submissions = res.submissions || [];
+        tasksTableLoading.style.display = 'none';
+
+        if (submissions.length === 0) {
+            tasksTableEmpty.style.display = 'block';
+        } else {
+            tasksTableWrapper.style.display = 'block';
+            displayTasksTable(submissions);
+        }
+    } catch (err) {
+        console.error('Vazifalar jadvali yuklashda xato:', err);
+        tasksTableLoading.style.display = 'none';
+        tasksTableEmpty.style.display = 'block';
+        showAlert('Vazifalarni yuklashda xato yuz berdi.', 'error');
+    }
+}
+
+// Vazifalar jadvalini ko'rsatish
+function displayTasksTable(submissions) {
+    if (!tasksTableBody) return;
+    const statusLabels = { submitted: 'Yuborilgan', in_review: 'Tekshirilmoqda', approved: 'Tasdiqlangan', rejected: 'Rad etilgan' };
+    const statusClass = { submitted: 'status-submitted', in_review: 'status-review', approved: 'status-approved', rejected: 'status-rejected' };
+
+    tasksTableBody.innerHTML = submissions.map((s, i) => {
+        const studentName = s.user?.name || s.user?.email || '—';
+        const lessonTitle = s.lesson?.title || '—';
+        const grade = s.grade != null ? s.grade : '—';
+        const status = statusLabels[s.status] || s.status || '—';
+        const date = s.createdAt ? new Date(s.createdAt).toLocaleString('uz-UZ', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : '—';
+        const sc = statusClass[s.status] || '';
+        return `<tr>
+            <td>${i + 1}</td>
+            <td>${escapeHtml(studentName)}</td>
+            <td>${escapeHtml(lessonTitle)}</td>
+            <td>${grade}</td>
+            <td><span class="tasks-status-badge ${sc}">${escapeHtml(status)}</span></td>
+            <td>${escapeHtml(date)}</td>
+        </tr>`;
+    }).join('');
 }
 
 // Xabarlar sonini yuklash

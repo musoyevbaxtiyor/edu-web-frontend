@@ -736,6 +736,130 @@ body {
 }
 
 /* ============================================
+   VAZIFALAR JADVALI (O'QITUVCHI)
+   ============================================ */
+
+.tasks-table-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    background: var(--card-bg);
+    padding: 2rem;
+    border-radius: 1rem;
+    box-shadow: var(--shadow-lg);
+}
+
+.tasks-table-header h1 {
+    font-size: 2rem;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.tasks-table-header h1 i {
+    color: var(--primary-color);
+}
+
+.tasks-table-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.tasks-table-wrapper {
+    background: var(--card-bg);
+    border-radius: 1rem;
+    box-shadow: var(--shadow-lg);
+    overflow: hidden;
+}
+
+.tasks-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.tasks-table th,
+.tasks-table td {
+    padding: 1rem 1.25rem;
+    text-align: left;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.tasks-table th {
+    background: var(--light-bg);
+    font-weight: 600;
+    color: var(--text-primary);
+    font-size: 0.95rem;
+}
+
+.tasks-table tbody tr:hover {
+    background: rgba(99, 102, 241, 0.04);
+}
+
+.tasks-table td {
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+}
+
+.tasks-status-badge {
+    display: inline-block;
+    padding: 0.35rem 0.75rem;
+    border-radius: 2rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.tasks-status-badge.status-submitted {
+    background: rgba(59, 130, 246, 0.15);
+    color: var(--info-color);
+}
+
+.tasks-status-badge.status-review {
+    background: rgba(245, 158, 11, 0.15);
+    color: var(--warning-color);
+}
+
+.tasks-status-badge.status-approved {
+    background: rgba(16, 185, 129, 0.15);
+    color: var(--success-color);
+}
+
+.tasks-status-badge.status-rejected {
+    background: rgba(239, 68, 68, 0.15);
+    color: var(--danger-color);
+}
+
+#tasks-table-loading,
+#tasks-table-empty {
+    background: var(--card-bg);
+    border-radius: 1rem;
+    box-shadow: var(--shadow-lg);
+}
+
+#tasks-table-empty {
+    text-align: center;
+    padding: 4rem 2rem;
+}
+
+#tasks-table-empty i {
+    font-size: 4rem;
+    color: var(--text-secondary);
+    margin-bottom: 1rem;
+}
+
+#tasks-table-empty h3 {
+    font-size: 1.5rem;
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+}
+
+#tasks-table-empty p {
+    color: var(--text-secondary);
+}
+
+/* ============================================
    SCORES SECTION
    ============================================ */
 
@@ -1042,14 +1166,26 @@ body {
         font-size: 1.5rem;
     }
 
-    .notifications-header {
+    .notifications-header,
+    .tasks-table-header {
         flex-direction: column;
         align-items: flex-start;
         gap: 1rem;
     }
 
-    .notifications-header h1 {
+    .notifications-header h1,
+    .tasks-table-header h1 {
         font-size: 1.5rem;
+    }
+
+    .tasks-table-wrapper {
+        overflow-x: auto;
+    }
+
+    .tasks-table th,
+    .tasks-table td {
+        padding: 0.75rem 1rem;
+        font-size: 0.875rem;
     }
 
     .notification-item {

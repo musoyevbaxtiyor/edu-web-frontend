@@ -63,6 +63,10 @@
                     <i class="fas fa-cog"></i>
                     <span>Test Boshqaruvi</span>
                 </a>
+                <a href="#" class="nav-item" id="tasks-table-nav-item" style="display: none;">
+                    <i class="fas fa-table"></i>
+                    <span>Vazifalar Jadvali</span>
+                </a>
                 <a href="../profile/profile.html" class="nav-item">
                     <i class="fas fa-user-circle"></i>
                     <span>Profil</span>
@@ -207,6 +211,42 @@
                     </div>
                 </div>
             </div>
+            </div>
+
+            <!-- Vazifalar Jadvali (O'qituvchi) -->
+            <div id="tasks-table-view" style="display: none;">
+                <div class="tasks-table-header">
+                    <h1><i class="fas fa-table"></i> Topshirilgan vazifalar jadvali</h1>
+                    <button class="refresh-btn" id="refresh-tasks-table-btn">
+                        <i class="fas fa-sync-alt"></i> Yangilash
+                    </button>
+                </div>
+                <div class="tasks-table-container">
+                    <div id="tasks-table-loading" class="loading-state">
+                        <div class="spinner"></div>
+                        <p>Vazifalar yuklanmoqda...</p>
+                    </div>
+                    <div id="tasks-table-empty" class="empty-state" style="display: none;">
+                        <i class="fas fa-inbox"></i>
+                        <h3>Hozircha topshiriqlar yo'q</h3>
+                        <p>O'quvchilar hali vazifa topshirmagan.</p>
+                    </div>
+                    <div id="tasks-table-wrapper" class="tasks-table-wrapper" style="display: none;">
+                        <table class="tasks-table">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>O'quvchi</th>
+                                    <th>Dars nomi</th>
+                                    <th>Ball</th>
+                                    <th>Status</th>
+                                    <th>Sana</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tasks-table-body"></tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
 
             <!-- Notifications View -->
