@@ -61,6 +61,11 @@ const userEditPasswordForm = document.getElementById('user-edit-password-form');
 const userEditNewPassword = document.getElementById('user-edit-new-password');
 const userEditConfirmPassword = document.getElementById('user-edit-confirm-password');
 
+// Telegram bot elementlari
+const telegramCard = document.getElementById('telegram-card');
+const telegramStatus = document.getElementById('telegram-status');
+const telegramConnectBtn = document.getElementById('telegram-connect-btn');
+
 let currentUserRole = null;
 let lastLoadedUsers = [];
 let userInfoToken = null;
@@ -509,7 +514,9 @@ async function loadTelegramBotInfo(token) {
         
         if (response.success) {
             if (response.isConnected) {
-                telegramStatus.textContent = 'Ulangan';
+                if (telegramStatus) {
+                    telegramStatus.textContent = 'Ulangan';
+                }
                 if (telegramCard) {
                     telegramCard.classList.add('connected');
                 }
@@ -517,7 +524,9 @@ async function loadTelegramBotInfo(token) {
                     telegramConnectBtn.innerHTML = '<i class="fab fa-telegram"></i> Botga O\'tish';
                 }
             } else {
-                telegramStatus.textContent = 'Ulanmagan';
+                if (telegramStatus) {
+                    telegramStatus.textContent = 'Ulanmagan';
+                }
                 if (telegramCard) {
                     telegramCard.classList.remove('connected');
                 }
