@@ -1,4 +1,4 @@
-import { apiRequest } from '../assets/js/api.js';
+import { apiRequest, BASE_SERVER_URL } from '../assets/js/api.js';
 import { showAlert, showConfirm } from '../assets/js/alert.js';
 
 // Elementlar
@@ -307,6 +307,41 @@ function setupEventListeners(token) {
     if (refreshTasksTableBtn) {
         refreshTasksTableBtn.addEventListener('click', () => {
             loadTasksTable(token);
+        });
+    }
+
+    // Vazifa yuklab olish: API orqali (ZIP va boshqa formatlar ishlaydi), yangi tab ochilmasdan
+    if (tasksTableBody) {
+        tasksTableBody.addEventListener('click', async (e) => {
+            const link = e.target.closest('.tasks-download-link');
+            if (!link) return;
+            e.preventDefault();
+            const url = link.getAttribute('data-download-url');
+            const name = link.getAttribute('data-download-name') || 'vazifa-fayl';
+            if (!url) return;
+            const t = localStorage.getItem('userToken');
+            if (!t) {
+                showAlert('Avtorizatsiya kerak.', 'error');
+                return;
+            }
+            try {
+                const res = await fetch(url, {
+                    method: 'GET',
+                    headers: { 'Authorization': `Bearer ${t}` }
+                });
+                if (!res.ok) {
+                    const data = await res.json().catch(() => ({}));
+                    throw new Error(data.message || 'Fayl yuklanmadi');
+                }
+                const blob = await res.blob();
+                const a = document.createElement('a');
+                a.href = URL.createObjectURL(blob);
+                a.download = name;
+                a.click();
+                URL.revokeObjectURL(a.href);
+            } catch (err) {
+                showAlert('Faylni yuklab olish mumkin emas. ' + (err.message || ''), 'error');
+            }
         });
     }
 
@@ -630,6 +665,12 @@ function displayTasksTable(submissions) {
         const status = statusLabels[s.status] || s.status || '—';
         const date = s.createdAt ? new Date(s.createdAt).toLocaleString('uz-UZ', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : '—';
         const sc = statusClass[s.status] || '';
+        const fileUrl = (s.submissionUrl && BASE_SERVER_URL) ? (BASE_SERVER_URL + s.submissionUrl) : null;
+        const apiDownloadUrl = (s._id && BASE_SERVER_URL) ? (BASE_SERVER_URL + '/api/submissions/file/' + s._id) : null;
+        const fileName = (s.submissionUrl && s.submissionUrl.split('/').pop()) ? decodeURIComponent(s.submissionUrl.split('/').pop()) : 'vazifa-fayl';
+        const fileCell = apiDownloadUrl
+            ? `<a href="${escapeHtml(apiDownloadUrl)}" class="tasks-download-link" data-download-url="${escapeHtml(apiDownloadUrl)}" data-download-name="${escapeHtml(fileName)}" title="Vazifa faylini yuklab olish"><i class="fas fa-download"></i> Yuklab olish</a>`
+            : '<span class="tasks-no-file">—</span>';
         return `<tr>
             <td>${i + 1}</td>
             <td>${escapeHtml(studentName)}</td>
@@ -637,6 +678,7 @@ function displayTasksTable(submissions) {
             <td>${grade}</td>
             <td><span class="tasks-status-badge ${sc}">${escapeHtml(status)}</span></td>
             <td>${escapeHtml(date)}</td>
+            <td>${fileCell}</td>
         </tr>`;
     }).join('');
 }

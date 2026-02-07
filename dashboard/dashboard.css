@@ -880,6 +880,33 @@ body {
     color: var(--danger-color);
 }
 
+.tasks-download-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.4rem 0.75rem;
+    background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+    color: white;
+    text-decoration: none;
+    border-radius: 0.5rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    transition: all 0.2s ease;
+}
+
+.tasks-download-link:hover {
+    opacity: 0.9;
+    transform: translateY(-1px);
+}
+
+.tasks-download-link i {
+    font-size: 0.9rem;
+}
+
+.tasks-no-file {
+    color: var(--text-secondary);
+}
+
 #tasks-table-loading,
 #tasks-table-empty {
     background: var(--card-bg);
