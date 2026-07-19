@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom'
 import {
   BookOpen, GraduationCap, TrendingUp, Coins, Trophy, Award, Bell,
   FolderKanban, FileCheck2, ClipboardList, Users, Layers, Plus, ArrowRight,
-  CheckCircle2, Clock, Sparkles,
+  CheckCircle2, Clock, Sparkles, ScrollText, Play, ListChecks,
 } from 'lucide-react'
 import StatCard from '../components/StatCard'
 import CourseCard from '../components/CourseCard'
@@ -11,9 +11,53 @@ import { EmptyState } from '../components/ui'
 import {
   useStatistics, useMyScores, useMyCourses, useTeacherCourses,
   useTeacherSubmissions, useNotifications, useAllUsers, useCourses,
+  useExams, useMyExamResults,
 } from '../hooks/useApi'
 import { useAuth } from '../context/AuthContext'
-import { timeAgo } from '../lib/utils'
+import { timeAgo, EXAM_LEVELS } from '../lib/utils'
+
+const LEVEL_TONE = { easy: 'var(--grad-mint)', middle: 'linear-gradient(135deg,#f59e0b,#fbbf24)', pro: 'var(--grad-sunset)' }
+
+function ExamsSection() {
+  const { data: exams } = useExams()
+  const { data: resultsData } = useMyExamResults(true)
+  const best = resultsData?.best || {}
+  const list = (exams || []).slice().sort((a, b) => (EXAM_LEVELS[a.level]?.order || 9) - (EXAM_LEVELS[b.level]?.order || 9))
+
+  if (!list.length) return null
+
+  return (
+    <div style={{ marginTop: 26 }}>
+      <div className="between" style={{ marginBottom: 16 }}>
+        <h2 className="row gap-2" style={{ fontSize: '1.2rem' }}><ScrollText style={{ width: 22, height: 22, color: 'var(--brand-500)' }} /> Imtihonlar</h2>
+        <Link to="/exams" className="btn btn-ghost btn-sm">Barchasi <ArrowRight /></Link>
+      </div>
+      <div className="grid" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))' }}>
+        {list.map((exam) => {
+          const lvl = EXAM_LEVELS[exam.level] || EXAM_LEVELS.easy
+          const b = best[exam._id]
+          return (
+            <div key={exam._id} className="card card-hover" style={{ overflow: 'hidden' }}>
+              <div style={{ height: 8, background: LEVEL_TONE[exam.level] }} />
+              <div className="card-pad stack gap-3">
+                <div className="row gap-2 wrap">
+                  <span className={`badge ${lvl.badge}`}>{lvl.label}</span>
+                  {b && <span className={`badge ${b.passed ? 'badge-success' : 'badge-danger'}`}>{b.scorePercent}%</span>}
+                </div>
+                <div style={{ fontWeight: 700 }}>{exam.title}</div>
+                <div className="row gap-4 text-muted" style={{ fontSize: '.8rem' }}>
+                  <span className="row gap-1"><ListChecks style={{ width: 14, height: 14 }} /> {exam.questionCount} savol</span>
+                  <span className="row gap-1"><Clock style={{ width: 14, height: 14 }} /> {exam.durationMinutes} daq</span>
+                </div>
+                <Link to="/exams" className="btn btn-primary btn-block btn-sm"><Play /> {b ? 'Qayta topshirish' : 'Boshlash'}</Link>
+              </div>
+            </div>
+          )
+        })}
+      </div>
+    </div>
+  )
+}
 
 function Welcome({ name, sub }) {
   return (
@@ -110,6 +154,8 @@ function StudentDashboard({ user }) {
           </div>
         </div>
       </div>
+
+      <ExamsSection />
     </div>
   )
 }
@@ -147,6 +193,7 @@ function TeacherDashboard({ user }) {
       <div className="grid-2" style={{ marginTop: 26 }}>
         <QuickAction to="/teach/courses" icon={Plus} title="Yangi kurs yaratish" desc="Kurs qo'shing va darslarni tashkil qiling" tone="var(--grad-brand)" />
         <QuickAction to="/teach/submissions" icon={FileCheck2} title="Topshiriqlarni baholash" desc={`${pending?.length ?? 0} ta vazifa kutmoqda`} tone="var(--grad-sunset)" />
+        <QuickAction to="/teach/exams" icon={ScrollText} title="Imtihon yaratish" desc="Ko'p savolli darajali imtihon (easy/middle/pro)" tone="linear-gradient(135deg,#8b5cf6,#ec4899)" />
         <QuickAction to="/teach/tests" icon={ClipboardList} title="Test yaratish" desc="O'quvchilar bilimini sinang" tone="linear-gradient(135deg,#3b82f6,#6366f1)" />
         <QuickAction to="/teach/courses" icon={FolderKanban} title="Kurslarni boshqarish" desc="Tahrirlash va darslar qo'shish" tone="var(--grad-mint)" />
       </div>

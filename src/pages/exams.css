@@ -1,0 +1,51 @@
+/* ---------- Exams (Imtihon) ---------- */
+.exam-run { display: grid; grid-template-columns: minmax(0,1fr) 260px; gap: 22px; align-items: start; }
+@media (max-width: 900px) { .exam-run { grid-template-columns: 1fr; } }
+
+.exam-timer {
+  display: inline-flex; align-items: center; gap: 8px; font-weight: 700; font-variant-numeric: tabular-nums;
+  padding: 8px 14px; border-radius: var(--r-full); background: var(--surface-3); font-size: .95rem;
+}
+.exam-timer.warn { background: var(--danger-soft); color: var(--danger); animation: pulse-soft 1s infinite; }
+
+.exam-q-code {
+  background: var(--surface-3); border: 1px solid var(--border); border-radius: var(--r-md);
+  padding: 14px 16px; overflow-x: auto; font-family: var(--font-mono); font-size: .86rem;
+  line-height: 1.6; white-space: pre; margin: 14px 0;
+}
+
+.exam-opt {
+  display: flex; align-items: center; gap: 12px; width: 100%; text-align: left;
+  padding: 14px 16px; border-radius: var(--r-md); border: 1.5px solid var(--border);
+  background: var(--surface); transition: border-color var(--t-fast), background-color var(--t-fast);
+  font: inherit; color: var(--text); cursor: pointer;
+}
+.exam-opt:hover:not(:disabled) { border-color: var(--brand-300); }
+.exam-opt.selected { border-color: var(--brand-500); background: var(--brand-50); }
+.exam-opt.correct { border-color: var(--success); background: var(--success-soft); }
+.exam-opt.wrong { border-color: var(--danger); background: var(--danger-soft); }
+.exam-opt-key {
+  width: 28px; height: 28px; border-radius: 8px; display: grid; place-items: center; flex-shrink: 0;
+  font-weight: 700; font-size: .82rem; background: var(--surface-3); color: var(--text-secondary);
+}
+.exam-opt.selected .exam-opt-key { background: var(--brand-500); color: #fff; }
+.exam-opt.correct .exam-opt-key { background: var(--success); color: #fff; }
+.exam-opt.wrong .exam-opt-key { background: var(--danger); color: #fff; }
+
+.exam-nav-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
+.exam-nav-btn {
+  aspect-ratio: 1; border-radius: 10px; border: 1.5px solid var(--border); font-weight: 700; font-size: .85rem;
+  background: var(--surface); color: var(--text-secondary); transition: all var(--t-fast);
+}
+.exam-nav-btn.answered { background: var(--brand-50); border-color: var(--brand-300); color: var(--brand-600); }
+.exam-nav-btn.current { border-color: var(--brand-500); box-shadow: var(--ring); }
+
+/* Natija doirasi */
+.exam-score-ring {
+  width: 150px; height: 150px; border-radius: 50%; display: grid; place-items: center; margin: 0 auto;
+  background: conic-gradient(var(--ring-color, var(--brand-500)) var(--pct, 0%), var(--surface-3) 0);
+}
+.exam-score-ring > div {
+  width: 118px; height: 118px; border-radius: 50%; background: var(--surface); display: grid; place-items: center;
+  flex-direction: column; text-align: center;
+}

@@ -24,6 +24,9 @@ export const qk = {
   mySubmission: (lessonId) => ['mySubmission', lessonId],
   teacherSubmissions: (kind) => ['teacherSubmissions', kind],
   reviewTasks: ['reviewTasks'],
+  exams: (params) => ['exams', params || {}],
+  exam: (id) => ['exam', id],
+  myExamResults: ['myExamResults'],
 }
 
 /* ---------- Courses ---------- */
@@ -241,6 +244,51 @@ export const useDeleteTest = () => {
   return useMutation({
     mutationFn: (id) => del(`/tests/${id}`),
     onSuccess: () => qc.invalidateQueries({ queryKey: ['tests'] }),
+  })
+}
+
+/* ---------- Exams (Imtihonlar) ---------- */
+export const useExams = (params) =>
+  useQuery({
+    queryKey: qk.exams(params),
+    queryFn: () => get('/exams', { params }).then((d) => d.exams || []),
+  })
+
+export const useExam = (id) =>
+  useQuery({ queryKey: qk.exam(id), queryFn: () => get(`/exams/${id}`).then((d) => d.exam), enabled: !!id })
+
+export const useMyExamResults = (enabled = true) =>
+  useQuery({ queryKey: qk.myExamResults, queryFn: () => get('/exams/my/results'), enabled })
+
+export const useSubmitExam = () => {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: ({ id, answers }) => post(`/exams/${id}/submit`, { answers }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: qk.myExamResults }),
+  })
+}
+
+export const useCreateExam = () => {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (body) => post('/exams', body),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['exams'] }),
+  })
+}
+
+export const useUpdateExam = () => {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: ({ id, body }) => put(`/exams/${id}`, body),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['exams'] }),
+  })
+}
+
+export const useDeleteExam = () => {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (id) => del(`/exams/${id}`),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['exams'] }),
   })
 }
 

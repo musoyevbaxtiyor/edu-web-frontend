@@ -52,6 +52,13 @@ export const DIFFICULTY = {
   hard: { label: 'Qiyin', badge: 'badge-danger', score: 3 },
 }
 
+// Imtihon darajalari
+export const EXAM_LEVELS = {
+  easy: { label: 'Oson', short: 'Easy', badge: 'badge-success', tone: 'mint', order: 1 },
+  middle: { label: "O'rta", short: 'Middle', badge: 'badge-warning', tone: 'gold', order: 2 },
+  pro: { label: 'Pro', short: 'Pro', badge: 'badge-danger', tone: 'sunset', order: 3 },
+}
+
 // YouTube/Vimeo/oddiy video URL -> embed manzili
 export function toEmbedUrl(url = '') {
   if (!url) return ''
