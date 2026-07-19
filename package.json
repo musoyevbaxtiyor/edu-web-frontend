@@ -1,13 +1,27 @@
 {
-  "name": "edu-web-frontend",
-  "version": "1.0.0",
-  "description": "edu web bu online ta'lim platformasi frontend qismi",
+  "name": "edu-web-frontend-react",
+  "private": true,
+  "version": "2.0.0",
+  "type": "module",
+  "description": "Edu Web — onlayn ta'lim platformasi (React frontend)",
   "scripts": {
-    "start": "live-server --port=5501 --open=/index.html",
-    "dev": "live-server --port=5501 --open=/index.html --watch=.",
-    "serve": "live-server --port=5501"
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview --port 4173"
+  },
+  "dependencies": {
+    "@fontsource-variable/inter": "^5.0.20",
+    "@fontsource-variable/sora": "^5.0.16",
+    "@tanstack/react-query": "^5.51.23",
+    "axios": "^1.7.4",
+    "lucide-react": "^0.427.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-router-dom": "^6.26.1",
+    "recharts": "^2.12.7"
   },
   "devDependencies": {
-    "live-server": "^1.2.2"
+    "@vitejs/plugin-react": "^4.3.1",
+    "vite": "^5.4.2"
   }
 }

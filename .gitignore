@@ -1,0 +1,11 @@
+node_modules
+dist
+dist-ssr
+*.local
+.env
+.env.local
+# Eslatma: .env.production va .env.example commit qilinadi (deploy uchun kerak)
+.DS_Store
+.vscode/*
+!.vscode/extensions.json
+npm-debug.log*

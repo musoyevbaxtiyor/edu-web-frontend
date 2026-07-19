@@ -1,0 +1,39 @@
+.lv { display: grid; grid-template-columns: 320px minmax(0, 1fr); gap: 22px; align-items: start; }
+@media (max-width: 960px) { .lv { grid-template-columns: 1fr; } }
+
+.lv-list { position: sticky; top: calc(var(--header-h) + 20px); }
+@media (max-width: 960px) { .lv-list { position: static; } }
+.lv-list-scroll { max-height: calc(100vh - var(--header-h) - 120px); overflow-y: auto; padding-right: 4px; }
+@media (max-width: 960px) { .lv-list-scroll { max-height: none; } }
+
+.lv-item {
+  display: flex; gap: 12px; align-items: center; width: 100%; text-align: left;
+  padding: 12px 14px; border-radius: var(--r-sm); border: 1px solid transparent;
+  transition: background-color var(--t-fast), border-color var(--t-fast); margin-bottom: 6px;
+}
+.lv-item:hover:not(.locked) { background: var(--surface-2); }
+.lv-item.active { background: var(--grad-brand-soft); border-color: var(--brand-200); }
+:root[data-theme='dark'] .lv-item.active { border-color: var(--brand-700); }
+.lv-item.locked { opacity: 0.6; cursor: not-allowed; }
+.lv-item-num {
+  width: 32px; height: 32px; border-radius: 9px; display: grid; place-items: center; flex-shrink: 0;
+  font-weight: 700; font-size: .82rem; background: var(--surface-3); color: var(--text-secondary);
+}
+.lv-item.active .lv-item-num { background: var(--grad-brand); color: #fff; }
+
+.lv-video { aspect-ratio: 16 / 9; width: 100%; border-radius: var(--r-md); overflow: hidden; background: #000; border: 1px solid var(--border); }
+.lv-video iframe, .lv-video video { width: 100%; height: 100%; border: 0; display: block; }
+
+.lv-resource {
+  display: flex; align-items: center; gap: 14px; padding: 16px; border-radius: var(--r-md);
+  border: 1px solid var(--border); background: var(--surface-2); transition: border-color var(--t-fast);
+}
+.lv-resource:hover { border-color: var(--brand-300); }
+.lv-resource-icon { width: 46px; height: 46px; border-radius: 12px; display: grid; place-items: center; color: #fff; flex-shrink: 0; }
+
+.dropzone {
+  border: 2px dashed var(--border-strong); border-radius: var(--r-md); padding: 28px; text-align: center;
+  transition: border-color var(--t-fast), background-color var(--t-fast); cursor: pointer; background: var(--surface-2);
+}
+.dropzone:hover, .dropzone.drag { border-color: var(--brand-400); background: var(--brand-50); }
+.dropzone.has-file { border-style: solid; border-color: var(--success); background: var(--success-soft); }

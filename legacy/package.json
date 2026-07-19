@@ -1,0 +1,13 @@
+{
+  "name": "edu-web-frontend",
+  "version": "1.0.0",
+  "description": "edu web bu online ta'lim platformasi frontend qismi",
+  "scripts": {
+    "start": "live-server --port=5501 --open=/index.html",
+    "dev": "live-server --port=5501 --open=/index.html --watch=.",
+    "serve": "live-server --port=5501"
+  },
+  "devDependencies": {
+    "live-server": "^1.2.2"
+  }
+}

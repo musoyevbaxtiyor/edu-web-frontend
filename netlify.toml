@@ -1,0 +1,14 @@
+# Netlify build sozlamalari — Vite React SPA
+
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "20"
+
+# SPA: barcha yo'llar index.html ga (React Router client-side routing)
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200

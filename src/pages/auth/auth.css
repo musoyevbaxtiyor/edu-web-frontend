@@ -1,0 +1,35 @@
+.auth {
+  min-height: 100vh; display: grid; grid-template-columns: 1.05fr 1fr;
+}
+@media (max-width: 900px) { .auth { grid-template-columns: 1fr; } }
+
+.auth-aside {
+  position: relative; overflow: hidden; color: #fff; padding: 48px;
+  background: var(--grad-brand); display: flex; flex-direction: column; justify-content: space-between;
+}
+.auth-aside::before {
+  content: ''; position: absolute; inset: 0;
+  background: radial-gradient(600px 400px at 80% 10%, rgba(255,255,255,0.18), transparent 60%),
+              radial-gradient(500px 400px at 10% 90%, rgba(0,0,0,0.16), transparent 55%);
+}
+.auth-aside > * { position: relative; }
+@media (max-width: 900px) { .auth-aside { display: none; } }
+
+.auth-aside-quote { font-family: var(--font-display); font-size: clamp(1.6rem, 3vw, 2.4rem); font-weight: 800; line-height: 1.2; letter-spacing: -0.02em; }
+.auth-aside-list { display: flex; flex-direction: column; gap: 16px; margin-top: 28px; }
+.auth-aside-item { display: flex; gap: 12px; align-items: center; font-size: 1rem; }
+.auth-aside-item .tick { width: 32px; height: 32px; border-radius: 10px; background: rgba(255,255,255,0.2); display: grid; place-items: center; flex-shrink: 0; }
+
+.auth-main { display: grid; place-items: center; padding: clamp(24px, 5vw, 48px); overflow-y: auto; }
+.auth-card { width: 100%; max-width: 420px; animation: fade-up var(--t-slow) both; }
+.auth-head { margin-bottom: 28px; }
+.auth-head h1 { font-size: 1.9rem; font-weight: 800; }
+.auth-head p { color: var(--text-muted); margin-top: 8px; }
+.auth-form { display: flex; flex-direction: column; gap: 16px; }
+.auth-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+@media (max-width: 420px) { .auth-row { grid-template-columns: 1fr; } }
+.auth-foot { text-align: center; margin-top: 22px; color: var(--text-muted); font-size: .92rem; }
+.auth-foot a { color: var(--brand-600); font-weight: 600; }
+:root[data-theme='dark'] .auth-foot a { color: var(--brand-300); }
+.auth-topbar { position: absolute; top: 20px; left: 0; right: 0; }
+.pw-toggle { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); color: var(--text-muted); padding: 6px; }

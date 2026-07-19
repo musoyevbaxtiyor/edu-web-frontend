@@ -1,0 +1,140 @@
+/* ============================================================
+   Design tokens — Edu Web design system
+   Yorug' (default) va qorong'i (data-theme="dark") rejimlar
+   ============================================================ */
+
+:root {
+  /* Brand ranglari */
+  --brand-50:  #eef2ff;
+  --brand-100: #e0e7ff;
+  --brand-200: #c7d2fe;
+  --brand-300: #a5b4fc;
+  --brand-400: #818cf8;
+  --brand-500: #6366f1;
+  --brand-600: #4f46e5;
+  --brand-700: #4338ca;
+  --brand-800: #3730a3;
+  --brand-900: #312e81;
+
+  --accent-400: #c084fc;
+  --accent-500: #a855f7;
+  --accent-600: #9333ea;
+
+  /* Semantik ranglar */
+  --success: #10b981;
+  --success-soft: #d1fae5;
+  --warning: #f59e0b;
+  --warning-soft: #fef3c7;
+  --danger: #ef4444;
+  --danger-soft: #fee2e2;
+  --info: #3b82f6;
+  --info-soft: #dbeafe;
+
+  /* Neytral (yorug' rejim) */
+  --bg: #f6f7fb;
+  --bg-elevated: #ffffff;
+  --surface: #ffffff;
+  --surface-2: #f8fafc;
+  --surface-3: #f1f5f9;
+  --overlay: rgba(15, 23, 42, 0.55);
+
+  --text: #0f172a;
+  --text-secondary: #475569;
+  --text-muted: #94a3b8;
+  --text-inverse: #ffffff;
+
+  --border: #e5e9f0;
+  --border-strong: #cbd5e1;
+
+  /* Gradientlar */
+  --grad-brand: linear-gradient(135deg, #6366f1 0%, #8b5cf6 55%, #a855f7 100%);
+  --grad-brand-soft: linear-gradient(135deg, rgba(99,102,241,0.12), rgba(168,85,247,0.12));
+  --grad-hero: radial-gradient(1200px 600px at 12% -10%, rgba(129,140,248,0.35), transparent 60%),
+               radial-gradient(1000px 500px at 100% 0%, rgba(168,85,247,0.28), transparent 55%);
+  --grad-sunset: linear-gradient(135deg, #f59e0b, #ef4444);
+  --grad-mint: linear-gradient(135deg, #10b981, #22d3ee);
+
+  /* Soyalar */
+  --shadow-xs: 0 1px 2px rgba(15, 23, 42, 0.06);
+  --shadow-sm: 0 1px 3px rgba(15, 23, 42, 0.08), 0 1px 2px rgba(15,23,42,0.04);
+  --shadow-md: 0 8px 20px -6px rgba(15, 23, 42, 0.14);
+  --shadow-lg: 0 18px 40px -12px rgba(15, 23, 42, 0.22);
+  --shadow-xl: 0 30px 60px -18px rgba(30, 27, 75, 0.35);
+  --shadow-brand: 0 12px 28px -8px rgba(99, 102, 241, 0.45);
+  --ring: 0 0 0 3px rgba(99, 102, 241, 0.35);
+
+  /* Radiuslar */
+  --r-xs: 8px;
+  --r-sm: 12px;
+  --r-md: 16px;
+  --r-lg: 22px;
+  --r-xl: 28px;
+  --r-full: 999px;
+
+  /* Tipografiya */
+  --font-sans: 'Inter Variable', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-display: 'Sora Variable', 'Sora', var(--font-sans);
+  --font-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', 'Cascadia Code', monospace;
+
+  /* Layout */
+  --container: 1240px;
+  --header-h: 68px;
+  --sidebar-w: 264px;
+  --sidebar-w-collapsed: 76px;
+
+  /* Spacing shkalasi */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+
+  /* O'tishlar */
+  --t-fast: 140ms cubic-bezier(0.4, 0, 0.2, 1);
+  --t-med: 240ms cubic-bezier(0.4, 0, 0.2, 1);
+  --t-slow: 420ms cubic-bezier(0.16, 1, 0.3, 1);
+
+  color-scheme: light;
+}
+
+:root[data-theme='dark'] {
+  --bg: #0b1020;
+  --bg-elevated: #121a2e;
+  --surface: #141d33;
+  --surface-2: #1a2540;
+  --surface-3: #212e4d;
+  --overlay: rgba(2, 6, 23, 0.7);
+
+  --text: #eef2ff;
+  --text-secondary: #b3bfd8;
+  --text-muted: #7c89a8;
+  --text-inverse: #0b1020;
+
+  --border: #24304d;
+  --border-strong: #33436b;
+
+  --brand-50: #1a2036;
+
+  --grad-brand-soft: linear-gradient(135deg, rgba(129,140,248,0.16), rgba(168,85,247,0.16));
+  --grad-hero: radial-gradient(1200px 600px at 12% -10%, rgba(99,102,241,0.30), transparent 60%),
+               radial-gradient(1000px 500px at 100% 0%, rgba(168,85,247,0.22), transparent 55%);
+
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-sm: 0 2px 6px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 10px 24px -8px rgba(0, 0, 0, 0.55);
+  --shadow-lg: 0 22px 46px -14px rgba(0, 0, 0, 0.6);
+  --shadow-xl: 0 34px 70px -20px rgba(0, 0, 0, 0.7);
+  --shadow-brand: 0 14px 32px -10px rgba(99, 102, 241, 0.6);
+
+  --success-soft: rgba(16,185,129,0.16);
+  --warning-soft: rgba(245,158,11,0.16);
+  --danger-soft: rgba(239,68,68,0.16);
+  --info-soft: rgba(59,130,246,0.16);
+
+  color-scheme: dark;
+}
