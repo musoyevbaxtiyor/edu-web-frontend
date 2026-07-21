@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom'
 import {
   BookOpen, GraduationCap, TrendingUp, Coins, Trophy, Award, Bell,
   FolderKanban, FileCheck2, ClipboardList, Users, Layers, Plus, ArrowRight,
-  CheckCircle2, Clock, Sparkles, ScrollText, Play, ListChecks,
+  CheckCircle2, Clock, Sparkles, ScrollText, Play, ListChecks, Rocket,
 } from 'lucide-react'
 import StatCard from '../components/StatCard'
 import CourseCard from '../components/CourseCard'
@@ -11,10 +11,10 @@ import { EmptyState } from '../components/ui'
 import {
   useStatistics, useMyScores, useMyCourses, useTeacherCourses,
   useTeacherSubmissions, useNotifications, useAllUsers, useCourses,
-  useExams, useMyExamResults,
+  useExams, useMyExamResults, usePracticeOverview,
 } from '../hooks/useApi'
 import { useAuth } from '../context/AuthContext'
-import { timeAgo, EXAM_LEVELS } from '../lib/utils'
+import { timeAgo, EXAM_LEVELS, PRACTICE_CATEGORIES, PRACTICE_CATEGORY_KEYS, pct } from '../lib/utils'
 
 const LEVEL_TONE = { easy: 'var(--grad-mint)', middle: 'linear-gradient(135deg,#f59e0b,#fbbf24)', pro: 'var(--grad-sunset)' }
 
@@ -52,6 +52,38 @@ function ExamsSection() {
                 <Link to="/exams" className="btn btn-primary btn-block btn-sm"><Play /> {b ? 'Qayta topshirish' : 'Boshlash'}</Link>
               </div>
             </div>
+          )
+        })}
+      </div>
+    </div>
+  )
+}
+
+function PracticeSection() {
+  const { data: overview } = usePracticeOverview()
+  const byCat = {}
+  for (const c of overview || []) byCat[c.category] = c
+  const totalTasks = (overview || []).reduce((s, c) => s + (c.total || 0), 0)
+  if (!totalTasks) return null
+
+  return (
+    <div style={{ marginTop: 26 }}>
+      <div className="between" style={{ marginBottom: 16 }}>
+        <h2 className="row gap-2" style={{ fontSize: '1.2rem' }}><Rocket style={{ width: 22, height: 22, color: 'var(--brand-500)' }} /> Amaliy tasklar</h2>
+        <Link to="/practice" className="btn btn-ghost btn-sm">Barchasi <ArrowRight /></Link>
+      </div>
+      <div className="grid" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(230px, 1fr))' }}>
+        {PRACTICE_CATEGORY_KEYS.map((key) => {
+          const meta = PRACTICE_CATEGORIES[key]
+          const c = byCat[key] || { total: 0, completed: 0 }
+          const p = pct(c.completed, c.total)
+          return (
+            <Link key={key} to="/practice" className="card card-hover card-pad stack gap-3" style={{ textDecoration: 'none' }}>
+              <span className="center" style={{ width: 44, height: 44, borderRadius: 12, fontWeight: 800, background: meta.soft, color: meta.color }}>{meta.short}</span>
+              <div style={{ fontWeight: 700 }}>{meta.label}</div>
+              <div className="progress"><span style={{ width: `${p}%`, background: meta.color }} /></div>
+              <div className="text-muted" style={{ fontSize: '.8rem' }}>{c.completed}/{c.total} · {p}%</div>
+            </Link>
           )
         })}
       </div>
@@ -124,6 +156,8 @@ function StudentDashboard({ user }) {
             <div className="text-muted" style={{ fontSize: '.85rem' }}>Umumiy reyting o'rningiz</div>
             <div className="divider" />
             <div className="between"><span className="text-muted" style={{ fontSize: '.85rem' }}>Jami ball</span><b>{scores?.totalScore ?? 0}</b></div>
+            <div className="between" style={{ marginTop: 8 }}><span className="text-muted" style={{ fontSize: '.85rem' }}>Amaliy ball</span><b>{scores?.practiceScore ?? 0}</b></div>
+            <div className="between" style={{ marginTop: 8 }}><span className="text-muted" style={{ fontSize: '.85rem' }}>Imtihon ball</span><b>{scores?.examScore ?? 0}</b></div>
             <div className="between" style={{ marginTop: 8 }}><span className="text-muted" style={{ fontSize: '.85rem' }}>Test aniqligi</span><b>{scores?.testAccuracy ?? 0}%</b></div>
             <Link to="/leaderboard" className="btn btn-secondary btn-block" style={{ marginTop: 16 }}><Trophy /> Reytingni ko'rish</Link>
           </div>
@@ -155,6 +189,7 @@ function StudentDashboard({ user }) {
         </div>
       </div>
 
+      <PracticeSection />
       <ExamsSection />
     </div>
   )
@@ -193,6 +228,7 @@ function TeacherDashboard({ user }) {
       <div className="grid-2" style={{ marginTop: 26 }}>
         <QuickAction to="/teach/courses" icon={Plus} title="Yangi kurs yaratish" desc="Kurs qo'shing va darslarni tashkil qiling" tone="var(--grad-brand)" />
         <QuickAction to="/teach/submissions" icon={FileCheck2} title="Topshiriqlarni baholash" desc={`${pending?.length ?? 0} ta vazifa kutmoqda`} tone="var(--grad-sunset)" />
+        <QuickAction to="/teach/practice" icon={Rocket} title="Amaliy task qo'shish" desc="Qo'shimcha amaliy vazifalar (HTML/CSS/Figma/JS)" tone="var(--grad-mint)" />
         <QuickAction to="/teach/exams" icon={ScrollText} title="Imtihon yaratish" desc="Ko'p savolli darajali imtihon (easy/middle/pro)" tone="linear-gradient(135deg,#8b5cf6,#ec4899)" />
         <QuickAction to="/teach/tests" icon={ClipboardList} title="Test yaratish" desc="O'quvchilar bilimini sinang" tone="linear-gradient(135deg,#3b82f6,#6366f1)" />
         <QuickAction to="/teach/courses" icon={FolderKanban} title="Kurslarni boshqarish" desc="Tahrirlash va darslar qo'shish" tone="var(--grad-mint)" />

@@ -1,0 +1,107 @@
+/* ============ Amaliy tasklar (TaskFlow) ============ */
+
+.tf-hero {
+  text-align: center;
+  margin-bottom: 28px;
+}
+.tf-hero-title {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: clamp(1.7rem, 4vw, 2.6rem);
+  line-height: 1.1;
+  background: linear-gradient(135deg, #8b5cf6, #22d3ee);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.tf-hero-sub {
+  color: var(--text-muted);
+  margin-top: 8px;
+}
+
+.tf-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--text-muted);
+  font-size: .9rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  margin-bottom: 14px;
+}
+.tf-back:hover { color: var(--brand-500); }
+
+.tf-page-title {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: clamp(1.4rem, 3.4vw, 2rem);
+  background: linear-gradient(135deg, #8b5cf6, #22d3ee);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  line-height: 1.15;
+}
+
+/* Kategoriya / daraja kartasi */
+.tf-card { cursor: pointer; overflow: hidden; }
+
+.tf-icon {
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  font-weight: 800;
+  font-size: 1.1rem;
+  flex-shrink: 0;
+}
+
+/* Progress bar (jild) */
+.tf-bar {
+  height: 8px;
+  background: var(--surface-3);
+  border-radius: 999px;
+  overflow: hidden;
+}
+.tf-bar > span {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  transition: width var(--t-slow);
+}
+
+/* Task qatori */
+.tf-task-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 15px 18px;
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  background: var(--surface);
+  transition: border-color var(--t-fast), background var(--t-fast);
+}
+.tf-task-row:hover { border-color: var(--brand-300); }
+.tf-task-row.is-done { background: var(--success-soft); border-color: transparent; }
+
+.tf-task-num {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  font-weight: 700;
+  font-size: .82rem;
+  flex-shrink: 0;
+  background: var(--surface-3);
+  color: var(--text-muted);
+}
+.tf-task-row.is-done .tf-task-num { background: var(--success); color: #fff; }
+
+.tf-task-title { font-weight: 600; }
+.tf-task-row.is-done .tf-task-title {
+  text-decoration: line-through;
+  color: var(--success);
+}

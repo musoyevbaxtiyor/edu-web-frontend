@@ -27,6 +27,10 @@ export const qk = {
   exams: (params) => ['exams', params || {}],
   exam: (id) => ['exam', id],
   myExamResults: ['myExamResults'],
+  practiceOverview: ['practiceOverview'],
+  practiceTasks: (params) => ['practiceTasks', params || {}],
+  practiceManageTasks: (params) => ['practiceManageTasks', params || {}],
+  practiceSubmissions: (status) => ['practiceSubmissions', status],
 }
 
 /* ---------- Courses ---------- */
@@ -289,6 +293,87 @@ export const useDeleteExam = () => {
   return useMutation({
     mutationFn: (id) => del(`/exams/${id}`),
     onSuccess: () => qc.invalidateQueries({ queryKey: ['exams'] }),
+  })
+}
+
+/* ---------- Practice (Amaliy tasklar) ---------- */
+export const usePracticeOverview = (enabled = true) =>
+  useQuery({
+    queryKey: qk.practiceOverview,
+    queryFn: () => get('/practice/overview').then((d) => d.categories || []),
+    enabled,
+  })
+
+export const usePracticeTasks = (category, level) =>
+  useQuery({
+    queryKey: qk.practiceTasks({ category, level }),
+    queryFn: () => get('/practice/tasks', { params: { category, level } }).then((d) => d.tasks || []),
+    enabled: !!category && !!level,
+  })
+
+export const useSubmitPractice = () => {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: ({ taskId, submissionLink, submissionComment, file }) => {
+      const form = new FormData()
+      form.append('taskId', taskId)
+      if (submissionLink) form.append('submissionLink', submissionLink)
+      if (submissionComment) form.append('submissionComment', submissionComment)
+      if (file) form.append('practiceFile', file)
+      return api.post('/practice/submit', form).then((r) => r.data)
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['practiceTasks'] })
+      qc.invalidateQueries({ queryKey: qk.practiceOverview })
+      qc.invalidateQueries({ queryKey: qk.notifications })
+    },
+  })
+}
+
+export const usePracticeManageTasks = (params) =>
+  useQuery({
+    queryKey: qk.practiceManageTasks(params),
+    queryFn: () => get('/practice/manage/tasks', { params }).then((d) => d.tasks || []),
+  })
+
+export const useCreatePracticeTask = () => {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (body) => post('/practice/tasks', body),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['practiceManageTasks'] }),
+  })
+}
+
+export const useUpdatePracticeTask = () => {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: ({ id, body }) => put(`/practice/tasks/${id}`, body),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['practiceManageTasks'] }),
+  })
+}
+
+export const useDeletePracticeTask = () => {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (id) => del(`/practice/tasks/${id}`),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['practiceManageTasks'] }),
+  })
+}
+
+export const usePracticeSubmissions = (status = 'all') =>
+  useQuery({
+    queryKey: qk.practiceSubmissions(status),
+    queryFn: () => get('/practice/manage/submissions', { params: { status } }).then((d) => d.submissions || []),
+  })
+
+export const useReviewPractice = () => {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: ({ submissionId, ...body }) => put(`/practice/submissions/${submissionId}/review`, body),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['practiceSubmissions'] })
+      qc.invalidateQueries({ queryKey: qk.notifications })
+    },
   })
 }
 

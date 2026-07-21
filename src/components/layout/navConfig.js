@@ -1,6 +1,6 @@
 import {
   LayoutDashboard, BookOpen, GraduationCap, ClipboardList, Trophy, Bell,
-  FolderKanban, FileCheck2, Users, BarChart3, Layers, ScrollText,
+  FolderKanban, FileCheck2, Users, BarChart3, Layers, ScrollText, Rocket,
 } from 'lucide-react'
 
 // Rolga qarab yon menyu bo'limlari
@@ -15,6 +15,7 @@ export function navForRole(role) {
       main: [
         ...common,
         { to: '/my-courses', label: 'Mening kurslarim', icon: GraduationCap },
+        { to: '/practice', label: 'Amaliy tasklar', icon: Rocket },
         { to: '/exams', label: 'Imtihonlar', icon: ScrollText },
         { to: '/tests', label: 'Testlar', icon: ClipboardList },
       ],
@@ -31,6 +32,7 @@ export function navForRole(role) {
         { to: '/dashboard', label: 'Boshqaruv paneli', icon: LayoutDashboard },
         { to: '/teach/courses', label: 'Kurslarim', icon: FolderKanban },
         { to: '/teach/submissions', label: 'Topshiriqlar', icon: FileCheck2 },
+        { to: '/teach/practice', label: 'Amaliy tasklar', icon: Rocket },
         { to: '/teach/exams', label: 'Imtihonlar', icon: ScrollText },
         { to: '/teach/tests', label: 'Testlar', icon: ClipboardList },
         { to: '/courses', label: 'Kurslar katalogi', icon: BookOpen },
@@ -49,6 +51,7 @@ export function navForRole(role) {
       { to: '/admin/users', label: 'Foydalanuvchilar', icon: Users },
       { to: '/admin/courses', label: 'Barcha kurslar', icon: Layers },
       { to: '/teach/submissions', label: 'Topshiriqlar', icon: FileCheck2 },
+      { to: '/teach/practice', label: 'Amaliy tasklar', icon: Rocket },
       { to: '/teach/exams', label: 'Imtihonlar', icon: ScrollText },
       { to: '/teach/tests', label: 'Testlar', icon: ClipboardList },
       { to: '/admin/analytics', label: 'Analitika', icon: BarChart3 },

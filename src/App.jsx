@@ -14,6 +14,7 @@ const MyCourses = lazy(() => import('./pages/MyCourses'))
 const LessonView = lazy(() => import('./pages/LessonView'))
 const Tests = lazy(() => import('./pages/Tests'))
 const Exams = lazy(() => import('./pages/Exams'))
+const Practice = lazy(() => import('./pages/Practice'))
 const Leaderboard = lazy(() => import('./pages/Leaderboard'))
 const Notifications = lazy(() => import('./pages/Notifications'))
 const Profile = lazy(() => import('./pages/Profile'))
@@ -22,6 +23,7 @@ const LessonManager = lazy(() => import('./pages/teacher/LessonManager'))
 const Submissions = lazy(() => import('./pages/teacher/Submissions'))
 const TestManager = lazy(() => import('./pages/teacher/TestManager'))
 const ExamManager = lazy(() => import('./pages/teacher/ExamManager'))
+const PracticeManager = lazy(() => import('./pages/teacher/PracticeManager'))
 const AdminUsers = lazy(() => import('./pages/admin/Users'))
 const AdminCourses = lazy(() => import('./pages/admin/AdminCourses'))
 const Analytics = lazy(() => import('./pages/admin/Analytics'))
@@ -47,6 +49,7 @@ export default function App() {
           <Route path="/learn/:courseId" element={<LessonView />} />
           <Route path="/tests" element={<Tests />} />
           <Route path="/exams" element={<Exams />} />
+          <Route path="/practice" element={<Practice />} />
           <Route path="/leaderboard" element={<Leaderboard />} />
           <Route path="/notifications" element={<Notifications />} />
           <Route path="/profile" element={<Profile />} />
@@ -57,6 +60,7 @@ export default function App() {
           <Route path="/teach/submissions" element={<RoleRoute roles={T}><Submissions /></RoleRoute>} />
           <Route path="/teach/tests" element={<RoleRoute roles={T}><TestManager /></RoleRoute>} />
           <Route path="/teach/exams" element={<RoleRoute roles={T}><ExamManager /></RoleRoute>} />
+          <Route path="/teach/practice" element={<RoleRoute roles={T}><PracticeManager /></RoleRoute>} />
 
           {/* Admin */}
           <Route path="/admin/users" element={<RoleRoute roles={['admin']}><AdminUsers /></RoleRoute>} />

@@ -112,9 +112,10 @@ export default function Leaderboard() {
                   <th>O'quvchi</th>
                   <th style={{ textAlign: 'right' }}>Jami ball</th>
                   <th style={{ textAlign: 'right' }}>Vazifa balli</th>
+                  <th style={{ textAlign: 'right' }}>Amaliy ball</th>
+                  <th style={{ textAlign: 'right' }}>Imtihon ball</th>
                   <th style={{ textAlign: 'right' }}>Test balli</th>
                   <th style={{ textAlign: 'right' }}>Test aniqligi</th>
-                  <th style={{ textAlign: 'right' }}>Tugatilgan darslar</th>
                 </tr>
               </thead>
               <tbody>
@@ -158,11 +159,12 @@ export default function Leaderboard() {
                       </td>
                       <td style={{ textAlign: 'right', fontWeight: 700 }}>{r.totalScore ?? 0}</td>
                       <td style={{ textAlign: 'right' }}>{r.submissionScore ?? 0}</td>
+                      <td style={{ textAlign: 'right' }}>{r.practiceScore ?? 0}</td>
+                      <td style={{ textAlign: 'right' }}>{r.examScore ?? 0}</td>
                       <td style={{ textAlign: 'right' }}>{r.testScore ?? 0}</td>
                       <td style={{ textAlign: 'right' }}>
                         <span className="badge badge-info">{r.testAccuracy ?? 0}%</span>
                       </td>
-                      <td style={{ textAlign: 'right' }}>{r.completedLessons ?? 0}</td>
                     </tr>
                   )
                 })}

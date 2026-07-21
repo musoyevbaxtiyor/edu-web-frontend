@@ -59,6 +59,34 @@ export const EXAM_LEVELS = {
   pro: { label: 'Pro', short: 'Pro', badge: 'badge-danger', tone: 'sunset', order: 3 },
 }
 
+// Amaliy tasklar (TaskFlow) — kategoriyalar
+export const PRACTICE_CATEGORIES = {
+  html: { label: 'HTML Tasklar', short: 'H', desc: "Semantik HTML va tuzilma bo'yicha vazifalar", color: '#e34f26', soft: 'rgba(227,79,38,0.16)' },
+  css: { label: 'CSS Tasklar', short: 'C', desc: 'Uslublash, layout va animatsiya vazifalari', color: '#2563eb', soft: 'rgba(37,99,235,0.16)' },
+  figma: { label: 'Figma Loyihalar', short: 'F', desc: 'UI/UX dizayn va prototiplash vazifalari', color: '#a855f7', soft: 'rgba(168,85,247,0.16)' },
+  js: { label: 'JS Tasklar', short: 'JS', desc: 'JavaScript mantiq va dinamik dasturlash vazifalari', color: '#eab308', soft: 'rgba(234,179,8,0.16)' },
+}
+export const PRACTICE_CATEGORY_KEYS = ['html', 'css', 'figma', 'js']
+
+// Amaliy tasklar — darajalar
+export const PRACTICE_LEVELS = {
+  easy: { label: 'Easy', short: 'E', badge: 'badge-success', color: '#10b981', order: 1 },
+  middle: { label: 'Middle', short: 'M', badge: 'badge-warning', color: '#f59e0b', order: 2 },
+  pro: { label: 'Pro', short: 'P', badge: 'badge-danger', color: '#ef4444', order: 3 },
+}
+export const PRACTICE_LEVEL_KEYS = ['easy', 'middle', 'pro']
+
+// Topshiriq holati -> ko'rinish
+export const PRACTICE_STATUS = {
+  approved: { label: 'Tugatildi', badge: 'badge-success' },
+  submitted: { label: 'Tekshirilmoqda', badge: 'badge-info' },
+  in_review: { label: 'Tekshirilmoqda', badge: 'badge-info' },
+  rejected: { label: 'Rad etildi', badge: 'badge-danger' },
+}
+
+// pct helper
+export const pct = (done, total) => (total > 0 ? Math.round((done / total) * 100) : 0)
+
 // YouTube/Vimeo/oddiy video URL -> embed manzili
 export function toEmbedUrl(url = '') {
   if (!url) return ''
