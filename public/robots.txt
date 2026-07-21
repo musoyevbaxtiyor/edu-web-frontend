@@ -1,0 +1,15 @@
+# EduWeb — https://eduweb.uz
+# Barcha qidiruv robotlariga ochiq
+User-agent: *
+Allow: /
+
+# Shaxsiy / avtorizatsiya talab qiladigan sahifalar (crawl budjetini bosh sahifaga yo'naltiramiz)
+Disallow: /dashboard
+Disallow: /admin/
+Disallow: /teach/
+Disallow: /learn/
+Disallow: /my-courses
+Disallow: /profile
+Disallow: /notifications
+
+Sitemap: https://eduweb.uz/sitemap.xml

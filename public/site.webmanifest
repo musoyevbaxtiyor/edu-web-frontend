@@ -1,0 +1,16 @@
+{
+  "name": "EduWeb — Onlayn ta'lim platformasi",
+  "short_name": "EduWeb",
+  "description": "O'zbek tilidagi zamonaviy onlayn ta'lim platformasi: kurslar, amaliy vazifalar, testlar va imtihonlar.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#0b1020",
+  "theme_color": "#6366f1",
+  "lang": "uz",
+  "dir": "ltr",
+  "categories": ["education", "productivity"],
+  "icons": [
+    { "src": "/favicon.svg", "type": "image/svg+xml", "sizes": "any", "purpose": "any maskable" }
+  ]
+}

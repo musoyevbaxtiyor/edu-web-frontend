@@ -12,3 +12,30 @@
   from = "/*"
   to = "/index.html"
   status = 200
+
+# --- SEO / xavfsizlik sarlavhalari ---
+
+# Hashli asset'lar — uzoq muddat keshlanadi
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+# robots.txt / sitemap.xml — qidiruv robotlari uchun toza kesh
+[[headers]]
+  for = "/robots.txt"
+  [headers.values]
+    Cache-Control = "public, max-age=3600"
+[[headers]]
+  for = "/sitemap.xml"
+  [headers.values]
+    Content-Type = "application/xml"
+    Cache-Control = "public, max-age=3600"
+
+# Umumiy xavfsizlik sarlavhalari
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    X-Frame-Options = "SAMEORIGIN"

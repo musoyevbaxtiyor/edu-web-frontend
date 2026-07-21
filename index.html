@@ -2,11 +2,76 @@
 <html lang="uz">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover" />
+
+    <!-- ============ Asosiy SEO ============ -->
+    <title>EduWeb — Onlayn dasturlash kurslari va IT ta'lim</title>
+    <meta name="description" content="EduWeb — HTML, CSS, JavaScript va Figma bo'yicha onlayn kurslar. Video darslar, amaliy topshiriqlar, testlar va sertifikat. Dasturlashni uydan o'rganing!" />
+    <meta name="keywords" content="onlayn kurslar, dasturlash kurslari, IT kurslar, dasturlashni o'rganish, onlayn ta'lim platformasi, HTML CSS kurs, JavaScript kurslari, frontend kurslari, veb dasturlash kurslari, Figma kurslari, sertifikatli kurslar, EduWeb, eduweb.uz" />
+    <meta name="author" content="EduWeb" />
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1" />
+    <link rel="canonical" href="https://eduweb.uz/" />
+    <link rel="alternate" hreflang="uz" href="https://eduweb.uz/" />
+    <link rel="alternate" hreflang="x-default" href="https://eduweb.uz/" />
     <meta name="theme-color" content="#6366f1" />
-    <meta name="description" content="Edu Web — zamonaviy onlayn ta'lim platformasi. Kurslar, darslar, testlar va real vaqtli baholash." />
-    <title>Edu Web — Onlayn Ta'lim Platformasi</title>
+
+    <!-- ============ Ikonkalar / manifest ============ -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" href="/favicon.svg" />
+    <link rel="manifest" href="/site.webmanifest" />
+
+    <!-- ============ Open Graph (Telegram, Facebook, LinkedIn) ============ -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="EduWeb" />
+    <meta property="og:title" content="EduWeb — Onlayn dasturlash kurslari va IT ta'lim" />
+    <meta property="og:description" content="HTML, CSS, JavaScript va Figma bo'yicha onlayn kurslar. Video darslar, amaliy topshiriqlar, testlar va sertifikat. Dasturlashni uydan o'rganing!" />
+    <meta property="og:url" content="https://eduweb.uz/" />
+    <meta property="og:image" content="https://eduweb.uz/og-image.svg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="EduWeb — Onlayn ta'lim platformasi" />
+    <meta property="og:locale" content="uz_UZ" />
+
+    <!-- ============ Twitter ============ -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="EduWeb — Onlayn dasturlash kurslari va IT ta'lim" />
+    <meta name="twitter:description" content="HTML, CSS, JavaScript va Figma bo'yicha onlayn kurslar. Video darslar, testlar va sertifikat." />
+    <meta name="twitter:image" content="https://eduweb.uz/og-image.svg" />
+
+    <!-- ============ Google Search Console tasdig'i ============ -->
+    <!-- Search Console'dan olgan tokenni shu yerga qo'ying (HTML tag usuli):
+    <meta name="google-site-verification" content="TOKEN_SHU_YERGA" /> -->
+
+    <!-- ============ Structured data (JSON-LD) ============ -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "EducationalOrganization",
+          "@id": "https://eduweb.uz/#organization",
+          "name": "EduWeb",
+          "alternateName": "EduWeb — Onlayn ta'lim platformasi",
+          "url": "https://eduweb.uz/",
+          "logo": "https://eduweb.uz/favicon.svg",
+          "image": "https://eduweb.uz/og-image.svg",
+          "description": "O'zbek tilidagi zamonaviy onlayn ta'lim platformasi: HTML, CSS, JavaScript va Figma kurslari, amaliy vazifalar, testlar, imtihonlar va sertifikat.",
+          "inLanguage": "uz",
+          "sameAs": []
+        },
+        {
+          "@type": "WebSite",
+          "@id": "https://eduweb.uz/#website",
+          "url": "https://eduweb.uz/",
+          "name": "EduWeb",
+          "description": "Onlayn dasturlash kurslari va IT ta'lim platformasi.",
+          "inLanguage": "uz",
+          "publisher": { "@id": "https://eduweb.uz/#organization" }
+        }
+      ]
+    }
+    </script>
+
     <script>
       // Mavzuni birinchi paintdan oldin o'rnatish (FOUC va "stuck transition" oldini oladi)
       (function () {
@@ -22,6 +87,25 @@
   </head>
   <body>
     <div id="root"></div>
+
+    <!-- JavaScript ishlamaydigan qidiruv robotlari (Bing, AI-crawlerlar) uchun statik kontent -->
+    <noscript>
+      <main style="max-width:760px;margin:0 auto;padding:32px;font-family:system-ui,Segoe UI,Roboto,Arial,sans-serif;line-height:1.6">
+        <h1>EduWeb — Onlayn ta'lim platformasi</h1>
+        <p>EduWeb — O'zbek tilidagi zamonaviy onlayn ta'lim platformasi. HTML, CSS, JavaScript va Figma
+        bo'yicha kurslar, video darslar, amaliy vazifalar, testlar, imtihonlar va real vaqtli baholash.
+        Bilimingizni to'plang, reytingda ko'tariling va sertifikat oling.</p>
+        <h2>Nimalar bor?</h2>
+        <ul>
+          <li><strong>Video darslar</strong> — bosqichma-bosqich dasturlashni o'rganing.</li>
+          <li><strong>Amaliy vazifalar (TaskFlow)</strong> — HTML, CSS, Figma va JavaScript topshiriqlari.</li>
+          <li><strong>Testlar va imtihonlar</strong> — bilimingizni sinang.</li>
+          <li><strong>Reyting va sertifikat</strong> — natijalaringizni kuzating.</li>
+        </ul>
+        <p>Boshlash uchun: <a href="/register">Ro'yxatdan o'tish</a> yoki <a href="/login">Tizimga kirish</a>.</p>
+      </main>
+    </noscript>
+
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>
