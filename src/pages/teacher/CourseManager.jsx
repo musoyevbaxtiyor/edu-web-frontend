@@ -57,11 +57,21 @@ export default function CourseManager() {
       toast.error('Kurs nomini kiriting.')
       return
     }
+    if (!editing && !form.description.trim()) {
+      toast.error('Kurs tavsifini kiriting.')
+      return
+    }
+    // Bo'sh narx — bepul (0); manfiy narx qabul qilinmaydi
+    const price = form.price === '' ? 0 : Number(form.price)
+    if (!Number.isFinite(price) || price < 0) {
+      toast.error("Narx 0 yoki undan katta son bo'lishi kerak.")
+      return
+    }
     const body = {
       title: form.title.trim(),
       description: form.description.trim(),
-      price: Number(form.price) || 0,
-      isPublished: form.isPublished,
+      price,
+      isPublished: !!form.isPublished,
     }
     try {
       if (editing) {

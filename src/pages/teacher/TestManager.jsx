@@ -153,21 +153,19 @@ export default function TestManager() {
     })
     if (finalOptions.length < 2) return toast.error("Kamida 2 ta variant kiriting.")
 
+    // Bo'sh maydonlar ham yuboriladi — tahrirda kod/izoh/kurs bog'lanishini tozalash mumkin bo'lsin
     const body = {
       title,
       question,
       options: finalOptions,
       correctAnswer,
       difficulty: form.difficulty,
+      code: form.code.trim(),
+      explanation: form.explanation.trim(),
+      category: form.category.trim(),
+      courseId: form.courseId || null,
+      order: Number(form.order) || 0,
     }
-    const code = form.code.trim()
-    const explanation = form.explanation.trim()
-    const category = form.category.trim()
-    if (code) body.code = code
-    if (explanation) body.explanation = explanation
-    if (category) body.category = category
-    if (form.courseId) body.courseId = form.courseId
-    if (String(form.order).trim() !== '') body.order = Number(form.order)
 
     try {
       if (editing) {
@@ -425,6 +423,7 @@ export default function TestManager() {
                     onChange={setOption(idx)}
                   />
                   <Button
+                    type="button"
                     variant="ghost"
                     size="sm"
                     className="btn-icon"
@@ -439,6 +438,7 @@ export default function TestManager() {
             </div>
             {form.options.length < 6 && (
               <Button
+                type="button"
                 variant="ghost"
                 size="sm"
                 onClick={addOption}

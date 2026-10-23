@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useQueryClient } from '@tanstack/react-query'
 import {
   Plus, Pencil, Trash2, GraduationCap, ListChecks, Clock, ArrowLeft,
   Save, X, CircleDot, Check, Eye, EyeOff,
@@ -6,7 +7,7 @@ import {
 import PageHeader from '../../components/PageHeader'
 import { RowsSkeleton } from '../../components/Skeletons'
 import { Button, EmptyState, ConfirmDialog } from '../../components/ui'
-import { useExams, useExam, useCreateExam, useUpdateExam, useDeleteExam } from '../../hooks/useApi'
+import { useExams, useExam, useCreateExam, useUpdateExam, useDeleteExam, qk } from '../../hooks/useApi'
 import { useToast } from '../../context/ToastContext'
 import { EXAM_LEVELS } from '../../lib/utils'
 
@@ -65,7 +66,7 @@ function QuestionEditor({ q, index, onChange, onRemove, canRemove }) {
       )}
 
       <div className="field" style={{ marginTop: 12 }}>
-        <label className="label">Izoh (javobdan keyin ko'rsatiladi)</label>
+        <label className="label">Izoh (talaba to'g'ri javob bersa ko'rsatiladi)</label>
         <textarea className="textarea" style={{ minHeight: 44 }} value={q.explanation} onChange={(e) => set({ explanation: e.target.value })} placeholder="To'g'ri javob izohi..." />
       </div>
     </div>
@@ -75,29 +76,37 @@ function QuestionEditor({ q, index, onChange, onRemove, canRemove }) {
 /* ---------- Muharrir (yaratish/tahrirlash) ---------- */
 function ExamEditor({ examId, onDone }) {
   const toast = useToast()
+  const qc = useQueryClient()
   const isNew = examId === 'new'
-  const { data: existing, isLoading } = useExam(isNew ? null : examId)
+  const { data: existing, isFetching, isError } = useExam(isNew ? null : examId)
   const create = useCreateExam()
   const update = useUpdateExam()
   const [form, setForm] = useState(BLANK_FORM())
+  const [loaded, setLoaded] = useState(isNew)
 
+  // Formani faqat bir marta va faqat yangi (fetch tugagan) ma'lumot bilan to'ldiramiz —
+  // keshdagi eski nusxa yoki kech kelgan refetch tahrirni ustidan yozmasin.
+  // Refetch xato bo'lsa, keshdagi (ehtimol eski) nusxa ishlatilmaydi
   useEffect(() => {
-    if (existing && !isNew) {
-      setForm({
-        title: existing.title || '',
-        description: existing.description || '',
-        level: existing.level || 'easy',
-        category: existing.category || 'HTML/CSS',
-        durationMinutes: existing.durationMinutes || 15,
-        passScore: existing.passScore ?? 60,
-        isActive: existing.isActive !== false,
-        questions: (existing.questions || []).map((q) => ({
-          question: q.question || '', code: q.code || '', options: q.options || ['', ''],
-          correctAnswer: q.correctAnswer ?? 0, explanation: q.explanation || '',
-        })),
-      })
-    }
-  }, [existing, isNew])
+    if (isNew || loaded || !existing || isFetching || isError) return
+    setLoaded(true)
+    setForm({
+      title: existing.title || '',
+      description: existing.description || '',
+      level: existing.level || 'easy',
+      category: existing.category || 'HTML/CSS',
+      durationMinutes: existing.durationMinutes || 15,
+      passScore: existing.passScore ?? 60,
+      isActive: existing.isActive !== false,
+      questions: (existing.questions || []).map((q) => ({
+        question: q.question || '', code: q.code || '', options: q.options || ['', ''],
+        correctAnswer: q.correctAnswer ?? 0, explanation: q.explanation || '',
+      })),
+    })
+  }, [existing, isNew, loaded, isFetching, isError])
+
+  // O'tish balli: bo'sh bo'lsa 60, 0 ham to'g'ri qiymat
+  const passScoreValue = String(form.passScore).trim() === '' ? 60 : Number(form.passScore)
 
   const set = (patch) => setForm((f) => ({ ...f, ...patch }))
   const setQuestion = (i, q) => set({ questions: form.questions.map((x, idx) => (idx === i ? q : x)) })
@@ -106,6 +115,7 @@ function ExamEditor({ examId, onDone }) {
 
   const validate = () => {
     if (!form.title.trim()) return 'Imtihon sarlavhasini kiriting.'
+    if (!Number.isFinite(passScoreValue) || passScoreValue < 0 || passScoreValue > 100) return 'O\'tish balli 0 dan 100 gacha bo\'lishi kerak.'
     if (!form.questions.length) return 'Kamida 1 ta savol qo\'shing.'
     for (const [i, q] of form.questions.entries()) {
       if (!q.question.trim()) return `${i + 1}-savol matni bo'sh.`
@@ -122,16 +132,27 @@ function ExamEditor({ examId, onDone }) {
     const body = {
       ...form,
       durationMinutes: Number(form.durationMinutes) || 15,
-      passScore: Number(form.passScore) || 60,
-      questions: form.questions.map((q) => ({
-        question: q.question.trim(), code: q.code.trim(),
-        options: q.options.map((o) => o.trim()).filter(Boolean),
-        correctAnswer: q.correctAnswer, explanation: q.explanation.trim(),
-      })),
+      passScore: passScoreValue,
+      questions: form.questions.map((q) => {
+        // Bo'sh variantlarni olib tashlab, to'g'ri javob indeksini qayta hisoblash
+        const options = []
+        let correctAnswer = 0
+        q.options.forEach((o, i) => {
+          const t = o.trim()
+          if (!t) return
+          if (i === q.correctAnswer) correctAnswer = options.length
+          options.push(t)
+        })
+        return { question: q.question.trim(), code: q.code.trim(), options, correctAnswer, explanation: q.explanation.trim() }
+      }),
     }
     try {
       if (isNew) await create.mutateAsync(body)
-      else await update.mutateAsync({ id: examId, body })
+      else {
+        await update.mutateAsync({ id: examId, body })
+        // Keshdagi eski nusxa qayta ochilganda ishlatilmasin
+        qc.invalidateQueries({ queryKey: qk.exam(examId) })
+      }
       toast.success(isNew ? 'Imtihon yaratildi.' : 'Imtihon yangilandi.')
       onDone()
     } catch (e) {
@@ -139,7 +160,15 @@ function ExamEditor({ examId, onDone }) {
     }
   }
 
-  if (!isNew && isLoading) return <RowsSkeleton rows={4} />
+  if (!isNew && !loaded) {
+    if (isError && !isFetching) {
+      return (
+        <EmptyState icon={GraduationCap} title="Imtihon yuklanmadi" message="Imtihon ma'lumotlarini olishda xatolik yuz berdi."
+          action={<Button variant="secondary" onClick={onDone}><ArrowLeft /> Imtihonlar</Button>} />
+      )
+    }
+    return <RowsSkeleton rows={4} />
+  }
 
   return (
     <div>
@@ -210,6 +239,7 @@ export default function ExamManager() {
   const del = useDeleteExam()
   const update = useUpdateExam()
   const toast = useToast()
+  const qc = useQueryClient()
   const [editing, setEditing] = useState(null)
   const [toDelete, setToDelete] = useState(null)
 
@@ -218,6 +248,8 @@ export default function ExamManager() {
   const toggleActive = async (exam) => {
     try {
       await update.mutateAsync({ id: exam._id, body: { isActive: !exam.isActive } })
+      // Muharrir eski isActive bilan ochilmasin
+      qc.invalidateQueries({ queryKey: qk.exam(exam._id) })
       toast.success(exam.isActive ? 'Imtihon yashirildi.' : 'Imtihon faollashtirildi.')
     } catch (e) { toast.error(e.message) }
   }
@@ -225,6 +257,7 @@ export default function ExamManager() {
   const doDelete = async () => {
     try {
       await del.mutateAsync(toDelete._id)
+      qc.removeQueries({ queryKey: qk.exam(toDelete._id) })
       toast.success('Imtihon o\'chirildi.')
       setToDelete(null)
     } catch (e) { toast.error(e.message) }

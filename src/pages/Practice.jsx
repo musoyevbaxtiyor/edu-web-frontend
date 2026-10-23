@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from 'react'
+import { useMemo, useRef, useState, Suspense, lazy } from 'react'
 import {
   ArrowLeft, ArrowRight, CheckCircle2, Clock, XCircle, Link2, Paperclip,
   ExternalLink, Send, RotateCcw, ListChecks,
@@ -11,8 +11,11 @@ import {
   PRACTICE_CATEGORIES, PRACTICE_CATEGORY_KEYS,
   PRACTICE_LEVELS, PRACTICE_LEVEL_KEYS, PRACTICE_STATUS, pct,
 } from '../lib/utils'
-import { fileUrl } from '../lib/api'
+import { practiceFileEndpoint, baseName } from '../lib/files'
 import './practice.css'
+
+// Fayl ko'rish oynasi (JSZip bilan) faqat ochilganda yuklanadi
+const FileViewer = lazy(() => import('../components/FileViewer'))
 
 /* ============ 1) Kategoriyalar (TaskFlow bosh sahifa) ============ */
 function Categories({ overview, isLoading, onOpen }) {
@@ -175,9 +178,18 @@ function SubmitModal({ task, onClose }) {
   const [link, setLink] = useState(sub?.submissionLink || '')
   const [comment, setComment] = useState(sub?.submissionComment || '')
   const [file, setFile] = useState(null)
+  const [viewing, setViewing] = useState(false)
   const fileRef = useRef(null)
 
   const isDone = sub?.status === 'approved'
+
+  // Server chegarasi 10 MB — katta faylni yuklashni boshlamasdan rad etamiz
+  const onFile = (e) => {
+    const f = e.target.files?.[0] || null
+    e.target.value = '' // xuddi shu faylni qayta tanlash mumkin bo'lsin
+    if (f && f.size > 10 * 1024 * 1024) return toast.error('Fayl hajmi 10 MB dan oshmasligi kerak')
+    setFile(f)
+  }
 
   const send = async () => {
     if (!link.trim() && !file) return toast.error('Havola yoki fayl kiriting.')
@@ -191,7 +203,8 @@ function SubmitModal({ task, onClose }) {
   }
 
   return (
-    <Modal open onClose={onClose} title={task.title} size={560}
+    // Fayl oynasi ochiq bo'lsa — Escape faqat uni yopadi (yozilgan havola / izoh yo'qolmasin)
+    <Modal open onClose={viewing ? undefined : onClose} title={task.title} size={560}
       footer={
         <>
           <Button variant="ghost" onClick={onClose}>Yopish</Button>
@@ -236,13 +249,16 @@ function SubmitModal({ task, onClose }) {
 
           <div className="field">
             <label className="label"><Paperclip style={{ width: 15, height: 15, verticalAlign: '-2px' }} /> Yoki fayl yuklang (ixtiyoriy)</label>
-            <input ref={fileRef} type="file" style={{ display: 'none' }} onChange={(e) => setFile(e.target.files?.[0] || null)}
+            <input ref={fileRef} type="file" style={{ display: 'none' }} onChange={onFile}
               accept=".jpg,.jpeg,.png,.gif,.webp,.svg,.pdf,.zip,.rar,.html,.htm,.css,.js,.json,.txt,.docx" />
             <div className="row gap-2 wrap">
               <Button variant="secondary" size="sm" type="button" onClick={() => fileRef.current?.click()}><Paperclip /> Fayl tanlash</Button>
               {file && <span className="text-muted" style={{ fontSize: '.82rem' }}>{file.name}</span>}
               {!file && sub?.submissionFile && (
-                <a href={fileUrl(sub.submissionFile)} target="_blank" rel="noreferrer" className="text-muted" style={{ fontSize: '.82rem' }}>Oldingi fayl</a>
+                <button type="button" className="text-muted" onClick={() => setViewing(true)}
+                  style={{ background: 'none', border: 0, padding: 0, cursor: 'pointer', fontSize: '.82rem', textDecoration: 'underline' }}>
+                  Oldingi fayl
+                </button>
               )}
             </div>
           </div>
@@ -252,6 +268,19 @@ function SubmitModal({ task, onClose }) {
             <textarea className="textarea" style={{ minHeight: 56 }} value={comment} onChange={(e) => setComment(e.target.value)} placeholder="Qisqacha izoh..." />
           </div>
         </div>
+      )}
+
+      {/* Oldingi fayl token bilan himoyalangan endpoint orqali ochiladi */}
+      {viewing && sub?.submissionFile && (
+        <Suspense fallback={null}>
+          <FileViewer
+            open
+            onClose={() => setViewing(false)}
+            endpoint={practiceFileEndpoint(sub._id)}
+            fileName={sub.submissionFileName || baseName(sub.submissionFile)}
+            title="Oldingi fayl"
+          />
+        </Suspense>
       )}
     </Modal>
   )

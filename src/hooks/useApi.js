@@ -133,16 +133,20 @@ export const useStartLesson = () => {
 }
 
 /* ---------- Submissions ---------- */
+// Fayl yuklash uchun uzunroq timeout (umumiy 30 s sekin internetda 10 MB ZIP ni uzib qo'yadi)
+const UPLOAD_TIMEOUT = 5 * 60_000
+
 export const useSubmitTask = () => {
   const qc = useQueryClient()
   return useMutation({
     mutationFn: ({ file, lessonId, courseId, submissionComment }) => {
+      // Matnli maydonlar fayldan OLDIN — multer fayl nomini yaratishda lessonId ni o'qiy olishi uchun
       const form = new FormData()
-      form.append('submissionFile', file)
       form.append('lessonId', lessonId)
       form.append('courseId', courseId)
       if (submissionComment) form.append('submissionComment', submissionComment)
-      return api.post('/submissions', form).then((r) => r.data)
+      form.append('submissionFile', file)
+      return api.post('/submissions', form, { timeout: UPLOAD_TIMEOUT }).then((r) => r.data)
     },
     onSuccess: (_, v) => {
       qc.invalidateQueries({ queryKey: qk.lessons(v.courseId) })
@@ -284,7 +288,10 @@ export const useUpdateExam = () => {
   const qc = useQueryClient()
   return useMutation({
     mutationFn: ({ id, body }) => put(`/exams/${id}`, body),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['exams'] }),
+    onSuccess: (_, { id }) => {
+      qc.invalidateQueries({ queryKey: ['exams'] })
+      qc.invalidateQueries({ queryKey: qk.exam(id) })
+    },
   })
 }
 
@@ -292,7 +299,10 @@ export const useDeleteExam = () => {
   const qc = useQueryClient()
   return useMutation({
     mutationFn: (id) => del(`/exams/${id}`),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['exams'] }),
+    onSuccess: (_, id) => {
+      qc.invalidateQueries({ queryKey: ['exams'] })
+      qc.removeQueries({ queryKey: qk.exam(id) })
+    },
   })
 }
 
@@ -320,7 +330,7 @@ export const useSubmitPractice = () => {
       if (submissionLink) form.append('submissionLink', submissionLink)
       if (submissionComment) form.append('submissionComment', submissionComment)
       if (file) form.append('practiceFile', file)
-      return api.post('/practice/submit', form).then((r) => r.data)
+      return api.post('/practice/submit', form, { timeout: UPLOAD_TIMEOUT }).then((r) => r.data)
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['practiceTasks'] })

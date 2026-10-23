@@ -1,8 +1,10 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, Suspense } from 'react'
 import { NavLink, Outlet, useLocation, useNavigate, Link } from 'react-router-dom'
 import { Menu, Sun, Moon, Bell, LogOut, User, ChevronDown, Coins } from 'lucide-react'
 import Logo from './Logo'
 import Avatar from '../ui/Avatar'
+import { PageLoader } from '../ui/Spinner'
+import ErrorBoundary from '../ErrorBoundary'
 import { navForRole } from './navConfig'
 import { useAuth } from '../../context/AuthContext'
 import { useTheme } from '../../context/ThemeContext'
@@ -144,7 +146,12 @@ export default function AppShell() {
         </header>
 
         <main className="app-content">
-          <Outlet />
+          {/* Sahifa xatosi yoki chunk yuklanmasa — sidebar va topbar saqlanib qoladi */}
+          <ErrorBoundary resetKey={location.pathname}>
+            <Suspense fallback={<PageLoader />}>
+              <Outlet />
+            </Suspense>
+          </ErrorBoundary>
         </main>
       </div>
     </div>

@@ -51,7 +51,6 @@ function PodiumCard({ row, place, me }) {
         style={{ margin: '0 auto 10px' }}
       />
       <div style={{ fontWeight: 700, fontSize: first ? '1.05rem' : '.95rem' }}>{student.name || '—'}</div>
-      <div className="text-muted" style={{ fontSize: '.78rem', wordBreak: 'break-word' }}>{student.email}</div>
       <span className="badge" style={{ marginTop: 10, background: m.color, color: '#fff', border: 'none' }}>
         {m.label}
       </span>
@@ -153,7 +152,6 @@ export default function Leaderboard() {
                               {student.name || '—'}
                               {mine && <span className="badge badge-brand" style={{ marginLeft: 8 }}>Siz</span>}
                             </div>
-                            <div className="text-muted" style={{ fontSize: '.76rem', wordBreak: 'break-word' }}>{student.email}</div>
                           </div>
                         </div>
                       </td>

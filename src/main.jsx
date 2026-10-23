@@ -13,7 +13,14 @@ import { queryClient } from './lib/queryClient'
 import { ThemeProvider } from './context/ThemeContext'
 import { ToastProvider } from './context/ToastContext'
 import { AuthProvider } from './context/AuthContext'
+import { reloadOnce } from './components/ErrorBoundary'
 import App from './App'
+
+// Yangi deploydan keyin eski chunk / CSS topilmasa — sahifani bir marta qayta yuklaymiz
+// (yaqinda yuklangan bo'lsa, xato ErrorBoundary'ga o'tadi)
+window.addEventListener('vite:preloadError', (event) => {
+  if (reloadOnce()) event.preventDefault()
+})
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>

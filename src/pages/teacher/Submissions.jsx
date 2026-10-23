@@ -1,12 +1,13 @@
 import { useState } from 'react'
-import { FileCheck2, ExternalLink, ClipboardCheck, Coins, Star, MessageSquare } from 'lucide-react'
+import { FileCheck2, Eye, ClipboardCheck, Coins, Star, MessageSquare } from 'lucide-react'
 import PageHeader from '../../components/PageHeader'
 import { RowsSkeleton } from '../../components/Skeletons'
+import FileViewer from '../../components/FileViewer'
 import { Button, Modal, EmptyState, Avatar } from '../../components/ui'
 import { useTeacherSubmissions, useReviewSubmission } from '../../hooks/useApi'
 import { useToast } from '../../context/ToastContext'
 import { formatDateTime } from '../../lib/utils'
-import { fileUrl } from '../../lib/api'
+import { submissionFileEndpoint } from '../../lib/files'
 
 const TABS = [
   { key: 'pending', label: 'Tekshirilmagan' },
@@ -32,6 +33,7 @@ export default function Submissions() {
   const [selected, setSelected] = useState(null)
   const [form, setForm] = useState(EMPTY_FORM)
   const [action, setAction] = useState(null)
+  const [viewing, setViewing] = useState(null)
 
   const active = tab === 'pending' ? pending : all
   const list = active.data || []
@@ -142,14 +144,14 @@ export default function Submissions() {
                       )}
                     </td>
                     <td><span className={`badge ${st.cls}`}>{st.label}</span></td>
-                    <td className="text-muted" style={{ whiteSpace: 'nowrap' }}>{formatDateTime(s.createdAt)}</td>
+                    <td className="text-muted" style={{ whiteSpace: 'nowrap' }}>{formatDateTime(s.submittedAt || s.createdAt)}</td>
                     <td>{s.grade != null ? <b>{s.grade}/100</b> : '—'}</td>
                     <td>
                       <div className="row gap-2 wrap" style={{ justifyContent: 'flex-end' }}>
                         {s.submissionUrl && (
-                          <a className="btn btn-ghost btn-sm" href={fileUrl(s.submissionUrl)} target="_blank" rel="noreferrer">
-                            <ExternalLink /> Ko'rish
-                          </a>
+                          <Button variant="ghost" size="sm" onClick={() => setViewing(s)}>
+                            <Eye /> Ko'rish
+                          </Button>
                         )}
                         {canReview && (
                           <Button variant="primary" size="sm" onClick={() => openReview(s)}>
@@ -192,9 +194,9 @@ export default function Submissions() {
                 </div>
               </div>
               {selected.submissionUrl && (
-                <a className="btn btn-secondary btn-sm" href={fileUrl(selected.submissionUrl)} target="_blank" rel="noreferrer">
-                  <ExternalLink /> Yuborilgan faylni ochish
-                </a>
+                <Button variant="secondary" size="sm" onClick={() => setViewing(selected)}>
+                  <Eye /> Yuborilgan faylni ochish
+                </Button>
               )}
               {selected.submissionComment && (
                 <div className="row gap-2" style={{ alignItems: 'flex-start' }}>
@@ -244,6 +246,14 @@ export default function Submissions() {
           </div>
         )}
       </Modal>
+
+      <FileViewer
+        open={!!viewing}
+        onClose={() => setViewing(null)}
+        endpoint={viewing ? submissionFileEndpoint(viewing._id) : null}
+        fileName={viewing?.submissionFileName || viewing?.submissionUrl?.split('/').pop()}
+        title={viewing ? `${viewing.user?.name || "O'quvchi"} — ${viewing.lesson?.title || 'topshiriq'}` : ''}
+      />
     </div>
   )
 }

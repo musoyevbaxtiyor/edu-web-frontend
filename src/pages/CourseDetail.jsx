@@ -13,7 +13,7 @@ import { formatPrice } from '../lib/utils'
 
 export default function CourseDetail() {
   const { id } = useParams()
-  const { role } = useAuth()
+  const { role, user } = useAuth()
   const toast = useToast()
   const navigate = useNavigate()
   const { data: course, isLoading } = useCourse(id)
@@ -22,8 +22,11 @@ export default function CourseDetail() {
   const [enrolling, setEnrolling] = useState(false)
 
   const isEnrolled = useMemo(() => (myCourses || []).some((c) => c._id === id), [myCourses, id])
-  const canViewLessons = isEnrolled || role === 'teacher' || role === 'admin'
-  const { data: lessons } = useLessons(canViewLessons ? id : null)
+  // Darslar: admin, kurs muallifi yoki yozilgan o'quvchi (backend ham shunday tekshiradi)
+  const teacherId = course?.teacher?._id || course?.teacher
+  const isOwner = role === 'teacher' && !!teacherId && String(teacherId) === String(user?._id || user?.id)
+  const canViewLessons = isEnrolled || isOwner || role === 'admin'
+  const { data: lessons, error: lessonsError } = useLessons(canViewLessons ? id : null)
 
   if (isLoading) return <PageLoader />
   if (!course) return <EmptyState icon={BookOpen} title="Kurs topilmadi" action={<Link to="/courses" className="btn btn-primary">Katalogga qaytish</Link>} />
@@ -78,10 +81,14 @@ export default function CourseDetail() {
                 <GraduationCap /> Kursga yozilish {course.price > 0 && `— ${formatPrice(course.price)}`}
               </Button>
             )
-          ) : (
+          ) : canViewLessons ? (
             <Button size="lg" onClick={() => navigate(`/learn/${course._id}`)}>
               <PlayCircle /> Darslarni ko'rish
             </Button>
+          ) : (
+            <span className="row gap-2 text-muted" style={{ fontSize: '.9rem' }}>
+              <Lock style={{ width: 16, height: 16 }} /> Darslar faqat kurs muallifiga ochiq
+            </span>
           )}
         </div>
       </div>
@@ -91,10 +98,16 @@ export default function CourseDetail() {
         <div className="card card-pad">
           <h2 style={{ fontSize: '1.25rem', marginBottom: 4 }}>Kurs dasturi</h2>
           <p className="text-muted" style={{ fontSize: '.9rem', marginBottom: 18 }}>
-            {canViewLessons ? 'Darslar ketma-ket ochiladi.' : "Darslar ro'yxatini ko'rish uchun kursga yoziling."}
+            {canViewLessons
+              ? 'Darslar ketma-ket ochiladi.'
+              : role === 'student'
+                ? "Darslar ro'yxatini ko'rish uchun kursga yoziling."
+                : "Darslar ro'yxati faqat kurs muallifi va administratorga ochiq."}
           </p>
 
-          {canViewLessons && lessons ? (
+          {canViewLessons && lessonsError && !lessons ? (
+            <div className="alert alert-warning"><Lock /> {lessonsError.message}</div>
+          ) : canViewLessons && lessons ? (
             lessons.length === 0 ? (
               <EmptyState icon={ClipboardList} title="Darslar hali qo'shilmagan" message="O'qituvchi tez orada darslar qo'shadi." />
             ) : (

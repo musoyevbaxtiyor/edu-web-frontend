@@ -23,7 +23,7 @@ export default function Register() {
   const validate = () => {
     const err = {}
     if (form.name.trim().length < 2) err.name = 'Ism kamida 2 harf'
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) err.email = "Email noto'g'ri"
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim())) err.email = "Email noto'g'ri"
     if (form.phone.replace(/\s+/g, '').length < 9) err.phone = "Telefon noto'g'ri"
     const age = parseInt(form.age)
     if (isNaN(age) || age < 14 || age > 120) err.age = '14–120 orasida'

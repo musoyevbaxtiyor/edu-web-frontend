@@ -7,6 +7,9 @@ export const SERVER_URL = BASE_URL.replace(/\/api\/?$/, '')
 
 const TOKEN_KEY = 'eduweb_token'
 
+// Sessiya tugaganda (401) AuthContext'ga yuboriladigan hodisa
+export const UNAUTHORIZED_EVENT = 'eduweb:unauthorized'
+
 export const getToken = () => localStorage.getItem(TOKEN_KEY)
 export const setToken = (t) => (t ? localStorage.setItem(TOKEN_KEY, t) : localStorage.removeItem(TOKEN_KEY))
 
@@ -25,17 +28,34 @@ api.interceptors.request.use((config) => {
 // Javob xatolarini bir xil formatga keltirish + 401 da chiqarib yuborish
 api.interceptors.response.use(
   (res) => res,
-  (error) => {
+  async (error) => {
     const status = error.response?.status
-    const serverMsg = error.response?.data?.message
+    let data = error.response?.data
+    // responseType: 'blob' so'rovlarida xato javobi ham Blob bo'lib keladi — JSON'ni o'qiymiz
+    if (typeof Blob !== 'undefined' && data instanceof Blob) {
+      try {
+        data = JSON.parse(await data.text())
+      } catch {
+        data = null
+      }
+    }
+    const serverMsg = data?.message
     let message = serverMsg
 
     if (!error.response) {
-      message = "Serverga ulanib bo'lmadi. Internet aloqasini tekshiring."
+      message =
+        error.code === 'ECONNABORTED' || error.code === 'ETIMEDOUT'
+          ? "So'rov juda uzoq davom etdi. Internet aloqasini tekshirib, qayta urinib ko'ring."
+          : "Serverga ulanib bo'lmadi. Internet aloqasini tekshiring."
     } else if (status === 401) {
-      // Token yaroqsiz — sessiyani tozalaymiz (login sahifasi hal qiladi)
-      if (!error.config?.url?.includes('/auth/login')) {
+      // Token yaroqsiz — sessiyani tozalaymiz va AuthContext'ga xabar beramiz.
+      // Oldingi sessiya (boshqa token yoki tokensiz) bilan ketgan kechikkan so'rov yangi sessiyani buzmasin.
+      const sent = String(error.config?.headers?.Authorization || '').replace(/^Bearer /, '')
+      const current = getToken()
+      const stale = !!current && sent !== current
+      if (!error.config?.url?.includes('/auth/login') && !stale) {
         setToken(null)
+        window.dispatchEvent(new Event(UNAUTHORIZED_EVENT))
       }
       message = message || 'Sessiya tugadi. Iltimos, qaytadan kiring.'
     } else if (status === 403) {
@@ -44,7 +64,9 @@ api.interceptors.response.use(
       message = message || 'Serverda xatolik yuz berdi. Birozdan so\'ng urinib ko\'ring.'
     }
 
-    return Promise.reject(new Error(message || 'Kutilmagan xatolik yuz berdi.'))
+    const err = new Error(message || 'Kutilmagan xatolik yuz berdi.')
+    err.status = status // 401 / 403 / 5xx ni ajratish uchun (javobsiz xatoda undefined)
+    return Promise.reject(err)
   },
 )
 

@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useRef } from 'react'
+import { useState, useEffect, useMemo, useRef, Suspense, lazy } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import {
   ArrowLeft, PlayCircle, Lock, CheckCircle2, FileText, Download, Upload,
@@ -10,8 +10,11 @@ import { useCourse, useLessons, useStartLesson, useMySubmission, useSubmitTask }
 import { useAuth } from '../context/AuthContext'
 import { useToast } from '../context/ToastContext'
 import { toEmbedUrl } from '../lib/utils'
-import { fileUrl } from '../lib/api'
+import { submissionFileEndpoint, baseName } from '../lib/files'
 import './lesson.css'
+
+// Fayl ko'rish oynasi (JSZip bilan) faqat ochilganda yuklanadi
+const FileViewer = lazy(() => import('../components/FileViewer'))
 
 const STATUS_BADGE = {
   approved: { cls: 'badge-success', label: 'Tasdiqlangan', icon: CheckCircle2 },
@@ -28,6 +31,7 @@ function SubmissionPanel({ lesson, courseId }) {
   const [file, setFile] = useState(null)
   const [comment, setComment] = useState('')
   const [drag, setDrag] = useState(false)
+  const [viewing, setViewing] = useState(false)
   const inputRef = useRef(null)
 
   const status = submission?.status
@@ -67,9 +71,10 @@ function SubmissionPanel({ lesson, courseId }) {
           <div>
             <div style={{ fontWeight: 600 }}>Oxirgi topshiriq yuborilgan</div>
             {submission.submissionUrl && (
-              <a href={fileUrl(submission.submissionUrl)} target="_blank" rel="noreferrer" style={{ color: 'var(--brand-600)', fontWeight: 600, fontSize: '.85rem' }}>
+              <button type="button" onClick={() => setViewing(true)}
+                style={{ background: 'none', border: 0, padding: 0, cursor: 'pointer', color: 'var(--brand-600)', fontWeight: 600, fontSize: '.85rem' }}>
                 Yuborilgan faylni ko'rish
-              </a>
+              </button>
             )}
             {submission.status === 'approved' && submission.grade != null && (
               <div style={{ fontSize: '.85rem', marginTop: 4 }}>Baho: <b>{submission.grade}/100</b>{submission.coins ? ` · +${submission.coins} coin` : ''}</div>
@@ -88,7 +93,7 @@ function SubmissionPanel({ lesson, courseId }) {
       ) : (
         <div className="stack gap-3">
           {status === 'rejected' && <div className="alert alert-danger"><X /> Vazifa rad etildi. Iltimos, tuzatib qayta topshiring.</div>}
-          <input ref={inputRef} type="file" hidden onChange={(e) => onFile(e.target.files[0])}
+          <input ref={inputRef} type="file" hidden onChange={(e) => { onFile(e.target.files[0]); e.target.value = '' }}
             accept=".jpg,.jpeg,.png,.pdf,.zip,.rar,.docx,.txt" />
           <div
             className={`dropzone ${drag ? 'drag' : ''} ${file ? 'has-file' : ''}`}
@@ -118,6 +123,19 @@ function SubmissionPanel({ lesson, courseId }) {
           <Button onClick={onSubmit} loading={submit.isPending} disabled={!file}><Send /> Vazifani topshirish</Button>
         </div>
       )}
+
+      {/* O'quvchi o'z faylini token bilan himoyalangan endpoint orqali ko'radi */}
+      {viewing && submission?.submissionUrl && (
+        <Suspense fallback={null}>
+          <FileViewer
+            open
+            onClose={() => setViewing(false)}
+            endpoint={submissionFileEndpoint(submission._id)}
+            fileName={submission.submissionFileName || baseName(submission.submissionUrl)}
+            title="Yuborilgan fayl"
+          />
+        </Suspense>
+      )}
     </div>
   )
 }
@@ -126,7 +144,7 @@ export default function LessonView() {
   const { courseId } = useParams()
   const { role } = useAuth()
   const { data: course } = useCourse(courseId)
-  const { data: lessons, isLoading } = useLessons(courseId)
+  const { data: lessons, isLoading, error: lessonsError } = useLessons(courseId)
   const startLesson = useStartLesson()
   const [activeId, setActiveId] = useState(null)
   const startedRef = useRef(new Set())
@@ -160,7 +178,11 @@ export default function LessonView() {
         </div>
       </div>
 
-      {!lessons?.length ? (
+      {lessonsError && !lessons ? (
+        // Masalan, 403: kursga yozilmagan yoki boshqa o'qituvchining kursi (keshdagi darslar bo'lsa — ular ko'rsatiladi)
+        <EmptyState icon={Lock} title="Darslarni ko'rib bo'lmadi" message={lessonsError.message}
+          action={<Link to="/courses" className="btn btn-primary">Katalogga qaytish</Link>} />
+      ) : !lessons?.length ? (
         <EmptyState icon={BookOpen} title="Darslar hali qo'shilmagan" message="O'qituvchi tez orada darslar qo'shadi." />
       ) : (
         <div className="lv">
@@ -241,7 +263,7 @@ export default function LessonView() {
 
                 {/* Submission (faqat student) */}
                 {role === 'student' && active.taskDescription && (
-                  <SubmissionPanel lesson={active} courseId={courseId} />
+                  <SubmissionPanel key={active._id} lesson={active} courseId={courseId} />
                 )}
               </>
             )}

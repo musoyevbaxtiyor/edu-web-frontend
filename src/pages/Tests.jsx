@@ -33,7 +33,7 @@ export default function Tests() {
   // Quiz modal holati
   const [active, setActive] = useState(null) // joriy test obyekti
   const [selected, setSelected] = useState(null) // tanlangan variant indeksi
-  const [result, setResult] = useState(null) // { isCorrect, correctAnswer, explanation, score }
+  const [result, setResult] = useState(null) // { isCorrect, correctAnswer, explanation, score, firstAttempt } — /check javobi
 
   const categories = useMemo(() => {
     const set = new Set()
@@ -67,7 +67,8 @@ export default function Tests() {
       setResult(res)
       setSolved((prev) => new Set(prev).add(active._id))
       if (res.isCorrect) {
-        toast.success(`To'g'ri javob! +${res.score ?? 0} ball`)
+        // Ball faqat birinchi urinish uchun beriladi
+        toast.success(res.firstAttempt === false ? "To'g'ri javob! (qayta urinish — ball berilmaydi)" : `To'g'ri javob! +${res.score ?? 0} ball`)
       } else {
         toast.error("Noto'g'ri javob. Izohni o'qib chiqing.")
       }
@@ -134,7 +135,7 @@ export default function Tests() {
       ) : (
         <div className="grid-cards">
           {list.map((test) => {
-            const isSolved = solved.has(test._id)
+            const isSolved = solved.has(test._id) || !!test.myResult
             return (
               <div key={test._id} className="card card-pad card-hover stack gap-3" style={{ height: '100%' }}>
                 <div className="between wrap gap-2">
@@ -198,6 +199,13 @@ export default function Tests() {
               {active.category && <span className="badge badge-info">{active.category}</span>}
             </div>
 
+            {!result && (active.myResult || solved.has(active._id)) && (
+              <div className="alert alert-info" style={{ borderRadius: 'var(--r-md, 12px)' }}>
+                <HelpCircle />
+                <div className="grow">Bu testga avval javob bergansiz. Ball faqat birinchi urinish uchun hisoblanadi.</div>
+              </div>
+            )}
+
             <div className="row gap-2" style={{ alignItems: 'flex-start' }}>
               <HelpCircle style={{ width: 20, height: 20, flexShrink: 0, color: 'var(--brand-500)', marginTop: 2 }} />
               <p style={{ fontWeight: 600, fontSize: '1.05rem', lineHeight: 1.5 }}>{active.question}</p>
@@ -257,22 +265,25 @@ export default function Tests() {
                   {result.isCorrect ? <CheckCircle2 /> : <XCircle />}
                   <div className="grow">
                     <b>{result.isCorrect ? "To'g'ri javob!" : "Noto'g'ri javob"}</b>
-                    {typeof result.score === 'number' && result.isCorrect && (
+                    {typeof result.score === 'number' && result.isCorrect && result.score > 0 && (
                       <span className="row gap-1" style={{ display: 'inline-flex', marginLeft: 8 }}>
                         <Award style={{ width: 15, height: 15 }} /> +{result.score} ball
                       </span>
                     )}
+                    {result.firstAttempt === false && (
+                      <div style={{ fontSize: '.85rem', marginTop: 2 }}>Qayta urinish — natija va ball o'zgarmaydi.</div>
+                    )}
                   </div>
                 </div>
 
-                {(result.explanation || active.explanation) && (
+                {result.explanation && (
                   <div className="card card-pad" style={{ background: 'var(--surface-2)' }}>
                     <div className="row gap-2" style={{ alignItems: 'flex-start' }}>
                       <Lightbulb style={{ width: 18, height: 18, flexShrink: 0, color: 'var(--warning, #f59e0b)', marginTop: 2 }} />
                       <div>
                         <div style={{ fontWeight: 700, marginBottom: 4 }}>Izoh</div>
                         <p className="text-secondary" style={{ fontSize: '.9rem', lineHeight: 1.6 }}>
-                          {result.explanation || active.explanation}
+                          {result.explanation}
                         </p>
                       </div>
                     </div>

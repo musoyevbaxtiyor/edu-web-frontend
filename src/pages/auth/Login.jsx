@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
-import { Mail, Lock, Eye, EyeOff, ArrowRight } from 'lucide-react'
+import { Mail, Lock, Eye, EyeOff, ArrowRight, Info } from 'lucide-react'
 import Button from '../../components/ui/Button'
 import AuthAside from './AuthAside'
 import { useAuth } from '../../context/AuthContext'
@@ -8,7 +8,7 @@ import { useToast } from '../../context/ToastContext'
 import './auth.css'
 
 export default function Login() {
-  const { login } = useAuth()
+  const { login, sessionExpired } = useAuth()
   const toast = useToast()
   const navigate = useNavigate()
   const location = useLocation()
@@ -22,7 +22,8 @@ export default function Login() {
     e.preventDefault()
     setLoading(true)
     try {
-      const user = await login(form.email.trim(), form.password)
+      // Email ro'yxatdan o'tishdagidek kichik harflarda yuboriladi
+      const user = await login(form.email.trim().toLowerCase(), form.password)
       toast.success(`Xush kelibsiz, ${user?.name || ''}!`)
       navigate(location.state?.from || '/dashboard', { replace: true })
     } catch (err) {
@@ -41,6 +42,13 @@ export default function Login() {
             <h1>Tizimga kirish</h1>
             <p>Hisobingizga kirib, o'qishni davom ettiring.</p>
           </div>
+
+          {sessionExpired && (
+            <div className="alert alert-info" style={{ marginBottom: 16 }}>
+              <Info />
+              <div>Sessiyangiz tugadi. Iltimos, qaytadan kiring.</div>
+            </div>
+          )}
 
           <form className="auth-form" onSubmit={submit}>
             <div className="field">

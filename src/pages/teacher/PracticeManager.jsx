@@ -5,6 +5,7 @@ import {
 } from 'lucide-react'
 import PageHeader from '../../components/PageHeader'
 import { RowsSkeleton } from '../../components/Skeletons'
+import FileViewer from '../../components/FileViewer'
 import { Button, Modal, EmptyState, ConfirmDialog, Avatar } from '../../components/ui'
 import {
   usePracticeManageTasks, useCreatePracticeTask, useUpdatePracticeTask, useDeletePracticeTask,
@@ -14,12 +15,15 @@ import { useToast } from '../../context/ToastContext'
 import {
   PRACTICE_CATEGORIES, PRACTICE_CATEGORY_KEYS, PRACTICE_LEVELS, formatDateTime,
 } from '../../lib/utils'
-import { fileUrl } from '../../lib/api'
+import { practiceFileEndpoint } from '../../lib/files'
 
 const TABS = [
   { key: 'tasks', label: 'Tasklar' },
   { key: 'submissions', label: 'Topshiriqlar' },
 ]
+
+// O'quvchi yuborgan havola faqat http(s) bo'lsa ochiladi (javascript: va h.k. emas)
+const isHttpUrl = (url) => /^https?:\/\//i.test(url || '')
 
 const BLANK = () => ({ title: '', description: '', resourceUrl: '', category: 'html', level: 'easy', order: '', isActive: true })
 
@@ -215,6 +219,7 @@ function SubmissionsPanel() {
   const [selected, setSelected] = useState(null)
   const [form, setForm] = useState({ grade: '', feedback: '' })
   const [action, setAction] = useState(null)
+  const [viewing, setViewing] = useState(null)
 
   const active = tab === 'pending' ? pending : all
   const list = active.data || []
@@ -297,15 +302,15 @@ function SubmissionsPanel() {
                       </div>
                     </td>
                     <td><span className={`badge ${st.cls}`}>{st.label}</span></td>
-                    <td className="text-muted" style={{ whiteSpace: 'nowrap' }}>{formatDateTime(s.createdAt)}</td>
+                    <td className="text-muted" style={{ whiteSpace: 'nowrap' }}>{formatDateTime(s.submittedAt || s.createdAt)}</td>
                     <td>{s.grade != null ? <b>{s.grade}/100</b> : '—'}</td>
                     <td>
                       <div className="row gap-2 wrap" style={{ justifyContent: 'flex-end' }}>
-                        {s.submissionLink && (
+                        {isHttpUrl(s.submissionLink) && (
                           <a className="btn btn-ghost btn-sm" href={s.submissionLink} target="_blank" rel="noreferrer"><Link2 /> Havola</a>
                         )}
                         {s.submissionFile && (
-                          <a className="btn btn-ghost btn-sm" href={fileUrl(s.submissionFile)} target="_blank" rel="noreferrer"><Paperclip /> Fayl</a>
+                          <Button variant="ghost" size="sm" onClick={() => setViewing(s)}><Paperclip /> Fayl</Button>
                         )}
                         {canReview && (
                           <Button variant="primary" size="sm" onClick={() => openReview(s)}><ClipboardCheck /> Baholash</Button>
@@ -338,11 +343,11 @@ function SubmissionsPanel() {
                 </div>
               </div>
               <div className="row gap-2 wrap">
-                {selected.submissionLink && (
+                {isHttpUrl(selected.submissionLink) && (
                   <a className="btn btn-secondary btn-sm" href={selected.submissionLink} target="_blank" rel="noreferrer"><ExternalLink /> Havolani ochish</a>
                 )}
                 {selected.submissionFile && (
-                  <a className="btn btn-secondary btn-sm" href={fileUrl(selected.submissionFile)} target="_blank" rel="noreferrer"><Paperclip /> Faylni ochish</a>
+                  <Button variant="secondary" size="sm" onClick={() => setViewing(selected)}><Paperclip /> Faylni ochish</Button>
                 )}
               </div>
               {selected.submissionComment && (
@@ -364,6 +369,14 @@ function SubmissionsPanel() {
           </div>
         )}
       </Modal>
+
+      <FileViewer
+        open={!!viewing}
+        onClose={() => setViewing(null)}
+        endpoint={viewing ? practiceFileEndpoint(viewing._id) : null}
+        fileName={viewing?.submissionFileName || viewing?.submissionFile?.split('/').pop()}
+        title={viewing ? `${viewing.student?.name || "O'quvchi"} — ${viewing.task?.title || 'amaliy task'}` : ''}
+      />
     </div>
   )
 }

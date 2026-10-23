@@ -121,8 +121,16 @@ function ExamResult({ exam, result, onRetry, onExit }) {
       {/* Review */}
       <div className="stack gap-4" style={{ maxWidth: 780, margin: '0 auto' }}>
         <h3 style={{ fontSize: '1.15rem' }}>Javoblar tahlili</h3>
+        {exam.questions.some((q) => q.correctAnswer == null) && (
+          <p className="text-muted" style={{ fontSize: '.86rem', marginTop: -8 }}>
+            To'g'ri javoblar ko'rsatilmaydi — xato belgilangan savollarni qayta ko'rib chiqing va yana urinib ko'ring.
+          </p>
+        )}
         {exam.questions.map((q, i) => {
           const r = result.review[i] || {}
+          // Talabaga javob kaliti yuborilmaydi; egasi/admin uchun u imtihonning o'zida bor
+          const correctIdx = r.correctAnswer ?? q.correctAnswer
+          const explanation = r.explanation || q.explanation
           return (
             <div key={q._id || i} className="card card-pad">
               <div className="row gap-2" style={{ alignItems: 'flex-start', marginBottom: 10 }}>
@@ -132,10 +140,14 @@ function ExamResult({ exam, result, onRetry, onExit }) {
                 <p style={{ fontWeight: 600 }}>{i + 1}. {q.question}</p>
               </div>
               {q.code && <pre className="exam-q-code">{q.code}</pre>}
+              {r.yourAnswer == null || r.yourAnswer < 0 ? (
+                <p className="text-muted" style={{ fontSize: '.84rem', marginBottom: 8 }}>Javob berilmagan</p>
+              ) : null}
               <div className="stack gap-2">
                 {q.options.map((opt, oi) => {
-                  const isCorrect = oi === r.correctAnswer
                   const isYours = oi === r.yourAnswer
+                  // Kalit noma'lum bo'lsa, faqat o'z javobingiz to'g'ri/noto'g'ri ekani ko'rsatiladi
+                  const isCorrect = correctIdx != null ? oi === correctIdx : isYours && !!r.isCorrect
                   const cls = isCorrect ? 'correct' : isYours ? 'wrong' : ''
                   return (
                     <div key={oi} className={`exam-opt ${cls}`} style={{ cursor: 'default' }}>
@@ -147,10 +159,10 @@ function ExamResult({ exam, result, onRetry, onExit }) {
                   )
                 })}
               </div>
-              {q.explanation && (
+              {explanation && (
                 <div className="alert alert-info" style={{ marginTop: 12 }}>
                   <Lightbulb />
-                  <div><b>Izoh:</b> {q.explanation}</div>
+                  <div><b>Izoh:</b> {explanation}</div>
                 </div>
               )}
             </div>

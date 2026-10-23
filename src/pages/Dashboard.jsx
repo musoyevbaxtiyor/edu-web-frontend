@@ -259,6 +259,7 @@ function TeacherDashboard({ user }) {
 function AdminDashboard({ user }) {
   const { data: users, isLoading } = useAllUsers()
   const { data: courses } = useCourses()
+  const { data: pending } = useTeacherSubmissions('pending')
   const students = users?.filter((u) => u.role === 'student').length ?? 0
   const teachers = users?.filter((u) => u.role === 'teacher').length ?? 0
 
@@ -278,7 +279,7 @@ function AdminDashboard({ user }) {
         <QuickAction to="/admin/users" icon={Users} title="Foydalanuvchilar" desc="Ro'yxat, rollar va parollar" tone="var(--grad-brand)" />
         <QuickAction to="/admin/courses" icon={Layers} title="Barcha kurslar" desc="Kurslarni kuzatish va boshqarish" tone="var(--grad-mint)" />
         <QuickAction to="/admin/analytics" icon={TrendingUp} title="Analitika" desc="Statistika va grafiklar" tone="linear-gradient(135deg,#3b82f6,#6366f1)" />
-        <QuickAction to="/teach/submissions" icon={FileCheck2} title="Topshiriqlar" desc="Barcha topshiriqlarni ko'rish" tone="var(--grad-sunset)" />
+        <QuickAction to="/teach/submissions" icon={FileCheck2} title="Topshiriqlar" desc={`${pending?.length ?? 0} ta vazifa tekshirishni kutmoqda`} tone="var(--grad-sunset)" />
       </div>
     </div>
   )

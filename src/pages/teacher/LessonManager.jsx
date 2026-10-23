@@ -48,7 +48,9 @@ export default function LessonManager() {
 
   const openCreate = () => {
     setEditing(null)
-    setForm({ ...EMPTY, order: String((lessons?.length || 0) + 1) })
+    // Keyingi bo'sh raqam: eng katta tartib + 1 (o'rtadagi dars o'chirilgan bo'lsa ham to'qnashmaydi)
+    const maxOrder = Math.max(0, ...(lessons || []).map((l) => Math.floor(Number(l.order) || 0)))
+    setForm({ ...EMPTY, order: String(maxOrder + 1) })
     setModalOpen(true)
   }
 

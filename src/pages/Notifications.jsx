@@ -21,6 +21,9 @@ const FILTERS = [
   { key: 'rejected', label: 'Rad etilgan' },
 ]
 
+// O'qituvchi / admin uchun: amaliy task topshiriqlari alohida sahifada tekshiriladi
+const reviewLink = (n) => (n.type === 'practice' ? '/teach/practice' : '/teach/submissions')
+
 function NotificationRow({ n, linkTo }) {
   const meta = STATUS_META[n.status] || STATUS_META.submitted
   const Icon = meta.icon
@@ -118,7 +121,7 @@ export default function Notifications() {
       ) : (
         <div className="stack gap-3">
           {list.map((n) => (
-            <NotificationRow key={n.id} n={n} linkTo={isTeaching ? '/teach/submissions' : null} />
+            <NotificationRow key={n.id} n={n} linkTo={isTeaching ? reviewLink(n) : null} />
           ))}
         </div>
       )}

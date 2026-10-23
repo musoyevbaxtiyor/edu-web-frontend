@@ -1,7 +1,8 @@
 import { Suspense, lazy } from 'react'
-import { Routes, Route, Navigate } from 'react-router-dom'
+import { Routes, Route, Navigate, useLocation } from 'react-router-dom'
 import { ProtectedRoute, RoleRoute, PublicOnly } from './components/layout/guards'
 import AppShell from './components/layout/AppShell'
+import ErrorBoundary from './components/ErrorBoundary'
 import { PageLoader } from './components/ui/Spinner'
 
 const Landing = lazy(() => import('./pages/Landing'))
@@ -32,45 +33,49 @@ const NotFound = lazy(() => import('./pages/NotFound'))
 const T = ['teacher', 'admin']
 
 export default function App() {
+  const location = useLocation()
   return (
-    <Suspense fallback={<PageLoader />}>
-      <Routes>
-        {/* Ochiq sahifalar */}
-        <Route path="/" element={<Landing />} />
-        <Route path="/login" element={<PublicOnly><Login /></PublicOnly>} />
-        <Route path="/register" element={<PublicOnly><Register /></PublicOnly>} />
+    // Chunk yuklanmasa (yangi deploy) yoki sahifada xatolik bo'lsa — oq ekran o'rniga xabar
+    <ErrorBoundary resetKey={location.pathname}>
+      <Suspense fallback={<PageLoader />}>
+        <Routes>
+          {/* Ochiq sahifalar */}
+          <Route path="/" element={<Landing />} />
+          <Route path="/login" element={<PublicOnly><Login /></PublicOnly>} />
+          <Route path="/register" element={<PublicOnly><Register /></PublicOnly>} />
 
-        {/* Himoyalangan (AppShell ichida) */}
-        <Route element={<ProtectedRoute><AppShell /></ProtectedRoute>}>
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/courses" element={<Courses />} />
-          <Route path="/courses/:id" element={<CourseDetail />} />
-          <Route path="/my-courses" element={<MyCourses />} />
-          <Route path="/learn/:courseId" element={<LessonView />} />
-          <Route path="/tests" element={<Tests />} />
-          <Route path="/exams" element={<Exams />} />
-          <Route path="/practice" element={<Practice />} />
-          <Route path="/leaderboard" element={<Leaderboard />} />
-          <Route path="/notifications" element={<Notifications />} />
-          <Route path="/profile" element={<Profile />} />
+          {/* Himoyalangan (AppShell ichida) */}
+          <Route element={<ProtectedRoute><AppShell /></ProtectedRoute>}>
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/courses" element={<Courses />} />
+            <Route path="/courses/:id" element={<CourseDetail />} />
+            <Route path="/my-courses" element={<MyCourses />} />
+            <Route path="/learn/:courseId" element={<LessonView />} />
+            <Route path="/tests" element={<Tests />} />
+            <Route path="/exams" element={<Exams />} />
+            <Route path="/practice" element={<Practice />} />
+            <Route path="/leaderboard" element={<Leaderboard />} />
+            <Route path="/notifications" element={<Notifications />} />
+            <Route path="/profile" element={<Profile />} />
 
-          {/* O'qituvchi / admin */}
-          <Route path="/teach/courses" element={<RoleRoute roles={T}><CourseManager /></RoleRoute>} />
-          <Route path="/teach/courses/:courseId/lessons" element={<RoleRoute roles={T}><LessonManager /></RoleRoute>} />
-          <Route path="/teach/submissions" element={<RoleRoute roles={T}><Submissions /></RoleRoute>} />
-          <Route path="/teach/tests" element={<RoleRoute roles={T}><TestManager /></RoleRoute>} />
-          <Route path="/teach/exams" element={<RoleRoute roles={T}><ExamManager /></RoleRoute>} />
-          <Route path="/teach/practice" element={<RoleRoute roles={T}><PracticeManager /></RoleRoute>} />
+            {/* O'qituvchi / admin */}
+            <Route path="/teach/courses" element={<RoleRoute roles={T}><CourseManager /></RoleRoute>} />
+            <Route path="/teach/courses/:courseId/lessons" element={<RoleRoute roles={T}><LessonManager /></RoleRoute>} />
+            <Route path="/teach/submissions" element={<RoleRoute roles={T}><Submissions /></RoleRoute>} />
+            <Route path="/teach/tests" element={<RoleRoute roles={T}><TestManager /></RoleRoute>} />
+            <Route path="/teach/exams" element={<RoleRoute roles={T}><ExamManager /></RoleRoute>} />
+            <Route path="/teach/practice" element={<RoleRoute roles={T}><PracticeManager /></RoleRoute>} />
 
-          {/* Admin */}
-          <Route path="/admin/users" element={<RoleRoute roles={['admin']}><AdminUsers /></RoleRoute>} />
-          <Route path="/admin/courses" element={<RoleRoute roles={['admin']}><AdminCourses /></RoleRoute>} />
-          <Route path="/admin/analytics" element={<RoleRoute roles={['admin']}><Analytics /></RoleRoute>} />
-        </Route>
+            {/* Admin */}
+            <Route path="/admin/users" element={<RoleRoute roles={['admin']}><AdminUsers /></RoleRoute>} />
+            <Route path="/admin/courses" element={<RoleRoute roles={['admin']}><AdminCourses /></RoleRoute>} />
+            <Route path="/admin/analytics" element={<RoleRoute roles={['admin']}><Analytics /></RoleRoute>} />
+          </Route>
 
-        <Route path="/404" element={<NotFound />} />
-        <Route path="*" element={<Navigate to="/404" replace />} />
-      </Routes>
-    </Suspense>
+          <Route path="/404" element={<NotFound />} />
+          <Route path="*" element={<Navigate to="/404" replace />} />
+        </Routes>
+      </Suspense>
+    </ErrorBoundary>
   )
 }
